@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<!-- GNB, 본문 정렬 기준선인 1440px 가로폭 고정 및 페이지 전환 시 흔들림 방지 뷰포트 선언 -->
+<meta name="viewport" content="width=1440">
+<title>페이지 제목 — 국립국어원</title>
+
+<!-- 파비콘 및 폰트 아이콘 설정 -->
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+
+<!-- 공통 스타일시트 로드 (scrollbar-gutter: stable 및 기본 Pretendard 폰트 내장) -->
+<link rel="stylesheet" href="./styles.css">
+
+<!-- 공통 GNB 및 Footer 동적 로더 스크립트 (defer 선언 필수) -->
+<script src="./gnb.js" defer></script>
+<script src="./footer.js" defer></script>
+
+<style>
+  /* 해당 페이지 전용 개별 커스텀 스타일이 필요할 때만 작성합니다. */
+  /* GNB 관련 스타일(.topbar, .nav, .mega-menu 등)은 절대 이곳에 중복 기재하지 마세요. */
+</style>
+</head>
+<body>
+
+  <!-- 공통 GNB 헤더 영역 (gnb.js에 의해 동적으로 로드 및 렌더링됩니다) -->
+  <div id="gnb-common"></div>
+
+  <!-- 본문 컨테이너 영역 (공통 styles.css 규격을 상속받아 최대 가로폭 1440px에 맞춰집니다) -->
+  <main class="container">
+    <div style="padding: 100px 0; text-align: center;">
+      <h2 style="font-size: 32px; font-weight: 700; margin-bottom: 16px;">새로운 페이지 본문</h2>
+      <p style="color: #64748b; font-size: 16px;">이곳에 페이지의 핵심 비즈니스 로직과 본문 마크업을 자유롭게 구현하세요.</p>
+    </div>
+  </main>
+
+  <!-- 공통 Footer 영역 (footer.js에 의해 동적으로 로드 및 렌더링됩니다) -->
+  <div id="footer-common"></div>
+
+</body>
+</html>

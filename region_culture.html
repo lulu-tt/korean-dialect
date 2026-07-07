@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>사진으로 보는 생활어 — 국립국어원</title>
+
+<!-- 파비콘 및 폰트 아이콘 -->
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+
+<!-- 공통 스타일시트 -->
+<link rel="stylesheet" href="./styles.css">
+
+<!-- 공통 GNB / Footer 로더 -->
+<script src="./gnb.js" defer></script>
+<script src="./footer.js" defer></script>
+
+<style>
+html { overflow-y: scroll; } /* 세로 스크롤바 항상 표시하여 폭 변화(흔들림) 방지 */
+body {
+  font-family: 'Pretendard', 'NanumBarunGothicYetHangul', system-ui, -apple-system, sans-serif;
+  background: #ffffff !important;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden; /* 호버 시 카드 그림자가 넘쳐 가로 스크롤바가 생기는 흔들림 방지 */
+}
+.rc-wrap { width: 100%; max-width: 1440px; margin: 0 auto; padding: 0 20px; }
+
+/* ── 타이틀 영역 (서브 비주얼) ── */
+.sub-visual {
+  background: linear-gradient(180deg, #edf4ff 0%, #f8fafc 100%);
+  border-bottom: 1px solid #e2e8f0;
+  padding: 55px 0 50px;
+  text-align: center;
+  position: relative;
+  overflow: visible;
+  display: block !important;
+  height: auto !important;
+  min-height: 180px;
+}
+.sub-visual::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.03) 0%, transparent 40%); pointer-events: none; }
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 20px; position: relative; }
+.sv-title {
+  font-size: 30px;
+  font-weight: 800;
+  color: #1e3a8a;
+  letter-spacing: -0.03em;
+  margin: 0 0 16px;
+  position: relative;
+  z-index: 1;
+}
+.location-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  padding: 6px 20px;
+  border-radius: 99px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02);
+  border: 1px solid #cbd5e1;
+  position: relative;
+  z-index: 1;
+}
+.loc-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+.loc-item.home {
+  color: #3b82f6;
+  font-size: 14px;
+  cursor: pointer;
+}
+.loc-item select {
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  padding: 0 16px 0 0;
+  cursor: pointer;
+  appearance: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right center;
+  font-family: inherit;
+}
+.loc-item select:focus { outline: none; box-shadow: none; }
+.loc-sep { color: #cbd5e1; font-size: 12px; }
+
+/* ── 본문 검색창 ── */
+.rc-search { position: relative; max-width: 640px; margin: 0 auto 36px; z-index: 10; }
+.rc-search__input {
+  width: 100%; height: 56px; padding: 0 60px 0 28px; border-radius: 999px;
+  border: 1px solid #cbd5e1; background: #fff; font-size: 16px; font-weight: 600;
+  color: var(--text); box-shadow: var(--shadow); outline: none; transition: 0.25s;
+}
+.rc-search__input::placeholder { color: #94a3b8; font-weight: 500; }
+.rc-search__input:focus { border-color: var(--blue); box-shadow: var(--focus); }
+.rc-search__btn {
+  position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
+  width: 42px; height: 42px; border-radius: 50%; border: none; cursor: pointer;
+  background: var(--blue); color: #fff; font-size: 19px; display: grid; place-items: center;
+  transition: 0.2s;
+}
+.rc-search__btn:hover { background: var(--blue-hover); transform: translateY(-50%) scale(1.05); }
+
+/* ── 본문 카드 ── */
+.rc-shell {
+  position: relative; z-index: 2;
+  margin: 32px auto 60px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* ── 필터 칩 ── */
+.rc-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 22px; }
+.rc-chip {
+  padding: 9px 18px; border-radius: 999px; border: 1px solid var(--line);
+  background: #fff; color: #475569; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s;
+}
+.rc-chip:hover { border-color: #93c5fd; color: var(--blue); background: var(--blue-light); }
+.rc-chip.is-active { border-color: var(--blue); color: #fff; background: var(--blue); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+
+/* 결과 건수 */
+.rc-result { font-size: 15px; font-weight: 600; color: #334155; margin-top: 36px; letter-spacing: -0.02em; text-align: left; }
+.rc-result .rc-hl { color: var(--blue); font-weight: 800; }
+
+.rc-view { display: none; }
+.rc-view.is-active { display: block; animation: rcFade 0.35s ease; }
+@keyframes rcFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── LEVEL 1: 대분류 갤러리 (플랫 카드) ── */
+.rc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px 24px; margin-top: 20px; }
+.rc-cat {
+  position: relative;
+  cursor: pointer;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 480px; /* 카드 높이 고정하여 흔들림 방지 */
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s;
+  animation: rcPop 0.45s backwards;
+}
+.rc-cat:hover, .rc-cat.is-hover {
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+  border-color: #cbd5e1;
+}
+.rc-cat:focus-visible { outline: none; box-shadow: var(--focus), var(--shadow2); }
+
+/* 대분류 카드뉴스 히어로 이미지 배너 */
+.rc-cat__media {
+  position: relative;
+  width: 100%;
+  height: 100%; /* 호버 전 100% 가득 참 */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 24px;
+  transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  min-height: 0; /* flex item이 콘텐츠 높이 아래로 못 줄어드는 문제 방지 */
+  flex-shrink: 0;
+}
+.rc-cat:hover .rc-cat__media, .rc-cat.is-hover .rc-cat__media {
+  height: 68%; /* 호버 시 68%로 축소 */
+}
+
+/* 북마크 */
+.rc-cat__scrap {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s;
+  z-index: 10;
+}
+.rc-cat__scrap:hover {
+  background: #fff;
+  color: var(--blue);
+  transform: scale(1.08);
+}
+.rc-cat__scrap.is-on {
+  background: #fff;
+  color: var(--blue);
+}
+
+/* 썸네일 장수 뱃지 (+7) */
+.rc-cat__count-badge {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 5px 12px;
+  border-radius: 99px;
+  z-index: 10;
+}
+
+/* 대분류 이름 및 설명 (카드뉴스형 전면 텍스트) */
+.rc-cat__hero-body {
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+}
+.rc-cat__name {
+  font-family: var(--sans);
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+.rc-cat__desc {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  opacity: 0.85;
+  color: #fff;
+  margin-top: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal !important;
+}
+.rc-cat__hero-divider {
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 12px 0 8px;
+}
+.rc-cat__tags {
+  margin-top: 4px;
+  display: flex;
+  gap: 8px;
+}
+.rc-cat__tags .rc-tag {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-shadow: none;
+  font-weight: 700;
+}
+.rc-tag {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 7px 12px; border-radius: 8px; background: #f3f5f8;
+  font-size: 12px; font-weight: 700; line-height: 1;
+}
+.rc-tag > em { font-style: normal; color: rgba(255, 255, 255, 0.7); }
+.rc-tag > b {
+  font-weight: 700; color: #fff; position: relative; padding-left: 10px;
+}
+.rc-tag > b::before {
+  content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  width: 1px; height: 11px; background: rgba(255, 255, 255, 0.3);
+}
+
+/* 대분류 하단 썸네일 미리보기 영역 */
+.rc-cat__hover-area {
+  width: 100%;
+  height: 0; /* 호버 전에는 안 보임 */
+  background: #ffffff;
+  transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+  min-height: 0; /* height:0이 콘텐츠 높이에 밀려 무시되는 문제 방지 */
+  flex-shrink: 0;
+}
+.rc-cat:hover .rc-cat__hover-area, .rc-cat.is-hover .rc-cat__hover-area {
+  height: 32%; /* 호버 시 32% 영역 노출 */
+}
+.rc-cat__hover-inner {
+  padding: 16px;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.rc-cat__thumb {
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  aspect-ratio: 1;
+  background: #f1f5f9;
+}
+.rc-cat__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 3번째 썸네일 자세히 보기 오버레이 */
+.rc-cat__thumb--cta {
+  cursor: pointer;
+}
+.rc-cat__cta-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition: background 0.25s;
+}
+.rc-cat__cta-overlay span {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+.rc-cat__thumb--cta:hover .rc-cat__cta-overlay {
+  background: rgba(37, 99, 235, 0.85); /* 파란색 오버레이 */
+}
+
+/* 더보기 버튼 */
+.rc-more { display: flex; justify-content: center; margin-top: 32px; }
+.rc-more:empty { margin-top: 0; }
+.rc-morebtn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 30px; border-radius: 999px;
+  border: 1px solid var(--line); background: #fff; box-shadow: var(--shadow2);
+  color: #334155; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.2s;
+}
+.rc-morebtn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); transform: translateY(-2px); box-shadow: var(--shadow); }
+.rc-morebtn__n { font-weight: 800; color: var(--blue); font-variant-numeric: tabular-nums; }
+
+@keyframes rcPop {
+  from { opacity: 0; transform: scale(0.96) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@media (max-width: 1100px) {
+  .rc-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- 공통 GNB -->
+<div id="gnb-common"></div>
+
+<!-- 타이틀 영역 (서브 비주얼) -->
+<div class="sub-visual">
+  <div class="wrap">
+    <h1 class="sv-title">사진으로 보는 생활어</h1>
+    <div class="location-bar">
+      <div class="loc-item home" onclick="location.href='./index.html'" style="cursor:pointer;" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">
+        <select aria-label="상위 메뉴 이동" onchange="if(this.value) location.href=this.value;">
+          <option value="./region_culture.html" selected>지역어 자료관</option>
+          <option value="./dialect_search_prototype.html">지역어 검색</option>
+          <option value="./dialect_map.html">지역어 지도</option>
+          <option value="./dialect_awareness.html">지역어 현황(기상도)</option>
+        </select>
+      </div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">
+        <select aria-label="현재 페이지">
+          <option selected>사진으로 보는 생활어</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 본문 -->
+<main class="rc-wrap">
+  <div class="rc-shell">
+
+    <!-- 본문 검색창 -->
+    <div class="rc-search" id="rcSearchBox">
+      <input type="search" id="rcSearch" class="rc-search__input" placeholder="분류나 어휘를 검색해 보세요 (예: 떡, 부채, 김치)" aria-label="생활어 검색">
+      <button type="button" class="rc-search__btn" aria-label="검색"><i class="ti ti-search"></i></button>
+    </div>
+
+    <!-- LEVEL 1: 대분류 갤러리 -->
+    <section class="rc-view is-active" id="rcViewCats" aria-label="생활어 대분류">
+      <div class="rc-chips" id="rcChips"></div>
+      <p class="rc-result" id="rcCatResult"></p>
+      <div class="rc-grid" id="rcCatGrid"></div>
+      <div class="rc-more" id="rcMore"></div>
+    </section>
+
+  </div>
+</main>
+
+<!-- 공통 Footer -->
+<div id="footer-common"></div>
+
+<script>
+/* ────────────── 데이터 ────────────── */
+const IMG = './image/';
+
+const THEMES = [
+  { id: 'all',   label: '전체' },
+  { id: 'food',  label: '식생활' },
+  { id: 'craft', label: '전통 공예' },
+  { id: 'folk',  label: '민속·놀이' },
+  { id: 'work',  label: '생업·무기' },
+];
+
+const CATEGORIES = [
+  { id:'tteok',    name:'떡류',         emoji:'🍡', theme:'food',  accent:'#f43f5e', img:'200911310.jpg',   region:'전국',        desc:'집집마다, 고을마다 다르게 부르던 갖가지 떡의 이름' },
+  { id:'kimchi',   name:'김치·저장음식', emoji:'🥬', theme:'food',  accent:'#10b981', img:'200811853.jpg',   region:'전라·경상',   desc:'긴 겨울을 나기 위해 담그던 김치와 짠지의 방언' },
+  { id:'root',     name:'구황작물',      emoji:'🥔', theme:'food',  accent:'#f59e0b', img:'200911311-1.jpg', region:'제주·강원',   desc:'배고픈 시절을 견디게 해 준 감자와 그 별칭들' },
+  { id:'field',    name:'밭작물',        emoji:'🌱', theme:'food',  accent:'#06b6d4', img:'200811821.jpg',   region:'남부 지방',   desc:'밭에서 거두던 콩과 채소를 이르던 여러 이름' },
+  { id:'buchae',   name:'부채 공예',     emoji:'🪭', theme:'craft', accent:'#3b82f6', img:'200710306.jpg',   region:'전라·경상',   desc:'바람을 만들던 장인의 손끝에서 나온 부채' },
+  { id:'jangseok', name:'장석 공예',     emoji:'🔩', theme:'craft', accent:'#8b5cf6', img:'200805001-1.jpg', region:'경기·서울',   desc:'가구를 화려하게 꾸미던 금속 장식, 두석' },
+  { id:'nongak',   name:'농악기',        emoji:'🥁', theme:'folk',  accent:'#f97316', img:'200704347.jpg',   region:'경상·전라',   desc:'마을 굿과 두레를 울리던 풍물 악기의 이름' },
+  { id:'weapon',   name:'전통 무기',     emoji:'⚔️', theme:'work',  accent:'#ef4444', img:'200908015.jpg',   region:'서울·경기',   desc:'옛 칼과 검, 그 부분마다 붙은 이름들' },
+
+  // ── 추가 분류 (기존 사진을 임시로 재사용, 더보기 시연용) ──
+  { id:'jangajji', name:'장아찌·짠지',   emoji:'🥒', theme:'food',  img:'200811853.jpg',   region:'전라·충청',   desc:'오래 두고 먹으려 절이던 장아찌와 짠지의 여러 이름' },
+  { id:'namul',    name:'나물·푸성귀',   emoji:'🌿', theme:'food',  img:'200811821.jpg',   region:'강원·경상',   desc:'산과 들에서 캐어 무쳐 먹던 나물을 이르던 말' },
+  { id:'japgok',   name:'잡곡·곡물',     emoji:'🌾', theme:'food',  img:'200911311-1.jpg', region:'전국',        desc:'조·수수·기장 등 갖가지 잡곡을 부르던 이름' },
+  { id:'juk',      name:'죽과 미음',     emoji:'🥣', theme:'food',  img:'200911310.jpg',   region:'전라·제주',   desc:'곡물을 묽게 끓여 먹던 죽과 미음의 방언' },
+  { id:'guksu',    name:'국수·수제비',   emoji:'🍜', theme:'food',  img:'200911620.jpg',   region:'경상·강원',   desc:'밀가루로 만든 국수와 수제비의 지역별 이름' },
+  { id:'jeotgal',  name:'젓갈·해산물',   emoji:'🦐', theme:'food',  img:'200811853.jpg',   region:'서해·남해',   desc:'바다에서 나는 것을 삭혀 먹던 젓갈의 이름' },
+  { id:'mokgi',    name:'목기·소반',     emoji:'🪵', theme:'craft', img:'200805001-1.jpg', region:'전라·강원',   desc:'나무를 깎아 만든 그릇과 소반을 이르던 말' },
+  { id:'najeon',   name:'자개·나전',     emoji:'🐚', theme:'craft', img:'200805001-1.jpg', region:'경남·전남',   desc:'조개껍데기로 무늬를 놓은 나전 공예의 이름' },
+  { id:'seok',     name:'돗자리·화문석', emoji:'🟨', theme:'craft', img:'200710306.jpg',   region:'인천·전남',   desc:'왕골로 짠 자리와 무늬 자리를 부르던 말' },
+  { id:'munbang',  name:'붓·문방',       emoji:'🖌️', theme:'craft', img:'200710306.jpg',   region:'전북·충남',   desc:'붓과 벼루 등 글방 물건에 붙은 여러 이름' },
+  { id:'pungmul',  name:'풍물·굿',       emoji:'🎏', theme:'folk',  img:'200704347.jpg',   region:'전라·경상',   desc:'마을 굿과 풍물놀이에서 쓰이던 말' },
+  { id:'nori',     name:'놀이·세시',     emoji:'🎎', theme:'folk',  img:'200704347.jpg',   region:'전국',        desc:'명절과 절기마다 즐기던 놀이의 이름' },
+  { id:'eoro',     name:'어로·고기잡이', emoji:'🎣', theme:'work',  img:'200811821.jpg',   region:'서남 해안',   desc:'고기잡이 도구와 방법을 이르던 뱃사람의 말' },
+  { id:'sanyang',  name:'사냥·덫',       emoji:'🏹', theme:'work',  img:'200908015.jpg',   region:'강원·경북',   desc:'짐승을 잡던 덫과 사냥 연장을 부르던 이름' },
+  { id:'daejang',  name:'대장간·연장',   emoji:'🔨', theme:'work',  img:'200908015.jpg',   region:'전국',        desc:'쇠를 벼려 만든 연장과 그 지역별 이름' },
+  { id:'yeombu',   name:'소금·염전',     emoji:'🧂', theme:'work',  img:'200811821.jpg',   region:'서해안',      desc:'소금을 만들고 나르던 일과 그에 얽힌 말' },
+];
+
+const ITEMS = {
+  tteok: [
+    { word:'반데기', std:'절편', region:'경상북도 안동시', year:2009, img:'200911310.jpg' },
+    { word:'옹심이', std:'새알심', region:'강원도 강릉시', year:2009, img:'200911620.jpg' },
+    { word:'모시떡', std:'쑥떡', region:'전라남도 영광군', year:2009, img:'200911701.jpg' },
+  ],
+  kimchi: [
+    { word:'감자때짠지', std:'고구마순김치', region:'전라남도 순천시', year:2008, img:'200811853.jpg' },
+    { word:'골곰짠지', std:'무말랭이무침', region:'경상북도 경주시', year:2008, img:'200811853.jpg' },
+  ],
+  root: [
+    { word:'지슬', std:'감자', region:'제주특별자치도 서귀포시', year:2009, img:'200911311-1.jpg' },
+    { word:'감자밥', std:'감자밥', region:'강원도 정선군', year:2009, img:'200911311-1.jpg' },
+  ],
+  field: [
+    { word:'광저기', std:'동부', region:'전라남도 해남군', year:2008, img:'200811821.jpg' },
+    { word:'푸르대콩', std:'청대콩', region:'충청북도 제천시', year:2008, img:'200811821.jpg' },
+  ],
+  buchae: [
+    { word:'뀌지부채', std:'접부채', region:'전라남도 담양군', year:2007, img:'200710306.jpg' },
+    { word:'합죽선', std:'합죽선', region:'전라북도 전주시', year:2007, img:'200710306.jpg' },
+  ],
+  jangseok: [
+    { word:'두석', std:'장석', region:'경기도 안성시', year:2008, img:'200805001-1.jpg' },
+    { word:'대접쇠', std:'경첩', region:'서울특별시', year:2008, img:'200805001-1.jpg' },
+  ],
+  nongak: [
+    { word:'대고', std:'큰북', region:'경상북도 김천시', year:2007, img:'200704347.jpg' },
+    { word:'매구북', std:'풍물북', region:'전라남도 진도군', year:2007, img:'200704347.jpg' },
+  ],
+  weapon: [
+    { word:'궤혈', std:'—', region:'서울특별시', year:2009, img:'200908015.jpg' },
+    { word:'코등이', std:'날밑', region:'경기도 이천시', year:2009, img:'200908015.jpg' },
+  ],
+};
+
+function getItems(catId) {
+  if (ITEMS[catId]) return ITEMS[catId];
+  const c = CATEGORIES.find(x => x.id === catId);
+  if (!c) return [];
+  return [{ word: c.name, img: c.img, region: c.region }];
+}
+
+/* ────────────── 상태 ────────────── */
+const PAGE = 8;         // 한 번에 보여 줄 분류 수
+let shown = PAGE;       // 현재까지 노출된 분류 수
+let curTheme = 'all';
+let curSearch = '';
+
+/* ────────────── DOM ────────────── */
+const $ = (id) => document.getElementById(id);
+const catGrid = $('rcCatGrid'), chips = $('rcChips');
+
+/* ────────────── 렌더: 필터 칩 ────────────── */
+function renderChips() {
+  chips.innerHTML = THEMES.map(t =>
+    `<button type="button" class="rc-chip${t.id === curTheme ? ' is-active' : ''}" data-theme="${t.id}">${t.label}</button>`
+  ).join('');
+  chips.querySelectorAll('.rc-chip').forEach(b => {
+    b.addEventListener('click', () => { curTheme = b.dataset.theme; renderChips(); renderCategories(); });
+  });
+}
+
+/* ────────────── 렌더: LEVEL 1 대분류 ────────────── */
+function filteredCategories() {
+  const q = curSearch.trim().toLowerCase();
+  let list = CATEGORIES;
+  if (curTheme !== 'all') list = list.filter(c => c.theme === curTheme);
+  if (!q) return list;
+
+  return list.filter(c => {
+    if (c.name.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q)) return true;
+    return getItems(c.id).some(it => (it.word + (it.std || '')).toLowerCase().includes(q));
+  });
+}
+
+function catCardHTML(c, i) {
+  const items = getItems(c.id);
+  const subImgs = [];
+  items.forEach(it => {
+    if (it.img && !subImgs.includes(it.img)) subImgs.push(it.img);
+  });
+  while (subImgs.length < 3) {
+    subImgs.push(c.img);
+  }
+  const previewImgs = subImgs.slice(0, 3);
+
+  return `
+    <div class="rc-cat" role="button" tabindex="0" onclick="location.href='./region_culture_list.html?cat=${c.id}'" style="animation-delay:${(i % PAGE) * 55}ms" aria-label="${c.name} 분류 열기">
+      <!-- 상단 영역: 이미지 배경 카드뉴스형 구조 -->
+      <div class="rc-cat__media" style="background-image: linear-gradient(180deg, rgba(15, 23, 42, 0.3) 0%, rgba(15, 23, 42, 0.7) 100%), url('${IMG}${c.img}');">
+        <button type="button" class="rc-cat__scrap" aria-label="스크랩" onclick="event.stopPropagation();"><i class="ti ti-bookmark"></i></button>
+        <div class="rc-cat__count-badge">+${items.length}</div>
+        <div class="rc-cat__hero-body">
+          <div class="rc-cat__name">${c.name}</div>
+          <div class="rc-cat__desc">${c.desc}</div>
+          <div class="rc-cat__hero-divider"></div>
+          <div class="rc-cat__tags">
+            <span class="rc-tag"><em>지역</em><b>${c.region}</b></span>
+            <span class="rc-tag"><em>어휘</em><b>${items.length}개</b></span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 하단 숨겨진 호버 썸네일 미리보기 영역 -->
+      <div class="rc-cat__hover-area">
+        <div class="rc-cat__hover-inner">
+          <div class="rc-cat__thumb"><img src="${IMG}${previewImgs[0]}" alt="미리보기 1"></div>
+          <div class="rc-cat__thumb"><img src="${IMG}${previewImgs[1]}" alt="미리보기 2"></div>
+          <div class="rc-cat__thumb rc-cat__thumb--cta">
+            <img src="${IMG}${previewImgs[2]}" alt="미리보기 3">
+            <div class="rc-cat__cta-overlay">
+              <span>자세히 보기</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function bindCats() {
+  catGrid.querySelectorAll('.rc-cat:not([data-bound])').forEach(el => {
+    el.dataset.bound = '1';
+    el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); location.href = './region_culture_list.html?cat=' + el.dataset.cat; } });
+    const scrap = el.querySelector('.rc-cat__scrap');
+    scrap.addEventListener('click', e => {
+      e.stopPropagation();
+      const on = scrap.classList.toggle('is-on');
+      scrap.innerHTML = `<i class="ti ti-bookmark${on ? '-filled' : ''}"></i>`;
+    });
+  });
+}
+
+function renderCategories() {
+  const list = filteredCategories();
+  const total = list.length;
+  $('rcCatResult').innerHTML = curSearch.trim()
+    ? `검색어 <span class="rc-hl">"${curSearch}"</span> 에 대한 생활어 분류는 <b>${total}개</b>가 검색되었습니다.`
+    : `모두 <span class="rc-hl">${total}개</span>의 생활어 분류가 있어요`;
+
+  const pageList = list.slice(0, shown);
+  catGrid.innerHTML = pageList.map((c, i) => catCardHTML(c, i)).join('');
+  bindCats();
+
+  // 더보기 버튼
+  const more = $('rcMore');
+  if (shown < total) {
+    more.innerHTML = `<button type="button" class="rc-morebtn" id="rcMoreBtn">더 많은 분류 보기 <span class="rc-morebtn__n">+${total - shown}</span></button>`;
+    $('rcMoreBtn').addEventListener('click', () => { shown += PAGE; renderCategories(); });
+  } else {
+    more.innerHTML = '';
+  }
+}
+
+/* ────────────── 검색 ────────────── */
+$('rcSearch').addEventListener('input', (e) => {
+  curSearch = e.target.value;
+  renderCategories();
+});
+
+/* ────────────── 초기화 ────────────── */
+renderChips();
+renderCategories();
+</script>
+<script src="./share.js" defer></script>
+</body>
+</html>

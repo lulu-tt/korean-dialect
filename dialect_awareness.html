@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>지역어 인지도 현황 — 국립국어원</title>
+  <link rel="shortcut icon" href="./favicon.ico">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.9.0/ol.css">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./gnb.js" defer></script>
+  <script src="./footer.js" defer></script>
+  <style>
+    /* 메가메뉴 & 서브비주얼 & 로케이션바 공통 보정 스타일 */
+
+    .container { width: 100%; max-width: 1440px; margin: 0 auto; padding: 40px 20px 80px; flex: 1; box-sizing: border-box; background: #ffffff !important; }
+    body { background: #ffffff !important; }
+
+    .sub-visual { 
+      background: linear-gradient(180deg, #edf4ff 0%, #f8fafc 100%); 
+      border-bottom: 1px solid #e2e8f0; 
+      padding: 55px 0 50px; 
+      text-align: center; 
+      position: relative; 
+      overflow: visible; 
+      display: block !important;
+      height: auto !important;
+      min-height: 180px;
+    }
+    .sub-visual::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.03) 0%, transparent 40%); pointer-events: none; }
+    .sv-title { 
+      font-size: 30px; 
+      font-weight: 800; 
+      color: #1e3a8a; 
+      letter-spacing: -0.03em; 
+      margin: 0 0 16px; 
+      position: relative; 
+      z-index: 1; 
+    }
+    .location-bar { 
+      display: inline-flex; 
+      align-items: center; 
+      gap: 8px; 
+      background: #ffffff; 
+      padding: 6px 20px; 
+      border-radius: 99px; 
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02); 
+      border: 1px solid #cbd5e1; 
+      position: relative; 
+      z-index: 1; 
+    }
+    .loc-item { 
+      display: flex; 
+      align-items: center; 
+      gap: 6px; 
+      font-size: 13px; 
+      font-weight: 600; 
+      color: #475569; 
+    }
+    .loc-item.home { 
+      color: #3b82f6; 
+      font-size: 14px; 
+    }
+    .loc-item select { 
+      border: none; 
+      background: transparent; 
+      font-size: 13px; 
+      font-weight: 600; 
+      color: #334155; 
+      padding: 0 16px 0 0; 
+      cursor: pointer; 
+      appearance: none; 
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right center; 
+      font-family: inherit;
+    }
+    .loc-item select:focus { outline: none; box-shadow: none; }
+    .loc-sep { color: #cbd5e1; font-size: 12px; }
+
+    /* OpenLayers 접근성 (openlayers.org accessible example 스타일) */
+    .ol-skiplink{position:absolute;left:8px;top:8px;clip:rect(1px,1px,1px,1px);width:1px;height:1px;overflow:hidden;z-index:9999;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:10px;padding:8px 10px;box-shadow:0 4px 18px rgba(0,0,0,.12);color:#1a1a1a;text-decoration:none;font-weight:700;}
+    .ol-skiplink:focus{clip:auto;width:auto;height:auto;}
+    .vw-map:focus{outline:#4A74A8 solid 0.18em;outline-offset:-0.18em;}
+    .ol-marker{position:relative;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;user-select:none;}
+    .ol-ring{width:86px;height:86px;border-radius:999px;border:2px solid rgba(255,255,255,0.55);background:rgba(255,255,255,0.22);box-shadow:0 8px 24px rgba(0,0,0,0.12);display:flex;flex-direction:column;align-items:center;justify-content:center;backdrop-filter:blur(2px);}
+    .ol-emoji{font-size:22px;line-height:1;margin-top:-2px;}
+    .ol-pct{font-size:13px;font-weight:800;color:#111;line-height:1.1;margin-top:2px;}
+    .ol-form{font-size:11px;color:#4a6070;line-height:1.1;}
+    .ol-marker:focus-within .ol-ring{outline:#4A74A8 solid 0.18em;outline-offset:2px;}
+    .ol-bubble{position:relative;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;user-select:none;}
+    .ol-bub{border-radius:999px;box-shadow:0 10px 26px rgba(0,0,0,0.16);border:2px solid rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;}
+    .ol-bub-label{font-size:11px;color:#4a6070;font-weight:600;background:rgba(255,255,255,0.72);padding:2px 8px;border-radius:999px;border:1px solid rgba(0,0,0,0.08);backdrop-filter:blur(4px);}
+
+    /* 인지도 현황 페이지 고유 변수 */
+    :root {
+      --ac: #7A2448;
+      --ac-l: #FBEAF0;
+      --ac-d: #5e1c37;
+      --grn: #0F6E56;
+      --grn-m: #1D9E75;
+      --grn-l: #E1F5EE;
+      --amb: #EF9F27;
+      --amb-l: #FAEEDA;
+      --high: #D85A30;
+      --mid: #EF9F27;
+      --low: #378ADD;
+      --non: #B4B2A9;
+      --rl: 12px;
+      --r: 8px;
+    }
+
+    /* ── 검색 패널 (search-panel) ── */
+    .search-panel{
+      background: #ffffff;
+      border: 1px solid rgba(0,0,0,0.09);
+      border-radius: 16px;
+      padding: 24px 30px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    }
+    .srch-top{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+    .srch-title{font-size:18px;font-weight:700;color:#1a1a1a;white-space:nowrap;}
+    .srch-box-wrap{flex:1;position:relative;}
+    .srch-input{width:100%;padding:12px 42px;border-radius:99px;border:1px solid rgba(0,0,0,0.09);background:#f7f6f3;font-size:14px;color:#1a1a1a;font-family:inherit;outline:none;transition:all .2s;box-shadow:inset 0 1px 2px rgba(0,0,0,0.01);}
+    .srch-input:focus{border-color:var(--blue);background:#ffffff;box-shadow:0 0 0 3px rgba(24,95,165,0.15);}
+    .srch-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#6b6b6b;font-size:18px;pointer-events:none;}
+    .srch-clear{position:absolute;right:14px;top:50%;transform:translateY(-50%);border:none;background:none;color:#aaa;cursor:pointer;font-size:18px;display:none;line-height:1;transition:color .15s;}
+    .srch-clear:hover{color:#6b6b6b;}
+    .adv-btn{padding:10px 18px;border-radius:99px;border:1px solid rgba(0,0,0,0.09);background:#ffffff;font-size:13px;font-weight:600;cursor:pointer;color:#6b6b6b;white-space:nowrap;display:flex;align-items:center;gap:6px;font-family:inherit;transition:all .15s;box-shadow:0 1px 2px rgba(0,0,0,0.04);}
+    .adv-btn:hover{background:#f7f6f3;color:#1a1a1a;}
+    .adv-btn.open{background:#E6F1FB;border-color:var(--blue);color:var(--blue);}
+
+    /* 빠른 선택 행 */
+    .srch-quick{display:flex;flex-direction:column;gap:12px;padding:16px 0;border-top:1px dashed rgba(0,0,0,0.09);border-bottom:1px dashed rgba(0,0,0,0.09);margin-bottom:16px;}
+    .qs{display:flex;align-items:center;gap:12px;}
+    .qs-label{font-size:12px;color:#6b6b6b;font-weight:700;white-space:nowrap;width:70px;}
+    .qs-chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;}
+    .chip{font-size:12px;padding:6px 14px;border-radius:99px;border:1px solid rgba(0,0,0,0.09);background:#ffffff;cursor:pointer;color:#6b6b6b;white-space:nowrap;transition:all .15s;box-shadow:0 1px 2px rgba(0,0,0,0.02);}
+    .chip:hover{border-color:#6b6b6b;color:#1a1a1a;background:#f7f6f3;}
+    .chip.hot{background:#FAEEDA;border-color:var(--amb);color:#633806;}
+    .chip.reg{background:#E6F1FB;border-color:#378ADD;color:var(--blue);}
+    .chip.on{background:var(--ac-l);border-color:var(--ac);color:var(--ac);font-weight:600;}
+
+    /* 상세 검색 패널 */
+    .adv-panel{overflow:hidden;max-height:0;transition:max-height .3s ease;background:#f7f6f3;border-radius:12px;margin-bottom:0;}
+    .adv-panel.open{max-height:220px;border:1px solid rgba(0,0,0,0.09);margin-bottom:16px;}
+    .adv-inner{padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+    .adv-group label{display:block;font-size:11px;font-weight:700;color:#6b6b6b;margin-bottom:6px;letter-spacing:.04em;}
+    .adv-group select,.adv-group input[type=text]{width:100%;padding:8px 12px;border-radius:8px;border:1px solid rgba(0,0,0,0.09);background:#ffffff;font-size:12px;color:#1a1a1a;font-family:inherit;outline:none;transition:border-color .15s;}
+    .adv-group select:focus,.adv-group input:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(24,95,165,0.1);}
+    .adv-btns{grid-column:span 4;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid rgba(0,0,0,0.09);padding-top:12px;margin-top:4px;}
+    .adv-reset{padding:8px 18px;border-radius:8px;border:1px solid rgba(0,0,0,0.09);background:#ffffff;font-size:12px;font-weight:600;cursor:pointer;color:#6b6b6b;font-family:inherit;transition:all .15s;}
+    .adv-reset:hover{background:#f7f6f3;color:#1a1a1a;}
+    .adv-apply{padding:8px 22px;border-radius:8px;border:none;background:var(--blue);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;box-shadow:0 2px 6px rgba(24,95,165,0.15);}
+    .adv-apply:hover{background:#378ADD;transform:translateY(-1px);}
+
+    /* 어휘 탭바 */
+    .word-tabbar{display:flex;overflow-x:auto;scrollbar-width:none;gap:4px;padding-top:6px;}
+    .word-tabbar::-webkit-scrollbar{display:none;}
+    .wt{padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid rgba(0,0,0,0.09);border-radius:8px;color:#6b6b6b;background:#ffffff;font-family:inherit;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:all .15s;box-shadow:0 1px 2px rgba(0,0,0,0.02);}
+    .wt:hover{border-color:#6b6b6b;color:#1a1a1a;background:#f7f6f3;}
+    .wt.on{color:var(--ac);border-color:var(--ac);background:var(--ac-l);font-weight:700;box-shadow:none;}
+    .wt-pct{font-size:10px;padding:2px 6px;border-radius:6px;background:#f7f6f3;color:#6b6b6b;font-weight:700;}
+    .wt.on .wt-pct{background:#ffffff;color:var(--ac);}
+
+    /* ── 필터바 ── */
+    .fbar{background:#ffffff;border:1px solid rgba(0,0,0,0.09);border-radius:12px;padding:12px 20px;display:flex;align-items:center;gap:12px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,0.02);}
+    .fb-seg{display:flex;gap:2px;background:#f7f6f3;border-radius:8px;padding:2px;}
+    .fb-s{padding:6px 14px;border-radius:6px;border:none;background:none;font-size:12px;font-weight:600;cursor:pointer;color:#6b6b6b;font-family:inherit;transition:all .15s;}
+    .fb-s.on{background:#ffffff;color:var(--ac);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+    .fb-sel{font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;border:1px solid rgba(0,0,0,0.09);background:#ffffff;color:#1a1a1a;font-family:inherit;outline:none;cursor:pointer;}
+    .fb-sel:focus{border-color:var(--ac);}
+    .fb-divv{width:0.5px;height:20px;background:rgba(0,0,0,0.09);margin:0 2px;}
+
+    /* KPI */
+    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px;}
+    .step1-grid{display:grid;grid-template-columns:3fr 2fr;gap:16px;margin-bottom:16px;align-items:stretch;}
+    .kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+    .dist-card{display:flex;flex-direction:column;height:100%;}
+    .dist-card .donut-wrap{flex:1;display:flex;align-items:center;justify-content:center;gap:32px;padding:8px 16px 12px;}
+    .dist-card .dl{flex:1;gap:10px;}
+    @media (max-width:1024px){
+      .step1-grid{grid-template-columns:1fr;}
+    }
+    @media (max-width:640px){
+      .kpi-grid{grid-template-columns:1fr;}
+    }
+    .kpi{background:#f8fafc;border-radius:var(--rl);padding:16px 18px;border:1px solid rgba(0,0,0,0.09);box-shadow:inset 0 1px 2px rgba(0,0,0,0.01);}
+    .kpi-lbl{font-size:12px;font-weight:700;color:#6b6b6b;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+    .kpi-val{font-size:28px;font-weight:800;line-height:1;margin-bottom:6px;}
+    .kpi-note{font-size:12px;color:#6b6b6b;}
+    .kpi-meaning{font-size:12px;font-weight:500;color:#1a1a1a;margin-top:6px;line-height:1.4;}
+    .kpi-ctx{font-size:11px;color:#6b6b6b;margin-top:3px;line-height:1.5;}
+    .kpi-emoji{font-size:14px;line-height:1;}
+    .tu{color:#1D9E75;}.td{color:#E24B4A;}
+
+    /* 카드 */
+    .card{background:#ffffff;border-radius:var(--rl);border:1px solid rgba(0,0,0,0.09);padding:20px 22px;box-shadow:0 4px 16px rgba(0,0,0,0.02);transition:transform 0.2s, box-shadow 0.2s;}
+    .card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.04);transform:translateY(-2px);}
+    .card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+    .card-t{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px;color:#1a1a1a;}
+    .card-t i{font-size:16px;color:#6b6b6b;}
+    .card-note{font-size:11px;color:#aaa;}
+
+    .grid-main{display:grid;grid-template-columns:3fr 2fr;gap:16px;margin-bottom:16px;align-items:start;}
+    .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;align-items:stretch;}
+    .grid3 > .card{height:100%;display:flex;flex-direction:column;}
+    .grid3 .card-foot{margin-top:auto;}
+    .flow-sec{margin-top:18px;}
+    .flow-hr{border:none;border-top:0.5px solid rgba(0,0,0,0.09);margin:18px 0;}
+    .flow-head{display:flex;gap:12px;align-items:flex-start;margin:6px 0 14px;}
+    .flow-badge{width:32px;height:32px;border-radius:999px;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex:0 0 auto;line-height:1;}
+    .flow-title{font-size:15px;font-weight:800;color:#1a1a1a;margin-top:2px;text-align:left;}
+    .flow-desc{margin-top:8px;margin-left:0;font-size:13px;color:#6b6b6b;line-height:1.8;border-left:none;padding:0;text-align:left;}
+
+    /* ── 날씨 기상도 ── */
+    .weather-map-wrap{border-radius:var(--r);overflow:hidden;background:linear-gradient(175deg,#c8dff0 0%,#a8c8e0 100%);width:100%;aspect-ratio:1.7/1;position:relative;}
+    .vw-map{position:absolute;inset:0;width:100%;height:100%;z-index:0;background:#d8e6f0;}
+    .vw-map.is-fallback{background:url('./map.png') center/cover no-repeat;}
+    .vw-msg{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:3;background:rgba(255,255,255,0.72);backdrop-filter:blur(6px);padding:14px;text-align:center;color:#6b6b6b;font-size:12px;line-height:1.6;}
+    .map-overlay{position:absolute;inset:0;z-index:2;width:100%;height:100%;}
+
+    /* 날씨 범례 */
+    .w-legend{margin-top:10px;background:#f7f6f3;border:0.5px solid rgba(0,0,0,0.09);border-radius:var(--rl);padding:12px 14px;}
+    .w-legend-h{font-size:12px;font-weight:700;color:#1a1a1a;margin-bottom:10px;line-height:1.4;text-align:left;}
+    .w-legend--below{margin-top:14px;}
+    .wl-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px;}
+    .wl-item{display:flex;gap:10px;align-items:flex-start;}
+    .wl-icon{font-size:22px;line-height:1;margin-top:1px;flex:0 0 auto;}
+    .wl-t{display:flex;flex-direction:column;gap:2px;min-width:0;text-align:left;}
+    .wl-main{font-size:12px;font-weight:800;color:#1a1a1a;line-height:1.25;}
+    .wl-sub{font-size:11px;color:#6b6b6b;line-height:1.35;}
+
+    /* 뷰 전환 버튼 */
+    .view-toggle{display:flex;gap:3px;background:#f7f6f3;border-radius:var(--r);padding:2px;}
+    .vt-btn{padding:4px 12px;border-radius:6px;border:none;background:none;font-size:12px;cursor:pointer;color:#6b6b6b;font-family:inherit;}
+    .vt-btn.on{background:#ffffff;color:var(--ac);font-weight:500;box-shadow:0 0 0 0.5px rgba(0,0,0,0.09);}
+    .map-zoom{display:flex;gap:6px;}
+    .mz-btn{padding:6px 10px;border-radius:10px;border:1px solid rgba(0,0,0,0.09);background:#ffffff;cursor:pointer;color:#1a1a1a;font-size:12px;font-weight:600;font-family:inherit;display:inline-flex;align-items:center;gap:6px;box-shadow:0 1px 2px rgba(0,0,0,0.04);}
+    .mz-btn:hover{background:#f7f6f3;}
+    .mz-btn:focus{outline:#4A74A8 solid 0.18em;outline-offset:2px;}
+
+    /* 버블뷰 */
+    .bubble-map-wrap{border-radius:var(--r);overflow:hidden;background:linear-gradient(175deg,#ddeef8 0%,#c5d8e8 100%);width:100%;aspect-ratio:1.7/1;position:relative;}
+
+    /* 세대 수평 바 */
+    .hbar-list{display:flex;flex-direction:column;gap:9px;}
+    .hbar-row{display:grid;grid-template-columns:minmax(150px,210px) minmax(240px,1fr) 44px;align-items:center;gap:10px;}
+    .hbar-lbl{font-size:12px;color:#6b6b6b;text-align:left;white-space:normal;line-height:1.25;min-width:0;}
+    .hbar-desc{display:block;font-size:11px;color:#aaa;margin:2px 0 0;white-space:normal;line-height:1.25;}
+    .hbar-track{height:22px;background:#f7f6f3;border-radius:5px;overflow:hidden;min-width:0;max-width:560px;}
+    .hbar-fill{height:100%;border-radius:5px;display:flex;align-items:center;padding-left:9px;font-size:11px;font-weight:500;color:#fff;transition:width .65s cubic-bezier(.4,0,.2,1);}
+    .hbar-pct{font-size:12px;font-weight:500;}
+    .gap-banner{display:flex;gap:12px;align-items:flex-start;margin-top:12px;background:#FEF3E8;border:0.5px solid #EFC090;border-radius:var(--rl);padding:12px 14px;}
+    .gap-ico{font-size:20px;line-height:1;color:#7A4010;flex:0 0 auto;margin-top:2px;}
+    .gap-t1{font-size:13px;font-weight:700;color:#7A4010;line-height:1.5;margin-bottom:4px;text-align:left;}
+    .gap-num{font-size:18px;font-weight:800;color:var(--high);}
+    .gap-t2{font-size:11px;color:#7A4010;line-height:1.7;text-align:left;}
+
+    /* 세대 카드 레이아웃 */
+    .gen-split{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;align-items:stretch;}
+    .gen-split .card{min-width:0;height:100%;display:flex;flex-direction:column;}
+    .gen-split .card .ins{margin-top:auto;}
+    .gap-banner--wide{margin-top:12px;}
+    @media (max-width: 860px){
+      .gen-split{grid-template-columns:1fr;}
+      .hbar-track{max-width:none;}
+    }
+
+    /* 오디오 */
+    .aud{display:flex;align-items:center;gap:8px;background:#f7f6f3;border-radius:var(--r);padding:7px 10px;}
+    .apb{width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;flex-shrink:0;}
+    .wbar{flex:1;height:24px;background:#f0efe9;border-radius:4px;display:flex;align-items:center;gap:1.5px;padding:0 6px;overflow:hidden;cursor:pointer;position:relative;}
+    .wb{width:2.5px;border-radius:2px;opacity:.65;flex-shrink:0;transition:height .12s;}
+    .wpr{position:absolute;left:0;top:0;height:100%;background:rgba(122,36,72,.09);border-radius:4px;pointer-events:none;}
+    .aud-dur{font-size:11px;color:#aaa;white-space:nowrap;}
+
+    /* 지역 오디오 칩 */
+    .reg-chips{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:9px;}
+    .rgc{font-size:11px;padding:3px 9px;border-radius:10px;border:0.5px solid rgba(0,0,0,0.09);cursor:pointer;color:#6b6b6b;background:#ffffff;}
+    .rgc.on{color:#fff;font-weight:500;}
+
+    /* 성별 */
+    .sex-compare{display:grid;grid-template-columns:1fr 38px 1fr;gap:10px;margin-bottom:12px;align-items:stretch;}
+    .sex-box{border-radius:var(--rl);padding:14px 12px;border:0.5px solid rgba(0,0,0,0.09);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:150px;}
+    .sex-box.m{background:#E6F1FB;border-color:#A0C4E8;}
+    .sex-box.f{background:var(--ac-l);border-color:rgba(122,36,72,0.18);}
+    .sex-icon{font-size:18px;line-height:1;margin-bottom:6px;color:inherit;}
+    .sex-big{font-size:30px;font-weight:800;line-height:1;color:#1a1a1a;margin-bottom:6px;}
+    .sex-name{font-size:12px;font-weight:700;color:#6b6b6b;}
+    .sex-mid{border-radius:var(--rl);background:#f7f6f3;border:0.5px solid rgba(0,0,0,0.09);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:12px 6px;text-align:center;min-height:150px;}
+    .sex-diff{font-size:11px;font-weight:800;color:var(--high);line-height:1.2;margin-bottom:6px;}
+    .sex-sub{font-size:9px;color:#aaa;white-space:pre-line;line-height:1.25;}
+
+    /* 교차 테이블 */
+    .xt{width:100%;border-collapse:collapse;font-size:12px;}
+    .xt th{font-size:10px;color:#aaa;padding:5px 6px;border-bottom:0.5px solid rgba(0,0,0,0.09);text-align:center;font-weight:400;background:#f7f6f3;}
+    .xt th:first-child{text-align:left;}
+    .xt td{padding:8px 6px;border-bottom:0.5px solid rgba(0,0,0,0.09);text-align:center;}
+    .xt tr:last-child td{border-bottom:none;}
+    .xt tr:hover td{background:#f7f6f3;}
+    .xc{display:inline-flex;align-items:center;justify-content:center;width:44px;height:26px;border-radius:6px;font-size:11px;font-weight:600;color:#fff;}
+
+    /* 히트맵 순위 */
+    .hmap{display:flex;flex-direction:column;gap:5px;}
+    .hm-row{display:grid;grid-template-columns:58px 1fr 34px;align-items:center;gap:7px;}
+    .hm-name{font-size:12px;color:#6b6b6b;text-align:right;}
+    .hm-bg{height:26px;background:#f7f6f3;border-radius:5px;overflow:hidden;cursor:pointer;}
+    .hm-bg:hover{opacity:.85;}
+    .hm-fill{height:100%;border-radius:5px;display:flex;align-items:center;gap:6px;padding:0 9px;}
+    .hm-form{font-size:11px;font-weight:500;color:#fff;}
+    .hm-pct{font-size:11px;font-weight:500;}
+
+    /* 도넛 */
+    .donut-wrap{display:flex;align-items:center;gap:14px;}
+    .dl{display:flex;flex-direction:column;gap:7px;text-align:left;}
+    .dl-row{display:flex;align-items:flex-start;gap:10px;font-size:13px;}
+    .dl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+    .dl-t{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1;}
+    .dl-main{font-size:13px;font-weight:800;color:#1a1a1a;line-height:1.2;}
+    .dl-sub{font-size:11px;color:#6b6b6b;line-height:1.35;}
+    .dl-val{margin-left:auto;font-weight:800;font-size:14px;white-space:nowrap;}
+
+    /* 인사이트 */
+    .ins{border-radius:var(--r);padding:9px 12px;font-size:12px;line-height:1.75;display:grid;grid-template-columns:18px 1fr;column-gap:8px;align-items:start;margin-bottom:8px;text-align:left;}
+    .ins:last-child{margin-bottom:0;}
+    .ins i{width:18px;height:18px;font-size:16px;line-height:18px;display:flex;align-items:center;justify-content:center;margin-top:2px;}
+    .ins span{min-width:0;}
+    .ins.warn{background:#FEF3E8;color:#7A4010;border:0.5px solid #EFC090;}
+    .ins.info{background:#E6F1FB;color:#0C3A6A;border:0.5px solid #A0C4E8;}
+    .ins.good{background:#E1F5EE;color:#0A3A2A;border:0.5px solid #80C8A8;}
+    .ins.accent{background:var(--ac-l);color:var(--ac-d);border:0.5px solid rgba(122,36,72,0.28);}
+    .concl-title{font-size:14px;font-weight:800;color:#1a1a1a;margin-bottom:10px;}
+    .link-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;border:1px solid var(--ac);background:var(--ac-l);color:var(--ac);font-weight:800;font-size:12px;text-decoration:none;margin-top:10px;}
+    .link-btn:hover{filter:brightness(0.98);}
+    .link-center{display:flex;justify-content:center;margin-top:12px;}
+    .link-btn.link-btn--muted{border-color:rgba(0,0,0,0.09);background:#f7f6f3;color:#6b6b6b;font-weight:700;}
+    .link-btn.link-btn--muted:hover{filter:none;background:#f0efe9;color:#1a1a1a;}
+
+    /* 정렬 버튼 */
+    .sort-btn{font-size:11px;color:#6b6b6b;cursor:pointer;border:0.5px solid rgba(0,0,0,0.09);background:#ffffff;border-radius:var(--r);padding:4px 9px;font-family:inherit;display:flex;align-items:center;gap:4px;}
+    .sort-btn:hover{background:#f7f6f3;}
+
+    /* 성별×세대 미니 테이블 */
+    .mini-tbl{width:100%;border-collapse:collapse;font-size:11px;}
+    .mini-tbl th{padding:3px 4px;color:#aaa;text-align:left;font-weight:400;border-bottom:0.5px solid rgba(0,0,0,0.09);}
+    .mini-tbl td{padding:4px;border-bottom:0.5px solid rgba(0,0,0,0.09);}
+    .mini-tbl tr:last-child td{border-bottom:none;}
+
+    /* 교차표 읽는 법 배너 + 범례 */
+    .read-guide{display:flex;gap:10px;align-items:flex-start;background:#E6F1FB;color:#0C3A6A;border:0.5px solid #A0C4E8;border-radius:var(--rl);padding:10px 12px;margin-bottom:10px;line-height:1.7;text-align:left;}
+    .rg-ico{font-size:16px;line-height:1;flex:0 0 auto;margin-top:2px;}
+    .rg-txt{font-size:12px;font-weight:600;}
+    .xt-legend{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
+    .xt-leg{display:flex;align-items:center;gap:6px;font-size:11px;color:#6b6b6b;}
+    .xt-box{width:10px;height:10px;border-radius:2px;display:inline-block;flex:0 0 auto;}
+
+    /* 툴팁 */
+    .map-tooltip{position:fixed;background:#ffffff;border:0.5px solid rgba(0,0,0,0.09);border-radius:var(--rl);padding:12px 14px;z-index:999;min-width:160px;pointer-events:none;display:none;box-shadow:0 4px 20px rgba(0,0,0,.12);text-align:left;}
+    .tt-reg{font-size:13px;font-weight:500;margin-bottom:4px;}
+    .tt-pct{font-size:22px;font-weight:500;margin-bottom:3px;}
+    .tt-form{font-size:11px;color:#6b6b6b;}
+    .tt-wx{font-size:10px;color:#aaa;margin-top:2px;}
+    .tt-mean{display:inline-flex;align-items:center;gap:6px;border-radius:10px;padding:6px 8px;margin-top:8px;font-size:11px;font-weight:600;line-height:1.35;}
+  </style>
+</head>
+<body>
+<a class="ol-skiplink" href="#vwmapWx">지도 바로가기</a>
+
+<div id="gnb-common"></div>
+
+<div class="sub-visual">
+  <div class="wrap">
+    <h1 class="sv-title">지역어 현황(기상도)</h1>
+    <div class="location-bar">
+      <div class="loc-item home" onclick="location.href='./index.html'" style="cursor:pointer;" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">
+        <select onchange="if(this.value) location.href=this.value;">
+          <option value="./dialect_awareness.html" selected>지역어 현황(기상도)</option>
+          <option value="./index.html">누리집 안내</option>
+          <option value="./dialect_search_prototype.html">조사 자료 검색</option>
+          <option value="./dialect_map.html">지역어 지도</option>
+        </select>
+      </div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">
+        <select>
+          <option selected>인지도 대시보드</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap container">
+  <!-- ── 콘텐츠 ── -->
+  <div class="search-panel" style="width: 100%;">
+    <div class="srch-top">
+      <span class="srch-title">지역어 인지도 현황</span>
+      <div class="srch-box-wrap">
+        <i class="ti ti-search srch-icon" aria-hidden="true"></i>
+        <input class="srch-input" id="srchInp" placeholder="어휘 검색 (예: 감자, 가위, 강아지...)" oninput="onSrch(this)"/>
+        <button class="srch-clear" id="srchClear" onclick="clearSrch()" aria-label="검색어 지우기"><i class="ti ti-x" aria-hidden="true"></i></button>
+      </div>
+      <button class="adv-btn" id="advBtn" onclick="toggleAdv()" aria-expanded="false" aria-controls="advPanel">
+        <i class="ti ti-sliders-horizontal" aria-hidden="true"></i> 상세 검색
+        <i class="ti ti-chevron-down" id="advChevron" style="transition:transform .2s;" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <!-- 빠른 선택 -->
+    <div class="srch-quick">
+      <div class="qs">
+        <span class="qs-label">카테고리</span>
+        <div class="qs-chips">
+          <span class="chip on" id="cat-전체" onclick="setCat(this,'전체')"><i class="ti ti-apps" style="font-size:12px;" aria-hidden="true"></i> 전체</span>
+          <span class="chip" onclick="setCat(this,'음식')"><i class="ti ti-tools-kitchen-2" style="font-size:12px;" aria-hidden="true"></i> 음식</span>
+          <span class="chip" onclick="setCat(this,'동물')"><i class="ti ti-paw" style="font-size:12px;" aria-hidden="true"></i> 동물</span>
+          <span class="chip" onclick="setCat(this,'자연')"><i class="ti ti-mountain" style="font-size:12px;" aria-hidden="true"></i> 자연</span>
+          <span class="chip" onclick="setCat(this,'생활')"><i class="ti ti-home" style="font-size:12px;" aria-hidden="true"></i> 생활</span>
+          <span class="chip" onclick="setCat(this,'날씨')"><i class="ti ti-cloud" style="font-size:12px;" aria-hidden="true"></i> 날씨</span>
+        </div>
+      </div>
+      <div class="qs">
+        <span class="qs-label">지역별 검색</span>
+        <div class="qs-chips">
+          <span class="chip reg on" onclick="setReg(this,'전체')">전체</span>
+          <span class="chip reg" onclick="setReg(this,'서울·경기')">서울·경기</span>
+          <span class="chip reg" onclick="setReg(this,'강원도')">강원도</span>
+          <span class="chip reg" onclick="setReg(this,'충청북도')">충청북도</span>
+          <span class="chip reg" onclick="setReg(this,'충청남도')">충청남도</span>
+          <span class="chip reg" onclick="setReg(this,'전라북도')">전라북도</span>
+          <span class="chip reg" onclick="setReg(this,'전라남도')">전라남도</span>
+          <span class="chip reg" onclick="setReg(this,'경상북도')">경상북도</span>
+          <span class="chip reg" onclick="setReg(this,'경상남도')">경상남도</span>
+          <span class="chip reg" onclick="setReg(this,'제주도')">제주도</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 상세 검색 패널 -->
+    <div class="adv-panel" id="advPanel">
+      <div class="adv-inner">
+        <div class="adv-group"><label>조사 유형</label><select><option>인지도</option><option>사용도</option><option>친숙도</option></select></div>
+        <div class="adv-group"><label>조사 연도</label><select><option>2023년</option><option>2020년</option><option>2018년</option><option>2015년</option></select></div>
+        <div class="adv-group"><label>세대</label><select><option>전체</option><option>10–20대</option><option>30–40대</option><option>50–60대</option><option>70대 이상</option></select></div>
+        <div class="adv-group"><label>성별</label><select><option>전체</option><option>남성</option><option>여성</option></select></div>
+        <div class="adv-group"><label>인지도 구간</label><select><option>전체</option><option>70% 이상</option><option>50–70%</option><option>30–50%</option><option>30% 미만</option></select></div>
+        <div class="adv-group"><label>방언형</label><input type="text" placeholder="예: 고매, 감저"/></div>
+        <div class="adv-group"><label>조사 지역</label><select><option>전체</option><option>경상남도</option><option>경상북도</option><option>전라남도</option><option>전라북도</option><option>충청남도</option><option>충청북도</option><option>강원도</option><option>제주도</option><option>서울·경기</option></select></div>
+        <div class="adv-btns">
+          <button class="adv-reset" onclick="resetAdv()">초기화</button>
+          <button class="adv-apply" onclick="applyAdv()">검색 적용</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 어휘 탭바 -->
+    <div class="word-tabbar">
+      <button class="wt on" id="wt-감자" onclick="selectWord(this,'감자')">감자<span class="wt-pct">57%</span></button>
+      <button class="wt" id="wt-가위" onclick="selectWord(this,'가위')">가위<span class="wt-pct">63%</span></button>
+      <button class="wt" id="wt-강아지" onclick="selectWord(this,'강아지')">강아지<span class="wt-pct">71%</span></button>
+      <button class="wt" id="wt-고구마" onclick="selectWord(this,'고구마')">고구마<span class="wt-pct">45%</span></button>
+      <button class="wt" id="wt-갈치" onclick="selectWord(this,'갈치')">갈치<span class="wt-pct">38%</span></button>
+      <button class="wt" id="wt-다슬기" onclick="selectWord(this,'다슬기')">다슬기<span class="wt-pct">28%</span></button>
+      <button class="wt" style="color:var(--ac);">+ 44개 더보기</button>
+    </div>
+  </div>
+
+  <!-- ── 필터바 ── -->
+  <div class="fbar" style="width: 100%;">
+    <div class="fb-seg" id="segType">
+      <button class="fb-s on" onclick="setSeg(this,'segType')">인지도</button>
+      <button class="fb-s" onclick="setSeg(this,'segType')">사용도</button>
+      <button class="fb-s" onclick="setSeg(this,'segType')">친숙도</button>
+    </div>
+    <div class="fb-divv"></div>
+    <select class="fb-sel"><option>2023년</option><option>2020년</option><option>2018년</option><option>2015년</option></select>
+    <div class="fb-divv"></div>
+    <div class="fb-seg" id="segSex">
+      <button class="fb-s on" onclick="setSeg(this,'segSex')">전체</button>
+      <button class="fb-s" onclick="setSeg(this,'segSex')">남성</button>
+      <button class="fb-s" onclick="setSeg(this,'segSex')">여성</button>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:6px;">
+      <button class="excel-btn" style="padding:6px 14px;font-size:12px;"><i class="ti ti-download" style="font-size:13px;" aria-hidden="true"></i> 내려받기</button>
+      <button class="excel-btn" style="padding:6px 14px;font-size:12px;"><i class="ti ti-share" style="font-size:13px;" aria-hidden="true"></i> 공유</button>
+    </div>
+  </div>
+
+  <section class="flow-sec" id="step1" style="width: 100%;">
+    <div class="flow-head">
+      <div class="flow-badge" aria-hidden="true">1</div>
+      <div>
+        <div class="flow-title">지금 이 방언, 전국에서 얼마나 알려져 있을까요?</div>
+        <p class="flow-desc">먼저 ‘전국 평균’과 주요 지표를 요약해 현재 인지도의 크기를 한눈에 파악합니다. 이어 구간별 분포를 함께 보면, 평균값 뒤에 숨은 지역·집단 간 편차가 어느 정도인지(상위권 집중인지, 전반적 확산인지)를 판단할 수 있습니다.</p>
+      </div>
+    </div>
+
+    <!-- KPI 및 구간별 분포 통합 그리드 -->
+    <div class="step1-grid">
+      <!-- KPI -->
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-lbl"><i class="ti ti-chart-pie" style="font-size:16px;color:#378ADD;" aria-hidden="true"></i> 전국 평균</div>
+          <div class="kpi-val" id="kpiAvg" style="color:var(--mid);text-align:left;">57%</div>
+          <div class="kpi-note tu" style="text-align:left;">▲ 2020년 대비 +3%p</div>
+          <div class="kpi-meaning" id="kpiAvgMeaning" style="text-align:left;">전체 응답자 기준 인지도(%)</div>
+          <div class="kpi-ctx" id="kpiAvgCtx" style="text-align:left;">응답자 10명 중 약 6명이 이 방언형을 알고 있습니다.</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-lbl"><i class="ti ti-trophy" style="font-size:16px;color:var(--amb);" aria-hidden="true"></i> 최고 지역</div>
+          <div class="kpi-val" id="kpiHigh" style="font-size:16px;padding-top:5px;text-align:left;">경남 <span style="font-size:26px;color:var(--mid);">87%</span></div>
+          <div class="kpi-note" id="kpiForm" style="text-align:left;">대표형: 고매</div>
+          <div class="kpi-meaning" id="kpiHighMeaning" style="text-align:left;">가장 높은 인지도 지역(%)</div>
+          <div class="kpi-ctx" id="kpiHighCtx" style="text-align:left;">해당 지역 응답자 10명 중 약 9명이 이 방언형을 알고 있습니다.</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-lbl"><i class="ti ti-arrows-diff" style="font-size:16px;color:var(--ac);" aria-hidden="true"></i> 세대 격차</div>
+          <div class="kpi-val" id="kpiGap" style="color:var(--ac);text-align:left;">57%p</div>
+          <div class="kpi-note" style="text-align:left;">10–20대 ↔ 70대↑</div>
+          <div class="kpi-meaning" id="kpiGapMeaning" style="text-align:left;">젊은층과 고령층 인지도 차이(%p)</div>
+          <div class="kpi-ctx" id="kpiGapCtx" style="text-align:left;">70대(88%) vs 10–20대(31%), 두 세대 차이가 57%p입니다.</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-lbl"><i class="ti ti-gender-bigender" style="font-size:16px;color:var(--grn-m);" aria-hidden="true"></i> 성별 차이</div>
+          <div class="kpi-val" style="font-size:16px;padding-top:5px;text-align:left;">여 <span id="kpiF" style="font-size:22px;color:var(--grn-m);">61%</span> · 남 <span id="kpiM" style="font-size:22px;color:#378ADD;">54%</span></div>
+          <div class="kpi-note tu" style="text-align:left;">여성이 7%p 높음</div>
+          <div class="kpi-meaning" id="kpiSexMeaning" style="text-align:left;">여성·남성 인지도 비교(%)</div>
+          <div class="kpi-ctx" id="kpiSexCtx" style="text-align:left;">여성은 10명 중 약 6명, 남성은 약 5명이 이 방언형을 알고 있습니다.</div>
+        </div>
+      </div>
+
+      <!-- 구간별 분포 -->
+      <div class="card dist-card">
+        <div class="card-hd"><div class="card-t"><i class="ti ti-chart-donut" aria-hidden="true"></i> 구간별 분포</div></div>
+        <div class="donut-wrap">
+          <svg width="136" height="136" viewBox="0 0 90 90" aria-label="인지도 구간 분포 도넛" style="flex-shrink:0;">
+            <title>인지도 구간별 분포</title>
+            <circle cx="45" cy="45" r="33" fill="none" stroke="#f7f6f3" stroke-width="16"/>
+            <circle cx="45" cy="45" r="33" fill="none" stroke="var(--high)" stroke-width="16" stroke-dasharray="46 161" stroke-dashoffset="49" transform="rotate(-90 45 45)"/>
+            <circle cx="45" cy="45" r="33" fill="none" stroke="var(--mid)" stroke-width="16" stroke-dasharray="71 136" stroke-dashoffset="3" transform="rotate(-90 45 45)"/>
+            <circle cx="45" cy="45" r="33" fill="none" stroke="var(--low)" stroke-width="16" stroke-dasharray="62 145" stroke-dashoffset="-68" transform="rotate(-90 45 45)"/>
+            <circle cx="45" cy="45" r="33" fill="none" stroke="var(--non)" stroke-width="16" stroke-dasharray="28 179" stroke-dashoffset="-130" transform="rotate(-90 45 45)"/>
+            <text x="45" y="40" text-anchor="middle" font-size="12" font-weight="800" fill="#1a1a1a" font-family="sans-serif">57%</text>
+            <text x="45" y="53" text-anchor="middle" font-size="8.5" font-weight="700" fill="#aaa" font-family="sans-serif">전국평균</text>
+          </svg>
+          <div class="dl">
+            <div class="dl-row">
+              <div class="dl-dot" style="background:var(--high);" aria-hidden="true"></div>
+              <div class="dl-t">
+                <div class="dl-main">많이 앎 (70%↑)</div>
+                <div class="dl-sub">경상·제주 지역 중심</div>
+              </div>
+              <span class="dl-val" style="color:var(--high);">22%</span>
+            </div>
+            <div class="dl-row">
+              <div class="dl-dot" style="background:var(--mid);" aria-hidden="true"></div>
+              <div class="dl-t">
+                <div class="dl-main">보통 (50–70%)</div>
+                <div class="dl-sub">전라·충청권</div>
+              </div>
+              <span class="dl-val" style="color:var(--mid);">34%</span>
+            </div>
+            <div class="dl-row">
+              <div class="dl-dot" style="background:var(--low);" aria-hidden="true"></div>
+              <div class="dl-t">
+                <div class="dl-main">낮음 (30–50%)</div>
+                <div class="dl-sub">강원·수도권</div>
+              </div>
+              <span class="dl-val" style="color:var(--low);">30%</span>
+            </div>
+            <div class="dl-row">
+              <div class="dl-dot" style="background:var(--non);" aria-hidden="true"></div>
+              <div class="dl-t">
+                <div class="dl-main">거의 모름 (30%↓)</div>
+                <div class="dl-sub">젊은 세대 전반</div>
+              </div>
+              <span class="dl-val" style="color:var(--non);">14%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="flow-hr" aria-hidden="true" style="width: 100%;">
+
+  <section class="flow-sec" id="step2" style="width: 100%;">
+    <div class="flow-head">
+      <div class="flow-badge" aria-hidden="true">2</div>
+      <div>
+        <div class="flow-title">어느 지역에서 방언이 살아있고, 어디서 잊혀지고 있나요?</div>
+        <p class="flow-desc">지도는 ‘어디서’ 인지도가 높은지/낮은지를 공간적으로 드러냅니다. 여기에 지역별 순위를 함께 보면 상위·하위권이 얼마나 뚜렷한지, 특정 권역에 집중되어 있는지까지 빠르게 확인할 수 있어 정책·콘텐츠 우선순위를 정하는 데 도움이 됩니다.</p>
+      </div>
+    </div>
+
+    <!-- Row 1: 지도 + 지역 순위 -->
+    <div class="grid-main">
+      <!-- 날씨 기상도 카드 -->
+      <div class="card" style="width: 100%;">
+        <div class="card-hd">
+          <div class="card-t"><i class="ti ti-cloud-storm" aria-hidden="true"></i> 지역별 인지도 기상도</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="card-note" id="mapWordLabel">감자 · 2023년</span>
+            <div class="view-toggle">
+              <button class="vt-btn on" id="btnWx" onclick="setView('wx')"><i class="ti ti-cloud" style="font-size:12px;" aria-hidden="true"></i> 날씨</button>
+              <button class="vt-btn" id="btnBb" onclick="setView('bb')"><i class="ti ti-chart-bubble" style="font-size:12px;" aria-hidden="true"></i> 버블</button>
+            </div>
+            <div class="map-zoom" aria-label="지도 확대/축소">
+              <button class="mz-btn" id="zoom-out" type="button" title="축소"><i class="ti ti-minus" aria-hidden="true"></i> 축소</button>
+              <button class="mz-btn" id="zoom-in" type="button" title="확대"><i class="ti ti-plus" aria-hidden="true"></i> 확대</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 날씨 뷰 -->
+        <div class="weather-map-wrap" id="viewWx">
+          <div class="vw-map" id="vwmapWx" tabindex="0" aria-label="지역별 인지도 지도 (날씨 뷰). 방향키로 이동, +/−로 확대/축소"></div>
+          <div class="vw-msg" id="vwmsgWx">OpenLayers 지도를 불러오는 중입니다…</div>
+          <svg class="map-overlay" id="wmap" viewBox="0 0 580 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="감자 방언형 인지도 날씨 기상도">
+            <title>감자 방언형 인지도 날씨 기상도</title>
+            <rect width="580" height="300" fill="transparent"/>
+            <!-- 지역 경계 아웃라인 (연한 점선) -->
+            <g opacity="0.13" stroke="#4a7a9a" fill="none" stroke-width="0.8" stroke-dasharray="3,3">
+              <ellipse cx="155" cy="82" rx="96" ry="68"/>
+              <ellipse cx="308" cy="68" rx="100" ry="68"/>
+              <ellipse cx="150" cy="168" rx="70" ry="58"/>
+              <ellipse cx="240" cy="225" rx="75" ry="60"/>
+              <ellipse cx="338" cy="170" rx="98" ry="86"/>
+              <ellipse cx="338" cy="258" rx="84" ry="66"/>
+              <ellipse cx="185" cy="282" rx="68" ry="24"/>
+            </g>
+            <!-- 지역명 라벨 -->
+            <g id="regionLabels" fill="#4a6070" font-size="10.5" font-family="sans-serif" text-anchor="middle">
+              <text x="148" y="68">서울·경기</text>
+              <text x="308" y="55">강원도</text>
+              <text x="145" y="155">충청권</text>
+              <text x="238" y="212">전라권</text>
+              <text x="338" y="156">경상북도</text>
+              <text x="338" y="245">경상남도</text>
+              <text x="185" y="270">제주도</text>
+              <text x="520" y="188" fill="#5080a0" font-size="10">동해</text>
+              <text x="48" y="208" fill="#5080a0" font-size="10">서해</text>
+              <text x="365" y="292" fill="#5080a0" font-size="10">남해</text>
+            </g>
+            <!-- 날씨 아이콘 -->
+            <g id="weatherIcons"></g>
+          </svg>
+        </div>
+
+        <!-- 버블 뷰 (기본 숨김) -->
+        <div class="bubble-map-wrap" id="viewBb" style="display:none;">
+          <div class="vw-map" id="vwmapBb" tabindex="0" aria-label="지역별 인지도 지도 (버블 뷰). 방향키로 이동, +/−로 확대/축소"></div>
+          <div class="vw-msg" id="vwmsgBb">OpenLayers 지도를 불러오는 중입니다…</div>
+          <svg class="map-overlay" id="bmap" viewBox="0 0 580 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="감자 인지도 버블 기상도">
+            <title>감자 인지도 버블 기상도</title>
+            <rect width="580" height="300" fill="transparent"/>
+            <g opacity="0.12" stroke="#4a7a9a" fill="none" stroke-width="0.8">
+              <ellipse cx="155" cy="82" rx="96" ry="68"/>
+              <ellipse cx="308" cy="68" rx="100" ry="68"/>
+              <ellipse cx="150" cy="168" rx="70" ry="58"/>
+              <ellipse cx="240" cy="225" rx="75" ry="60"/>
+              <ellipse cx="338" cy="170" rx="98" ry="86"/>
+              <ellipse cx="338" cy="258" rx="84" ry="66"/>
+              <ellipse cx="185" cy="282" rx="68" ry="24"/>
+            </g>
+            <g id="bubbleIcons"></g>
+          </svg>
+        </div>
+
+        <!-- 날씨 범례 -->
+        <div class="w-legend" id="wLegend">
+          <div class="w-legend-h">지도 날씨 아이콘과 인지도 기준</div>
+          <div class="wl-grid">
+            <div class="wl-item">
+              <span class="wl-icon" aria-hidden="true">☀️</span>
+              <div class="wl-t">
+                <div class="wl-main">맑음 (70% 이상)</div>
+                <div class="wl-sub">방언 인지도가 대단히 높아 활발히 사용되고 보존되는 상태.</div>
+              </div>
+            </div>
+            <div class="wl-item">
+              <span class="wl-icon" aria-hidden="true">🌤️</span>
+              <div class="wl-t">
+                <div class="wl-main">구름 조금 (50% ~ 70%)</div>
+                <div class="wl-sub">절반 이상의 응답자가 인지하고 있어 아직 생명력이 유지되는 상태.</div>
+              </div>
+            </div>
+            <div class="wl-item">
+              <span class="wl-icon" aria-hidden="true">🌧️</span>
+              <div class="wl-t">
+                <div class="wl-main">흐리고 비 (30% ~ 50%)</div>
+                <div class="wl-sub">주요 단어로서의 인지도가 낮아지며 점점 잊혀가는 소실 진행 단계.</div>
+              </div>
+            </div>
+            <div class="wl-item">
+              <span class="wl-icon" aria-hidden="true">⛈️</span>
+              <div class="wl-t">
+                <div class="wl-main">천둥번개 (30% 미만)</div>
+                <div class="wl-sub">대부분 모르는 어휘로, 한 세대 내에 완전히 사멸할 위험이 매우 높음.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 지역 순위 카드 -->
+      <div class="card" style="width: 100%; height: 100%;">
+        <div class="card-hd">
+          <div class="card-t"><i class="ti ti-list-numbers" aria-hidden="true"></i> 인지도 높은 지역 순위</div>
+          <button class="sort-btn" id="sortBtn" onclick="toggleSort()">높은순 <i class="ti ti-arrows-sort" style="font-size:12px;" aria-hidden="true"></i></button>
+        </div>
+        <div class="hmap" id="regionRank">
+          <!-- 경남 -->
+          <div class="hm-row">
+            <div class="hm-name">경상남도</div>
+            <div class="hm-bg" onclick="pickWord('감자')" role="button" aria-label="경상남도 감자 인지도 87%"><div class="hm-fill" style="width:87%;background:var(--mid);"><span class="hm-form">고매</span></div></div>
+            <div class="hm-pct">87%</div>
+          </div>
+          <!-- 경북 -->
+          <div class="hm-row">
+            <div class="hm-name">경상북도</div>
+            <div class="hm-bg" onclick="pickWord('감자')" role="button" aria-label="경상북도 감자 인지도 82%"><div class="hm-fill" style="width:82%;background:var(--mid);"><span class="hm-form">고매</span></div></div>
+            <div class="hm-pct">82%</div>
+          </div>
+          <!-- 제주도 -->
+          <div class="hm-row">
+            <div class="hm-name">제주도</div>
+            <div class="hm-bg" onclick="pickWord('감자')" role="button" aria-label="제주도 감자 인지도 72%"><div class="hm-fill" style="width:72%;background:#7F77DD;"><span class="hm-form">감저</span></div></div>
+            <div class="hm-pct">72%</div>
+          </div>
+          <!-- 전라남도 -->
+          <div class="hm-row">
+            <div class="hm-name">전라남도</div>
+            <div class="hm-bg" onclick="pickWord('감자')" role="button" aria-label="전라남도 감자 인지도 68%"><div class="hm-fill" style="width:68%;background:#1D9E75;"><span class="hm-form">감저</span></div></div>
+            <div class="hm-pct">68%</div>
+          </div>
+          <!-- 전라권 -->
+          <div class="hm-row">
+            <div class="hm-name">전라권</div>
+            <div class="hm-bg" onclick="pickWord('감자')" role="button" aria-label="전라권 감자 인지도 61%"><div class="hm-fill" style="width:61%;background:#1D9E75;"><span class="hm-form">감저</span></div></div>
+            <div class="hm-pct">61%</div>
+          </div>
+          <!-- 충청권 -->
+          <div class="hm-row">
+            <div class="hm-name">충청권</div>
+            <div class="hm-bg" onclick="pickWord('감자')" role="button" aria-label="충청권 감자 인지도 54%"><div class="hm-fill" style="width:54%;background:var(--low);"><span class="hm-form">감재</span></div></div>
+            <div class="hm-pct">54%</div>
+          </div>
+          <!-- 강원도 -->
+          <div class="hm-row">
+            <div class="hm-name">강원도</div>
+            <div class="hm-bg" onclick="pickWord('감자')" role="button" aria-label="강원도 감자 인지도 43%"><div class="hm-fill" style="width:43%;background:var(--low);"><span class="hm-form">감저</span></div></div>
+            <div class="hm-pct">43%</div>
+          </div>
+          <!-- 서울·경기 -->
+          <div class="hm-row">
+            <div class="hm-name">서울·경기</div>
+            <div class="hm-bg" onclick="pickWord('감자')" role="button" aria-label="서울·경기 감자 인지도 38%"><div class="hm-fill" style="width:38%;background:var(--non);"><span class="hm-form">감자</span></div></div>
+            <div class="hm-pct">38%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="flow-hr" aria-hidden="true" style="width: 100%;">
+
+  <section class="flow-sec" id="step3" style="width: 100%;">
+    <div class="flow-head">
+      <div class="flow-badge" aria-hidden="true">3</div>
+      <div>
+        <div class="flow-title">젊은 세대와 어르신의 인지도 격차가 큰가요?</div>
+        <p class="flow-desc">어르신들은 잘 알아듣는데 젊은 세대는 전혀 모르는 방언이라면, 자연스럽게 대가 끊겨 사라질 위험이 높습니다. 세대별 지표와 실제 지역 노인의 생생한 음성을 들어보며 세대 단절의 심각성을 직접 체험할 수 있습니다.</p>
+      </div>
+    </div>
+
+    <!-- 세대별 카드 구조 -->
+    <div class="gen-split">
+      <div class="card" style="width: 100%;">
+        <div class="card-hd">
+          <div class="card-t"><i class="ti ti-chart-bar" aria-hidden="true"></i> 세대별 인지도</div>
+          <span class="card-note" id="genLabel">감자 · 2023년</span>
+        </div>
+        <div class="hbar-list" role="group" aria-label="세대별 인지도 막대그래프">
+          <!-- 10~20대 -->
+          <div class="hbar-row">
+            <div class="hbar-lbl">10–20대<span class="hbar-desc">가장 빠르게 사라지는 젊은층</span></div>
+            <div class="hbar-track"><div class="hbar-fill" id="gb1" style="width:31%;background:#B5D4F4;color:#042C53;">10명 중 3명</div></div>
+            <div class="hbar-pct" id="gp1" style="color:#B5D4F4;">31%</div>
+          </div>
+          <!-- 30~40대 -->
+          <div class="hbar-row">
+            <div class="hbar-lbl">30–40대<span class="hbar-desc">사회 중심 허리층</span></div>
+            <div class="hbar-track"><div class="hbar-fill" id="gb2" style="width:52%;background:var(--low);">10명 중 5명</div></div>
+            <div class="hbar-pct" id="gp2" style="color:var(--low);">52%</div>
+          </div>
+          <!-- 50~60대 -->
+          <div class="hbar-row">
+            <div class="hbar-lbl">50–60대<span class="hbar-desc">어린 시절 방언 친숙층</span></div>
+            <div class="hbar-track"><div class="hbar-fill" id="gb3" style="width:74%;background:var(--mid);">10명 중 7명</div></div>
+            <div class="hbar-pct" id="gp3" style="color:var(--mid);">74%</div>
+          </div>
+          <!-- 70대 이상 -->
+          <div class="hbar-row">
+            <div class="hbar-lbl">70대 이상<span class="hbar-desc">지역 고유방언 전승자</span></div>
+            <div class="hbar-track"><div class="hbar-fill" id="gb4" style="width:88%;background:var(--high);">10명 중 9명</div></div>
+            <div class="hbar-pct" id="gp4" style="color:var(--high);">88%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 지역별 음성 듣기 -->
+      <div class="card" style="width: 100%;">
+        <div class="card-hd">
+          <div class="card-t"><i class="ti ti-volume" aria-hidden="true"></i> 지역별 음성 듣기</div>
+        </div>
+        <div class="reg-chips">
+          <span class="rgc on" style="background:var(--high);border-color:var(--high);color:#fff;" onclick="selAud(this,'70대↑','var(--high)','70대 여성 · 경남 창원 · 2023년')">70대↑</span>
+          <span class="rgc" onclick="selAud(this,'50–60대','var(--mid)','55세 남성 · 경남 · 2023년')">50–60대</span>
+          <span class="rgc" onclick="selAud(this,'30–40대','var(--low)','38세 여성 · 서울 · 2023년')">30–40대</span>
+          <span class="rgc" onclick="selAud(this,'10–20대','#B5D4F4','22세 남성 · 서울 · 2023년')">10–20대</span>
+        </div>
+        <div class="aud">
+          <button class="apb" id="apb" style="background:var(--high);" onclick="toggleAud()" aria-label="재생/정지"><i class="ti ti-player-play" id="apbIcon" style="font-size:11px;" aria-hidden="true"></i></button>
+          <div class="wbar" onclick="seekAud(event)" role="progressbar" aria-label="재생 진행">
+            <div class="wpr" id="audProg" style="width:0%;"></div>
+            <div class="wb" style="height:55%;background:var(--high);"></div><div class="wb" style="height:80%;background:var(--high);"></div><div class="wb" style="height:42%;background:var(--high);"></div><div class="wb" style="height:88%;background:var(--high);"></div><div class="wb" style="height:62%;background:var(--high);"></div><div class="wb" style="height:74%;background:var(--high);"></div><div class="wb" style="height:48%;background:var(--high);"></div><div class="wb" style="height:85%;background:var(--high);"></div><div class="wb" style="height:58%;background:var(--high);"></div><div class="wb" style="height:70%;background:var(--high);"></div><div class="wb" style="height:44%;background:var(--high);"></div><div class="wb" style="height:82%;background:var(--high);"></div>
+          </div>
+          <span class="aud-dur" id="audDur">0:03</span>
+        </div>
+        <div style="font-size:10px;color:#aaa;margin-top:4px;text-align:left;" id="audMeta">70대 여성 · 경남 창원 · 2023년</div>
+        <div class="ins warn" style="margin-top:12px;">
+          <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+          <span>10–20대 인지도가 70대 대비 <strong>57%p</strong> 낮아 세대 단절 우려.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 세대 격차 배너 -->
+    <div class="gap-banner gap-banner--wide" role="note" aria-label="세대 격차 강조" style="width: 100%;">
+      <div class="gap-ico" aria-hidden="true">↕</div>
+      <div>
+        <div class="gap-t1"><span class="gap-num" id="gapNum">57%p</span> 격차, 빠르게 사라지고 있습니다.</div>
+        <div class="gap-t2" id="gapDesc">70대 어르신(88%)과 10–20대(31%)의 인지도 차이입니다. 방언을 아는 세대가 세상을 떠나면, 방언도 함께 사라집니다.</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="flow-hr" aria-hidden="true" style="width: 100%;">
+
+  <section class="flow-sec" id="step4" style="width: 100%;">
+    <div class="flow-head">
+      <div class="flow-badge" aria-hidden="true">4</div>
+      <div>
+        <div class="flow-title">성별 차이와 시간에 따른 변화</div>
+        <p class="flow-desc">성별 분포는 사회적 역할·사용 맥락 차이를 시사하고, 연도별 추이는 방언이 ‘확산 중인지/쇠퇴 중인지’를 보여줍니다. 교차표까지 함께 보면 변화가 특정 지역·세대에 집중되는지 확인할 수 있어 원인 가설을 세우는 데 유용합니다.</p>
+      </div>
+    </div>
+
+    <!-- Row 2: 성별 + 교차 + 추이 -->
+    <div class="grid3">
+      <!-- 성별 -->
+      <div class="card">
+        <div class="card-hd">
+          <div class="card-t"><i class="ti ti-gender-bigender" aria-hidden="true"></i> 성별 인지도</div>
+          <span class="card-note">감자 · 2023년</span>
+        </div>
+        <div class="sex-compare" role="group" aria-label="성별 인지도 비교">
+          <div class="sex-box m" aria-label="남성 인지도">
+            <div class="sex-icon" aria-hidden="true">♂</div>
+            <div class="sex-big" id="sexM">54%</div>
+            <div class="sex-name">남성</div>
+          </div>
+          <div class="sex-mid" aria-label="성별 차이">
+            <div class="sex-diff" id="sexDiff">+7%p</div>
+            <div class="sex-sub" id="sexDiffTxt">여성이<br>높음</div>
+          </div>
+          <div class="sex-box f" aria-label="여성 인지도">
+            <div class="sex-icon" aria-hidden="true">♀</div>
+            <div class="sex-big" id="sexF">61%</div>
+            <div class="sex-name">여성</div>
+          </div>
+        </div>
+        <div class="ins info" style="margin-bottom:10px;">
+          <i class="ti ti-info-circle" aria-hidden="true"></i>
+          <span>여성이 <strong>7%p</strong> 높음. 경남 여성 <strong>90%</strong> 최고.</span>
+        </div>
+        <div style="font-size:11px;font-weight:500;color:#6b6b6b;margin-bottom:6px;text-align:left;">성별 × 세대</div>
+        <table class="mini-tbl">
+          <thead><tr><th>세대</th><th style="text-align:center;color:#378ADD;">남</th><th style="text-align:center;color:#D4537E;">여</th></tr></thead>
+          <tbody>
+            <tr><td style="color:#6b6b6b;text-align:left;">10–20대</td><td style="text-align:center;color:#378ADD;font-weight:500;">28%</td><td style="text-align:center;color:#D4537E;font-weight:500;">34%</td></tr>
+            <tr><td style="color:#6b6b6b;text-align:left;">30–40대</td><td style="text-align:center;color:#378ADD;font-weight:500;">49%</td><td style="text-align:center;color:#D4537E;font-weight:500;">55%</td></tr>
+            <tr><td style="color:#6b6b6b;text-align:left;">50–60대</td><td style="text-align:center;color:#378ADD;font-weight:500;">71%</td><td style="text-align:center;color:#D4537E;font-weight:500;">77%</td></tr>
+            <tr><td style="color:#6b6b6b;text-align:left;">70대↑</td><td style="text-align:center;color:#378ADD;font-weight:500;">85%</td><td style="text-align:center;color:#D4537E;font-weight:500;">91%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 세대×지역 교차 -->
+      <div class="card">
+        <div class="card-hd">
+          <div class="card-t"><i class="ti ti-table" aria-hidden="true"></i> 세대 × 지역 교차</div>
+        </div>
+        <div class="read-guide" role="note" aria-label="표 읽는 법 안내">
+          <div class="rg-ico" aria-hidden="true">💡</div>
+          <div class="rg-txt">가로(지역) × 세로(세대)를 교차해서 읽으세요. 색이 진할수록 많이 알고 있고, 흐릴수록 모릅니다.</div>
+        </div>
+        <table class="xt">
+          <thead><tr><th>지역</th><th>10–20</th><th>30–40</th><th>50–60</th><th>70↑</th></tr></thead>
+          <tbody>
+            <tr><td style="font-size:11px;color:#6b6b6b;text-align:left;padding:5px 6px;">경상남도</td><td><span class="xc" style="background:var(--mid);">64%</span></td><td><span class="xc" style="background:var(--mid);">80%</span></td><td><span class="xc" style="background:var(--high);">90%</span></td><td><span class="xc" style="background:var(--high);">96%</span></td></tr>
+            <tr><td style="font-size:11px;color:#6b6b6b;text-align:left;padding:5px 6px;">경상북도</td><td><span class="xc" style="background:var(--mid);">60%</span></td><td><span class="xc" style="background:var(--mid);">76%</span></td><td><span class="xc" style="background:var(--high);">88%</span></td><td><span class="xc" style="background:var(--high);">92%</span></td></tr>
+            <tr><td style="font-size:11px;color:#6b6b6b;text-align:left;padding:5px 6px;">전라남도</td><td><span class="xc" style="background:var(--mid);">50%</span></td><td><span class="xc" style="background:var(--mid);">65%</span></td><td><span class="xc" style="background:var(--mid);">78%</span></td><td><span class="xc" style="background:var(--high);">82%</span></td></tr>
+            <tr><td style="font-size:11px;color:#6b6b6b;text-align:left;padding:5px 6px;">충청남도</td><td><span class="xc" style="background:var(--low);">34%</span></td><td><span class="xc" style="background:var(--low);">50%</span></td><td><span class="xc" style="background:var(--mid);">66%</span></td><td><span class="xc" style="background:var(--mid);">72%</span></td></tr>
+            <tr><td style="font-size:11px;color:#6b6b6b;text-align:left;padding:5px 6px;">강원도</td><td><span class="xc" style="background:var(--low);">24%</span></td><td><span class="xc" style="background:var(--low);">38%</span></td><td><span class="xc" style="background:var(--low);">55%</span></td><td><span class="xc" style="background:var(--mid);">62%</span></td></tr>
+            <tr><td style="font-size:11px;color:#6b6b6b;text-align:left;padding:5px 6px;">서울·경기</td><td><span class="xc" style="background:var(--non);">12%</span></td><td><span class="xc" style="background:var(--low);">30%</span></td><td><span class="xc" style="background:var(--low);">48%</span></td><td><span class="xc" style="background:var(--low);">55%</span></td></tr>
+          </tbody>
+        </table>
+        <div class="xt-legend" aria-label="표 범례">
+          <span class="xt-leg"><span class="xt-box" style="background:var(--high);" aria-hidden="true"></span>70%↑</span>
+          <span class="xt-leg"><span class="xt-box" style="background:var(--mid);" aria-hidden="true"></span>절반 이상</span>
+          <span class="xt-leg"><span class="xt-box" style="background:var(--low);" aria-hidden="true"></span>절반 미만</span>
+          <span class="xt-leg"><span class="xt-box" style="background:var(--non);" aria-hidden="true"></span>거의 모름</span>
+        </div>
+      </div>
+
+      <!-- 추이 -->
+      <div class="card">
+        <div class="card-hd">
+          <div class="card-t"><i class="ti ti-trending-up" aria-hidden="true"></i> 연도별 추이</div>
+          <span class="card-note" id="trendLabel">감자</span>
+        </div>
+        <div class="trend-wrap">
+          <svg viewBox="0 0 240 148" style="width:100%;display:block;" role="img" aria-label="연도별 인지도 추이">
+            <title>감자 인지도 연도별 추이</title>
+            <g stroke="#ebebeb" stroke-width="0.5"><line x1="32" y1="10" x2="32" y2="118"/><line x1="32" y1="118" x2="232" y2="118"/><line x1="32" y1="10" x2="232" y2="10"/><line x1="32" y1="40" x2="232" y2="40"/><line x1="32" y1="70" x2="232" y2="70"/><line x1="32" y1="100" x2="232" y2="100"/></g>
+            <g font-size="8" font-family="sans-serif" fill="#aaa" text-anchor="end"><text x="28" y="13">100%</text><text x="28" y="43">75%</text><text x="28" y="73">50%</text><text x="28" y="103">25%</text></g>
+            <polyline points="62,54 112,50 162,44 212,34" fill="none" stroke="var(--mid)" stroke-width="2.2" stroke-linejoin="round"/>
+            <polyline points="62,86 112,83 162,80 212,76" fill="none" stroke="var(--non)" stroke-width="1.6" stroke-dasharray="4,2"/>
+            <polyline points="62,100 112,98 162,96 212,94" fill="none" stroke="var(--low)" stroke-width="2.2" stroke-linejoin="round"/>
+            <polyline points="62,108 112,106 162,104 212,102" fill="none" stroke="#B5D4F4" stroke-width="1.4" stroke-dasharray="2,3"/>
+            <circle cx="212" cy="34" r="3.5" fill="var(--mid)" stroke="#fff" stroke-width="1.2"/>
+            <circle cx="212" cy="76" r="3.5" fill="var(--non)" stroke="#fff" stroke-width="1.2"/>
+            <circle cx="212" cy="94" r="3.5" fill="var(--low)" stroke="#fff" stroke-width="1.2"/>
+            <circle cx="212" cy="102" r="3.5" fill="#B5D4F4" stroke="#fff" stroke-width="1.2"/>
+            <g font-size="8.5" font-family="sans-serif" font-weight="500"><text x="217" y="37" fill="var(--mid)">87%</text><text x="217" y="79" fill="var(--non)">57%</text><text x="217" y="97" fill="var(--low)">38%</text><text x="217" y="105" fill="#6090C0">31%</text></g>
+            <g font-size="8" font-family="sans-serif" fill="#aaa" text-anchor="middle"><text x="62" y="130">2015</text><text x="112" y="130">2018</text><text x="162" y="130">2020</text><text x="212" y="130">2023</text></g>
+          </svg>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;margin-top:6px;margin-bottom:10px;text-align:left;">
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;"><div style="width:14px;height:2.5px;background:var(--mid);border-radius:2px;"></div>경남 (고매) — 방언 유지</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;"><div style="width:14px;height:2px;background:var(--non);border-radius:2px;"></div>전국 평균</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;"><div style="width:14px;height:2.5px;background:var(--low);border-radius:2px;"></div>수도권 — 표준화 진행</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;"><div style="width:14px;height:1.5px;background:#B5D4F4;border-radius:2px;"></div>10–20대 전국 — 하락 경고</div>
+        </div>
+        <div class="ins warn card-foot"><i class="ti ti-trending-down" style="font-size:13px;" aria-hidden="true"></i><span>10–20대 전국 인지도가 8년 만에 <strong>12%p</strong> 하락했습니다. 이 추세가 지속되면 젊은 층에서 방언이 사실상 사멸할 우려가 있습니다.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="flow-hr" aria-hidden="true" style="width: 100%;">
+
+  <section class="flow-sec" id="step5" style="width: 100%;">
+    <div class="flow-head">
+      <div class="flow-badge" aria-hidden="true">5</div>
+      <div>
+        <div class="flow-title">종합: 이 방언은 지금 어떤 상태인가요?</div>
+        <p class="flow-desc">앞의 지표를 종합해 ‘유지/확산/쇠퇴’의 상태를 요약합니다. 핵심 인사이트는 변화의 방향(증가·감소)과 위험 신호(세대 단절, 지역 편중)를 한 문장으로 정리해, 다음 행동(기록·교육·홍보)을 바로 결정할 수 있도록 돕습니다.</p>
+      </div>
+    </div>
+
+    <div class="card" style="width: 100%;">
+      <div class="ins good"><i class="ti ti-trending-up" aria-hidden="true"></i><span>경상도에서는 방언이 유지되고 있습니다. 경남·경북의 ‘고매’ 인지도가 8년간 <strong>+8%p</strong> 증가하며 안정적인 유지 흐름이 확인됩니다.</span></div>
+      <div class="ins warn" style="margin-top:6px;"><i class="ti ti-alert-triangle" aria-hidden="true"></i><span>세대 단절이 심각합니다. 10–20대(<strong>31%</strong>)와 70대(<strong>88%</strong>)의 격차가 <strong>57%p</strong>로, 자연 전승이 끊길 위험 신호입니다.</span></div>
+      <div class="ins warn" style="margin-top:6px;"><i class="ti ti-trending-down" aria-hidden="true"></i><span>10–20대 인지도가 계속 하락하고 있습니다. 2015년 <strong>43%</strong>에서 2023년 <strong>31%</strong>로 8년 만에 <strong>12%p</strong> 떨어졌습니다.</span></div>
+      <div class="ins info" style="margin-top:6px;"><i class="ti ti-map-pin" aria-hidden="true"></i><span>지역 간 격차도 큽니다. 경남(<strong>87%</strong>)과 서울(<strong>38%</strong>)의 차이는 <strong>49%p</strong>로, 특정 권역 중심의 편중이 나타납니다.</span></div>
+      <div class="ins accent" style="margin-top:6px;"><i class="ti ti-book-2" aria-hidden="true"></i><span>이 인지도 데이터는 국립국어원의 방언 보존 교육 자료 개발과 지역어 기록 사업의 우선순위 결정을 위해 활용됩니다.</span></div>
+    </div>
+    <div class="link-center">
+      <a class="link-btn link-btn--muted" href="./dialect_map.html">지역어 지도에서 분포 확인하기 →</a>
+    </div>
+  </section>
+</div>
+
+<div id="footer-common"></div>
+
+<!-- 툴팁 -->
+<div class="map-tooltip" id="mapTip">
+  <div class="tt-reg" id="ttReg"></div>
+  <div class="tt-pct" id="ttPct"></div>
+  <div class="tt-form" id="ttForm"></div>
+  <div class="tt-wx" id="ttWx"></div>
+  <div class="tt-mean" id="ttMean" style="display:none;"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/ol@v10.9.0/dist/ol.js"></script>
+<script>
+  /* ─ OpenLayers 지도 ─ */
+  var _olMaps = { wx: null, bb: null };
+  var _olOverlays = { wx: { weather: [], bubble: [] }, bb: { weather: [], bubble: [] } };
+
+  function _setMapMsgVisible(mode, visible, msg){
+    var el = document.getElementById(mode === 'bb' ? 'vwmsgBb' : 'vwmsgWx');
+    if (!el) return;
+    if (msg) el.innerHTML = msg;
+    el.style.display = visible ? 'flex' : 'none';
+  }
+
+  function _createOlMap(containerId){
+    if (!window.ol || !ol.Map) throw new Error('OpenLayers not loaded');
+    var targetEl = document.getElementById(containerId);
+    return new ol.Map({
+      target: containerId,
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        })
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([127.8, 36.35]),
+        zoom: 6.7
+      }),
+      keyboardEventTarget: targetEl || undefined
+    });
+  }
+
+  function _clearOverlays(mode, kind){
+    var map = _olMaps[mode];
+    if (!map) return;
+    var list = _olOverlays[mode][kind] || [];
+    list.forEach(function(ov){ try { map.removeOverlay(ov); } catch(_){} });
+    _olOverlays[mode][kind] = [];
+  }
+
+  function _hideSvgOverlay(mode){
+    var svgId = mode === 'bb' ? 'bmap' : 'wmap';
+    var svg = document.getElementById(svgId);
+    if (svg) svg.style.display = 'none';
+  }
+
+  function _showSvgOverlay(mode){
+    var svgId = mode === 'bb' ? 'bmap' : 'wmap';
+    var svg = document.getElementById(svgId);
+    if (svg) svg.style.display = '';
+  }
+
+  function ensureOpenLayers(mode){
+    var containerId = mode === 'bb' ? 'vwmapBb' : 'vwmapWx';
+    var container = document.getElementById(containerId);
+    if (!container) return;
+
+    if (!window.ol || !ol.Map) {
+      container.classList.add('is-fallback');
+      _showSvgOverlay(mode);
+      _setMapMsgVisible(
+        mode,
+        true,
+        '지도가 표시되지 않습니다.<br>' +
+        '현재 페이지가 인터넷에 접근하지 못해 OpenLayers/OSM 타일을 불러오지 못하는 상태로 보입니다.<br>' +
+        '대신 임시 배경(정적 이미지)로 표시합니다.'
+      );
+      return;
+    }
+
+    container.classList.remove('is-fallback');
+    _setMapMsgVisible(mode, false);
+    if (_olMaps[mode]) {
+      requestAnimationFrame(function(){ _olMaps[mode].updateSize(); });
+      return;
+    }
+
+    requestAnimationFrame(function(){
+      try {
+        if (_olMaps[mode]) return;
+        _olMaps[mode] = _createOlMap(containerId);
+        _olMaps[mode].updateSize();
+        _hideSvgOverlay(mode);
+        if (mode === 'wx') renderWeather();
+        if (mode === 'bb') renderBubble();
+      } catch (e) {
+        console.warn(e);
+        var detail = (e && (e.message || String(e))) ? (e.message || String(e)) : '';
+        _setMapMsgVisible(
+          mode,
+          true,
+          '지도를 초기화하지 못했습니다.<br>' +
+          '<span style="font-size:11px;color:var(--text3);word-break:break-word;">' + detail + '</span>'
+        );
+      }
+    });
+  }
+
+  var _currentMapMode = 'wx';
+  function _zoomBy(delta){
+    ensureOpenLayers(_currentMapMode);
+    var map = _olMaps[_currentMapMode];
+    if (!map) return;
+    var view = map.getView();
+    var z = view.getZoom();
+    view.setZoom((typeof z === 'number' ? z : 0) + delta);
+  }
+
+  /* ─ 지역 데이터 ─ */
+  var REGIONS=[
+    {id:'서울·경기', lon:126.9780, lat:37.5665, cx:155,cy:42,pct:38,form:'감자'},
+    {id:'충청권',   lon:127.3845, lat:36.3504, cx:150,cy:88,pct:54,form:'감재'},
+    {id:'강원도',   lon:127.7342, lat:37.8813, cx:308,cy:78,pct:43,form:'감저'},
+    {id:'전라권',   lon:126.8514, lat:35.1595, cx:150,cy:175,pct:61,form:'감저'},
+    {id:'전라남도', lon:126.4629, lat:34.8161, cx:240,cy:232,pct:68,form:'감저'},
+    {id:'경상북도', lon:128.6811, lat:36.5760, cx:338,cy:178,pct:82,form:'고매'},
+    {id:'경상남도', lon:128.2132, lat:35.2383, cx:338,cy:268,pct:87,form:'고매'},
+    {id:'제주도',   lon:126.5312, lat:33.4996, cx:185,cy:284,pct:72,form:'감저'},
+  ];
+
+  function getWx(pct){
+    if(pct>=70) return {emoji:'☀️',size:34,label:'맑음'};
+    if(pct>=50) return {emoji:'🌤️',size:30,label:'구름조금'};
+    if(pct>=30) return {emoji:'🌧️',size:28,label:'비'};
+    return {emoji:'⛈️',size:26,label:'천둥번개'};
+  }
+
+  function renderWeather(){
+    if (_olMaps.wx) {
+      _clearOverlays('wx','weather');
+      _clearOverlays('wx','bubble');
+      var map = _olMaps.wx;
+      REGIONS.forEach(function(r){
+        var w = getWx(r.pct);
+        var el = document.createElement('button');
+        el.type = 'button';
+        el.className = 'ol-marker';
+        el.setAttribute('aria-label', r.id + ' 인지도 ' + r.pct + '% (' + w.label + '), 방언형 ' + r.form);
+        el.style.border = 'none';
+        el.style.background = 'transparent';
+        el.style.padding = '0';
+
+        var ring = document.createElement('div');
+        ring.className = 'ol-ring';
+
+        var em = document.createElement('div');
+        em.className = 'ol-emoji';
+        em.textContent = w.emoji;
+        ring.appendChild(em);
+
+        var pct = document.createElement('div');
+        pct.className = 'ol-pct';
+        pct.textContent = r.pct + '%';
+        ring.appendChild(pct);
+
+        var form = document.createElement('div');
+        form.className = 'ol-form';
+        form.textContent = r.form;
+        ring.appendChild(form);
+
+        el.appendChild(ring);
+
+        el.addEventListener('mouseenter', function(e){ showTip(e, r.id, r.pct, r.form, w.label); });
+        el.addEventListener('mouseleave', hideTip);
+        el.addEventListener('focus', function(){ showTip({clientX:0,clientY:0}, r.id, r.pct, r.form, w.label); });
+        el.addEventListener('blur', hideTip);
+
+        var ov = new ol.Overlay({ element: el, stopEvent: true, positioning: 'center-center' });
+        ov.setPosition(ol.proj.fromLonLat([r.lon, r.lat]));
+        map.addOverlay(ov);
+        _olOverlays.wx.weather.push(ov);
+      });
+      return;
+    }
+
+    var g=document.getElementById('weatherIcons');
+    if(!g) return;
+    g.innerHTML='';
+    REGIONS.forEach(function(r){
+      var w=getWx(r.pct);
+      var grp=document.createElementNS('http://www.w3.org/2000/svg','g');
+      grp.style.cursor='pointer';
+
+      var circ=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      circ.setAttribute('cx',r.cx); circ.setAttribute('cy',r.cy);
+      circ.setAttribute('r',w.size+2);
+      circ.setAttribute('fill','rgba(255,255,255,0.22)');
+      circ.setAttribute('stroke','rgba(255,255,255,0.55)');
+      circ.setAttribute('stroke-width','1.2');
+      grp.appendChild(circ);
+
+      var fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+      var fs=w.size*0.78;
+      fo.setAttribute('x',r.cx-w.size/2);
+      fo.setAttribute('y',r.cy-w.size*0.92);
+      fo.setAttribute('width',w.size);
+      fo.setAttribute('height',w.size*1.1);
+      var div=document.createElement('div');
+      div.style.cssText='width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:'+fs+'px;line-height:1;';
+      div.textContent=w.emoji;
+      fo.appendChild(div);
+      grp.appendChild(fo);
+
+      var t1=document.createElementNS('http://www.w3.org/2000/svg','text');
+      t1.setAttribute('x',r.cx); t1.setAttribute('y',r.cy+Math.round(w.size*0.42));
+      t1.setAttribute('text-anchor','middle');
+      t1.setAttribute('font-size','11'); t1.setAttribute('font-weight','700');
+      t1.setAttribute('fill','#1a1a1a'); t1.setAttribute('font-family','sans-serif');
+      t1.textContent=r.pct+'%';
+      grp.appendChild(t1);
+
+      var t2=document.createElementNS('http://www.w3.org/2000/svg','text');
+      t2.setAttribute('x',r.cx); t2.setAttribute('y',r.cy+Math.round(w.size*0.68));
+      t2.setAttribute('text-anchor','middle');
+      t2.setAttribute('font-size','9'); t2.setAttribute('fill','#4a6070');
+      t2.setAttribute('font-family','sans-serif');
+      t2.textContent=r.form;
+      grp.appendChild(t2);
+
+      grp.addEventListener('mouseenter',function(e){ showTip(e,r.id,r.pct,r.form,w.label); });
+      grp.addEventListener('mouseleave',hideTip);
+      g.appendChild(grp);
+    });
+  }
+
+  function renderBubble(){
+    if (_olMaps.bb) {
+      _clearOverlays('bb','weather');
+      _clearOverlays('bb','bubble');
+      var map = _olMaps.bb;
+      var colorMap={87:'var(--mid)',82:'var(--mid)',72:'#7F77DD',68:'#1D9E75',61:'#1D9E75',54:'var(--low)',43:'var(--low)',38:'var(--non)'};
+      REGIONS.forEach(function(r){
+        var color = colorMap[r.pct]||'var(--non)';
+        var radius = Math.round(r.pct*0.38+10);
+        var el = document.createElement('button');
+        el.type = 'button';
+        el.className = 'ol-bubble';
+        el.setAttribute('aria-label', r.id + ' 인지도 ' + r.pct + '%, 방언형 ' + r.form);
+        el.style.border = 'none';
+        el.style.background = 'transparent';
+        el.style.padding = '0';
+
+        var bub = document.createElement('div');
+        bub.className = 'ol-bub';
+        bub.style.width = radius*2 + 'px';
+        bub.style.height = radius*2 + 'px';
+        bub.style.background = color;
+        bub.textContent = r.pct + '%';
+        el.appendChild(bub);
+
+        var lab = document.createElement('div');
+        lab.className = 'ol-bub-label';
+        lab.textContent = r.form;
+        el.appendChild(lab);
+
+        el.addEventListener('mouseenter', function(e){ showTip(e, r.id, r.pct, r.form, '버블'); });
+        el.addEventListener('mouseleave', hideTip);
+        el.addEventListener('blur', hideTip);
+
+        var ov = new ol.Overlay({ element: el, stopEvent: true, positioning: 'center-center' });
+        ov.setPosition(ol.proj.fromLonLat([r.lon, r.lat]));
+        map.addOverlay(ov);
+        _olOverlays.bb.bubble.push(ov);
+      });
+      return;
+    }
+
+    var g=document.getElementById('bubbleIcons');
+    if(!g) return;
+    g.innerHTML='';
+    var colorMap={87:'var(--mid)',82:'var(--mid)',72:'#7F77DD',68:'#1D9E75',61:'#1D9E75',54:'var(--low)',43:'var(--low)',38:'var(--non)'};
+    REGIONS.forEach(function(r){
+      var color=colorMap[r.pct]||'var(--non)';
+      var radius=Math.round(r.pct*0.38+6);
+      var grp=document.createElementNS('http://www.w3.org/2000/svg','g');
+      grp.style.cursor='pointer';
+
+      var circ=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      circ.setAttribute('cx',r.cx); circ.setAttribute('cy',r.cy);
+      circ.setAttribute('r',radius);
+      circ.style.fill=color; circ.setAttribute('opacity','0.9');
+      grp.appendChild(circ);
+
+      var t1=document.createElementNS('http://www.w3.org/2000/svg','text');
+      t1.setAttribute('x',r.cx); t1.setAttribute('y',r.cy+4);
+      t1.setAttribute('text-anchor','middle');
+      t1.setAttribute('font-size','10'); t1.setAttribute('font-weight','700');
+      t1.setAttribute('fill','#fff'); t1.setAttribute('font-family','sans-serif');
+      t1.textContent=r.pct+'%';
+      grp.appendChild(t1);
+
+      var t2=document.createElementNS('http://www.w3.org/2000/svg','text');
+      t2.setAttribute('x',r.cx); t2.setAttribute('y',r.cy+radius+12);
+      t2.setAttribute('text-anchor','middle');
+      t2.setAttribute('font-size','9'); t2.setAttribute('fill','#4a6070');
+      t2.setAttribute('font-family','sans-serif');
+      t2.textContent=r.form;
+      grp.appendChild(t2);
+
+      grp.addEventListener('mouseenter',function(e){ showTip(e,r.id,r.pct,r.form,'버블'); });
+      grp.addEventListener('mouseleave',hideTip);
+      g.appendChild(grp);
+    });
+  }
+
+  function showTip(e,region,pct,form,wx){
+    var d=document.getElementById('mapTip');
+    document.getElementById('ttReg').textContent=region;
+    var c=pct>=70?'var(--mid)':pct>=50?'var(--amb)':pct>=30?'var(--low)':'var(--non)';
+    document.getElementById('ttPct').textContent=pct+'%';
+    document.getElementById('ttPct').style.color=c;
+    document.getElementById('ttForm').textContent='방언형: '+form;
+    document.getElementById('ttWx').textContent='날씨 구간: '+wx;
+    var meanEl=document.getElementById('ttMean');
+    if(meanEl){
+      var msg='', bg='', fg='';
+      if(pct>=70){ msg='방언이 활발히 살아있습니다'; bg='#FAEEDA'; fg='#633806'; }
+      else if(pct>=50){ msg='아직 알려져 있지만 주의 필요'; bg='#E6F1FB'; fg='#0C3A6A'; }
+      else if(pct>=30){ msg='점점 잊혀지고 있습니다'; bg='#FEF3E8'; fg='#7A4010'; }
+      else { msg='사라질 위험이 높습니다'; bg='#FCEBEB'; fg='#7A1E1E'; }
+      meanEl.textContent=msg;
+      meanEl.style.background=bg;
+      meanEl.style.color=fg;
+      meanEl.style.border='0.5px solid rgba(0,0,0,0.08)';
+      meanEl.style.display='inline-flex';
+    }
+    var x = (e && typeof e.clientX === 'number' && e.clientX) ? e.clientX : (window.innerWidth/2);
+    var y = (e && typeof e.clientY === 'number' && e.clientY) ? e.clientY : 120;
+    d.style.left=(x+14)+'px';
+    d.style.top=(y+10)+'px';
+    d.style.display='block';
+  }
+
+  function hideTip(){
+    var d=document.getElementById('mapTip');
+    if(d) d.style.display='none';
+    var m=document.getElementById('ttMean');
+    if(m) m.style.display='none';
+  }
+  document.addEventListener('scroll',hideTip);
+
+  function setView(mode){
+    _currentMapMode = mode;
+    document.getElementById('btnWx').classList.toggle('on',mode==='wx');
+    document.getElementById('btnBb').classList.toggle('on',mode==='bb');
+    document.getElementById('viewWx').style.display=mode==='wx'?'block':'none';
+    document.getElementById('viewBb').style.display=mode==='bb'?'block':'none';
+    if(mode==='bb') renderBubble();
+    if(mode==='wx') renderWeather();
+    ensureOpenLayers(mode);
+  }
+
+  /* ─ 어휘 데이터 ─ */
+  var DATA={
+    '감자':{avg:57,high:'경남',highPct:87,hf:'고매',gap:57,sexM:54,sexF:61,gen:[31,52,74,88]},
+    '가위':{avg:63,high:'경남',highPct:91,hf:'가시내',gap:54,sexM:59,sexF:67,gen:[38,58,78,92]},
+    '강아지':{avg:71,high:'제주',highPct:87,hf:'강생이',gap:36,sexM:67,sexF:75,gen:[55,68,82,91]},
+    '고구마':{avg:45,high:'전남',highPct:72,hf:'고금',gap:52,sexM:41,sexF:49,gen:[22,40,62,80]},
+    '갈치':{avg:38,high:'제주',highPct:80,hf:'갈치',gap:57,sexM:34,sexF:42,gen:[18,32,55,75]},
+    '다슬기':{avg:28,high:'경남',highPct:62,hf:'올갱이',gap:50,sexM:24,sexF:32,gen:[10,22,40,60]},
+  };
+
+  function _tenPeople(pct){
+    var n = Math.round((pct || 0) / 10);
+    return Math.max(0, Math.min(10, n));
+  }
+
+  function updateKpiNarratives(word, d){
+    if (!d) return;
+    var avgN = _tenPeople(d.avg);
+    var highN = _tenPeople(d.highPct);
+    var fN = _tenPeople(d.sexF);
+    var mN = _tenPeople(d.sexM);
+    var genYoung = d.gen[0];
+    var genOld = d.gen[3];
+    var gap = genOld - genYoung;
+
+    var el;
+    el = document.getElementById('kpiAvgMeaning');
+    if (el) el.textContent = '전체 응답자 기준 인지도(%)';
+    el = document.getElementById('kpiAvgCtx');
+    if (el) el.textContent = '응답자 10명 중 약 ' + avgN + '명이 이 방언형을 알고 있습니다.';
+
+    el = document.getElementById('kpiHighMeaning');
+    if (el) el.textContent = '가장 높은 인지도 지역(%)';
+    el = document.getElementById('kpiHighCtx');
+    if (el) el.textContent = d.high + ' 응답자 10명 중 약 ' + highN + '명이 이 방언형을 알고 있습니다.';
+
+    el = document.getElementById('kpiGapMeaning');
+    if (el) el.textContent = '젊은층과 고령층 인지도 차이(%p)';
+    el = document.getElementById('kpiGapCtx');
+    if (el) el.textContent = '70대(' + genOld + '%) vs 10–20대(' + genYoung + '%), 두 세대 차이가 ' + gap + '%p입니다.';
+
+    el = document.getElementById('kpiSexMeaning');
+    if (el) el.textContent = '여성·남성 인지도 비교(%)';
+    el = document.getElementById('kpiSexCtx');
+    if (el) el.textContent = '여성은 10명 중 약 ' + fN + '명, 남성은 약 ' + mN + '명이 이 방언형을 알고 있습니다.';
+  }
+
+  function updateSexCompare(d){
+    if (!d) return;
+    var m = d.sexM;
+    var f = d.sexF;
+    var mEl = document.getElementById('sexM');
+    var fEl = document.getElementById('sexF');
+    if (mEl) mEl.textContent = m + '%';
+    if (fEl) fEl.textContent = f + '%';
+
+    var diff = f - m;
+    var diffEl = document.getElementById('sexDiff');
+    var txtEl = document.getElementById('sexDiffTxt');
+    var abs = Math.abs(diff);
+    if (diffEl) diffEl.textContent = (diff >= 0 ? '+' : '−') + abs + '%p';
+    if (txtEl) txtEl.textContent = (diff >= 0 ? '여성이\n높음' : '남성이\n높음');
+  }
+
+  function updateGenerationBars(d){
+    if (!d || !d.gen) return;
+    var gc=['#B5D4F4','var(--low)','var(--mid)','var(--high)'];
+    [1,2,3,4].forEach(function(n,i){
+      var v=d.gen[i];
+      var bar=document.getElementById('gb'+n);
+      var pctEl=document.getElementById('gp'+n);
+      if(bar){
+        bar.style.width=v+'%';
+        bar.style.background=gc[i];
+        bar.style.color=(i===0)?'#042C53':'#fff';
+        bar.textContent='10명 중 ' + _tenPeople(v) + '명';
+      }
+      if(pctEl){
+        pctEl.textContent=v+'%';
+        pctEl.style.color=gc[i];
+      }
+    });
+    var young=d.gen[0], old=d.gen[3];
+    var gap=old-young;
+    var gn=document.getElementById('gapNum');
+    if(gn) gn.textContent=gap+'%p';
+    var gd=document.getElementById('gapDesc');
+    if(gd){
+      gd.textContent='70대 어르신('+old+'%)과 10–20대('+young+'%)의 인지도 차이입니다. 방언을 아는 세대가 세상을 떠나면, 방언도 함께 사라집니다.';
+    }
+  }
+
+  function selectWord(btn,word){
+    document.querySelectorAll('.wt').forEach(function(t){t.classList.remove('on');});
+    btn.classList.add('on');
+    var d=DATA[word]||DATA['감자'];
+    var c=d.avg>=70?'var(--high)':d.avg>=50?'var(--mid)':d.avg>=30?'var(--low)':'var(--non)';
+
+    document.getElementById('kpiAvg').textContent=d.avg+'%';
+    document.getElementById('kpiAvg').style.color=c;
+    document.getElementById('kpiHigh').innerHTML=d.high+' <span style="font-size:26px;color:var(--mid);">'+d.highPct+'%</span>';
+    document.getElementById('kpiForm').textContent='대표형: '+d.hf;
+    document.getElementById('kpiGap').textContent=d.gap+'%p';
+    document.getElementById('kpiM').textContent=d.sexM+'%';
+    document.getElementById('kpiF').textContent=d.sexF+'%';
+    updateKpiNarratives(word, d);
+    updateGenerationBars(d);
+    updateSexCompare(d);
+
+    ['mapWordLabel','genLabel','trendLabel'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el) el.textContent=word+(id==='trendLabel'?'':' · 2023년');
+    });
+  }
+
+  function pickWord(word){
+    var wt=document.getElementById('wt-'+word);
+    if(wt) selectWord(wt,word);
+  }
+
+  function onSrch(inp){
+    document.getElementById('srchClear').style.display=inp.value?'block':'none';
+  }
+  function clearSrch(){
+    document.getElementById('srchInp').value='';
+    document.getElementById('srchClear').style.display='none';
+  }
+
+  var advOpen=false;
+  function toggleAdv(){
+    advOpen=!advOpen;
+    var p=document.getElementById('advPanel'),b=document.getElementById('advBtn'),c=document.getElementById('advChevron');
+    p.classList.toggle('open',advOpen);
+    b.classList.toggle('open',advOpen);
+    c.style.transform=advOpen?'rotate(180deg)':'';
+    b.setAttribute('aria-expanded',String(advOpen));
+  }
+  function resetAdv(){
+    document.querySelectorAll('.adv-inner select').forEach(function(s){s.selectedIndex=0;});
+    document.querySelectorAll('.adv-inner input').forEach(function(i){i.value='';});
+  }
+  function applyAdv(){ toggleAdv(); }
+
+  function setCat(el,cat){
+    document.querySelectorAll('.srch-quick .chip:not(.hot):not(.reg)').forEach(function(c){c.classList.remove('on');});
+    el.classList.add('on');
+  }
+  function setReg(el,reg){
+    el.classList.toggle('on');
+  }
+
+  function setSeg(btn,grpId){
+    var grp=document.getElementById(grpId);
+    if(grp) grp.querySelectorAll('.fb-s').forEach(function(b){b.classList.remove('on');});
+    btn.classList.add('on');
+  }
+
+  /* ─ 오디오 ─ */
+  var playing=false,pt=null,pr=0,wt2=null;
+  function toggleAud(){
+    playing=!playing;
+    var icon=document.getElementById('apbIcon');
+    if(playing){ icon.className='ti ti-player-pause'; runPr(); animW(); }
+    else{ icon.className='ti ti-player-play'; clearInterval(pt); clearInterval(wt2); stopW(); }
+  }
+  function runPr(){
+    clearInterval(pt);
+    pt=setInterval(function(){
+      pr=Math.min(pr+1.8,100);
+      document.getElementById('audProg').style.width=pr+'%';
+      var s=Math.round(pr*0.04);
+      document.getElementById('audDur').textContent='0:'+('0'+s).slice(-2);
+      if(pr>=100){ clearInterval(pt); clearInterval(wt2); playing=false; pr=0; document.getElementById('apbIcon').className='ti ti-player-play'; stopW(); }
+    },60);
+  }
+  function animW(){
+    wt2=setInterval(function(){
+      document.querySelectorAll('.wbar .wb').forEach(function(w){w.style.height=(32+Math.random()*58)+'%';});
+    },140);
+  }
+  function stopW(){
+    clearInterval(wt2);
+    var hs=[55,80,42,88,62,74,48,85,58,70,44,82];
+    document.querySelectorAll('.wbar .wb').forEach(function(w,i){w.style.height=hs[i%hs.length]+'%';});
+  }
+  function seekAud(e){
+    var b=e.currentTarget,rect=b.getBoundingClientRect();
+    pr=Math.max(0,Math.min(100,(e.clientX-rect.left)/rect.width*100));
+    document.getElementById('audProg').style.width=pr+'%';
+  }
+  function selAud(el,gen,color,meta){
+    document.querySelectorAll('.rgc').forEach(function(c){c.style.background='';c.style.color='';c.style.borderColor='';c.classList.remove('on');});
+    el.classList.add('on');
+    el.style.background='var(--high)'; el.style.color='#fff'; el.style.borderColor='var(--high)';
+    document.getElementById('audMeta').textContent=meta;
+    pr=0; document.getElementById('audProg').style.width='0%';
+    playing=false; clearInterval(pt); clearInterval(wt2);
+    document.getElementById('apbIcon').className='ti ti-player-play'; stopW();
+  }
+
+  /* ─ 정렬 ─ */
+  var sortAsc=false;
+  function toggleSort(){
+    sortAsc=!sortAsc;
+    document.getElementById('sortBtn').innerHTML=(sortAsc?'낮은순':'높은순')+' <i class="ti ti-arrows-sort" style="font-size:12px;" aria-hidden="true"></i>';
+    var rows=Array.from(document.getElementById('regionRank').querySelectorAll('.hm-row'));
+    rows.sort(function(a,b){
+      var pa=parseInt(a.querySelector('.hm-pct').textContent),pb=parseInt(b.querySelector('.hm-pct').textContent);
+      return sortAsc?pa-pb:pb-pa;
+    });
+    var c=document.getElementById('regionRank');
+    rows.forEach(function(r){c.appendChild(r);});
+  }
+
+  /* GNB 공통 모듈 연동 */
+
+  renderWeather();
+  ensureOpenLayers('wx');
+  document.getElementById('zoom-out') && (document.getElementById('zoom-out').onclick = function(){ _zoomBy(-1); });
+  document.getElementById('zoom-in') && (document.getElementById('zoom-in').onclick = function(){ _zoomBy(+1); });
+  var _skip = document.querySelector('.ol-skiplink');
+  _skip && _skip.addEventListener('click', function(){
+    setTimeout(function(){
+      var el = document.getElementById('vwmapWx');
+      el && el.focus && el.focus();
+    }, 0);
+  });
+</script>
+<script src="./share.js" defer></script>
+</body>
+</html>

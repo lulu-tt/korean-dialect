@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>지역어종합정보 — 공지사항 상세</title>
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="./styles.css">
+<script src="./gnb.js" defer></script>
+<script src="./footer.js" defer></script>
+<style>
+  @font-face {
+    font-family: 'NanumBarunGothicYetHangul';
+    src: url('https://cdn.jsdelivr.net/npm/@kfonts/nanum-barun-gothic-yet-hangul-otf/NanumBarunGothic-YetHangul.woff2') format('woff2'),
+         url('https://cdn.jsdelivr.net/npm/@kfonts/nanum-barun-gothic-yet-hangul-otf/NanumBarunGothic-YetHangul.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  body {
+    font-family: 'Pretendard', 'NanumBarunGothicYetHangul', system-ui, -apple-system, sans-serif;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  .container { width: 100%; max-width: 1100px; margin: 0 auto; padding: 50px 20px 100px; flex: 1; box-sizing: border-box; }
+  
+  .sub-visual { 
+    background: linear-gradient(180deg, #edf4ff 0%, #f8fafc 100%); 
+    border-bottom: 1px solid #e2e8f0; 
+    padding: 55px 0 50px; 
+    text-align: center; 
+    position: relative; 
+    overflow: visible; 
+    display: block !important;
+    height: auto !important;
+    min-height: 180px;
+  }
+  .sub-visual::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.03) 0%, transparent 40%); pointer-events: none; }
+  .sv-title { 
+    font-size: 30px; 
+    font-weight: 800; 
+    color: #1e3a8a; 
+    letter-spacing: -0.03em; 
+    margin: 0 0 16px; 
+    position: relative; 
+    z-index: 1; 
+  }
+  .location-bar { 
+    display: inline-flex; 
+    align-items: center; 
+    gap: 8px; 
+    background: #ffffff; 
+    padding: 6px 20px; 
+    border-radius: 99px; 
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02); 
+    border: 1px solid #cbd5e1; 
+    position: relative; 
+    z-index: 1; 
+  }
+  .loc-item { 
+    display: flex; 
+    align-items: center; 
+    gap: 6px; 
+    font-size: 13px; 
+    font-weight: 600; 
+    color: #475569; 
+  }
+  .loc-item.home { 
+    color: #3b82f6; 
+    font-size: 14px; 
+  }
+  .loc-item select { 
+    border: none; 
+    background: transparent; 
+    font-size: 13px; 
+    font-weight: 600; 
+    color: #334155; 
+    padding: 0 16px 0 0; 
+    cursor: pointer; 
+    appearance: none; 
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right center; 
+    font-family: inherit;
+  }
+  .loc-item select:focus { outline: none; box-shadow: none; }
+  .loc-sep { color: #cbd5e1; font-size: 12px; }
+
+  /* Detail Page Styles */
+  .detail-header {
+    margin-top: 20px;
+    padding-bottom: 20px;
+  }
+  .detail-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1.35;
+    margin-bottom: 18px;
+    letter-spacing: -0.02em;
+  }
+  .detail-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+  }
+  .detail-meta-info {
+    font-size: 14px;
+    color: #64748b;
+    font-weight: 500;
+  }
+  .detail-meta-info span {
+    margin-right: 16px;
+  }
+  .detail-sns-share {
+    display: flex;
+    gap: 8px;
+  }
+  .sns-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid #e2e8f0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    background-color: #ffffff;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s ease;
+  }
+  .sns-btn:hover {
+    background-color: #f1f5f9;
+    color: #1e293b;
+    border-color: #cbd5e1;
+  }
+
+  .divider-heavy {
+    height: 2px;
+    background-color: #1e293b;
+    margin: 0;
+  }
+  .divider-light {
+    height: 1px;
+    background-color: #e2e8f0;
+    margin: 0;
+  }
+
+  .detail-body {
+    padding: 40px 10px 60px;
+    font-size: 16px;
+    color: #334155;
+    line-height: 1.85;
+    letter-spacing: -0.01em;
+    min-height: 250px;
+  }
+  .detail-body p {
+    margin: 0 0 16px;
+  }
+
+  /* Nav Links (Prev/Next) */
+  .detail-nav-links {
+    border-top: 1px solid #cbd5e1;
+    border-bottom: 1px solid #cbd5e1;
+    margin-top: 40px;
+  }
+  .nav-link-row {
+    display: flex;
+    flex-direction: column;
+    padding: 16px 20px;
+    background-color: #ffffff;
+    transition: background-color 0.15s ease;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .nav-link-row:last-child {
+    border-bottom: none;
+  }
+  .nav-link-row:hover {
+    background-color: #f8fafc;
+  }
+  .nav-link-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 4px;
+    text-decoration: none;
+  }
+  .nav-link-row:hover .nav-link-title {
+    color: #2563eb;
+    text-decoration: underline;
+  }
+  .nav-link-label {
+    font-size: 12px;
+    color: #94a3b8;
+    font-weight: 600;
+  }
+
+  /* Back to List Button */
+  .back-to-list-container {
+    margin-top: 50px;
+    text-align: left;
+  }
+  .back-to-list-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #1e293b;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .back-to-list-btn::before {
+    content: '';
+    display: inline-block;
+    width: 40px;
+    height: 1px;
+    background-color: #1e293b;
+    transition: width 0.2s ease, background-color 0.2s ease;
+  }
+  .back-to-list-btn:hover {
+    color: #2563eb;
+  }
+  .back-to-list-btn:hover::before {
+    background-color: #2563eb;
+    width: 50px;
+  }
+</style>
+</head>
+<body>
+
+<div id="gnb-common"></div>
+
+<div class="sub-visual">
+  <div class="wrap">
+    <h1 class="sv-title">공지사항</h1>
+    <div class="location-bar">
+      <div class="loc-item home" onclick="location.href='./index.html'" style="cursor:pointer;" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">
+        <select onchange="if(this.value) location.href=this.value;">
+          <option value="./notice.html" selected>알림마당</option>
+          <option value="./dialect_search_prototype.html">조사 자료 검색</option>
+          <option value="./index.html">누리집 안내</option>
+          <option value="./dialect_map.html">지역어 지도</option>
+        </select>
+      </div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">
+        <select>
+          <option selected>공지사항</option>
+          <option>보도자료</option>
+          <option>자료실</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap container">
+  <!-- Detail Header -->
+  <div class="detail-header">
+    <h2 class="detail-title">지역어 종합 정보 누리집 서비스 일시 중단 안내(2026. 7. 9.)</h2>
+    <div class="detail-meta-row">
+      <div class="detail-meta-info">
+        <span>등록일 2026-06-29</span>
+        <span>조회수 17</span>
+      </div>
+      <div class="detail-sns-share">
+        <button class="sns-btn" aria-label="페이스북 공유"><i class="ti ti-brand-facebook"></i></button>
+        <button class="sns-btn" aria-label="X 공유"><i class="ti ti-brand-x"></i></button>
+        <button class="sns-btn" aria-label="블로그 공유"><i class="ti ti-message-circle"></i></button>
+        <button class="sns-btn" aria-label="링크 복사"><i class="ti ti-link"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider-heavy"></div>
+
+  <!-- Detail Content -->
+  <div class="detail-body">
+    <p style="font-weight: 700; font-size: 17px; margin-bottom: 24px;">지역어 종합 정보 누리집 서비스 일시 중단 안내</p>
+    <p>국립국어원 전산 시스템 유지보수 작업으로 인하여</p>
+    <p>지역어 종합 정보 누리집 서비스가 일시적으로 중단될 예정이오니 이용에 참고하시기 바랍니다.</p>
+    <p style="margin-top: 24px; font-weight: 700;">ㅇ 서비스 중단 일시 : 2026. 7. 9.(목) 18:00 ~ 19:00</p>
+    <p style="margin-top: 24px; color: #64748b; font-size: 15px;">※ 중단 시간은 작업 진행 상황에 따라 다소 변동될 수 있습니다.</p>
+    <p style="margin-top: 16px;">이용에 불편을 드려 죄송합니다.</p>
+  </div>
+
+  <div class="divider-heavy"></div>
+
+  <!-- Prev/Next Navigation -->
+  <div class="detail-nav-links">
+    <!-- 이전글 -->
+    <div class="nav-link-row">
+      <span class="nav-link-title" style="color: #94a3b8; cursor: default;">이전글이 없습니다.</span>
+      <span class="nav-link-label">이전글</span>
+    </div>
+    <!-- 다음글 (15번 공지글 연동) -->
+    <div class="nav-link-row" onclick="location.href='#'" style="cursor: pointer;">
+      <a href="#" class="nav-link-title">지역어 종합 정보 누리집 점검 안내(2025. 3. 4.)</a>
+      <span class="nav-link-label">다음글</span>
+    </div>
+  </div>
+
+  <!-- 목록으로 이동 버튼 -->
+  <div class="back-to-list-container">
+    <a href="./notice.html" class="back-to-list-btn">목록으로</a>
+  </div>
+</div>
+
+<div id="footer-common"></div>
+
+<script src="./share.js" defer></script>
+</body>
+</html>

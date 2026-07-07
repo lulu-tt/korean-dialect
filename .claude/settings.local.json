@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s http://localhost:8899/gnb.js)",
+      "Bash(curl -s -I http://localhost:8899/gnb.js)",
+      "Bash(python3 -c ' *)"
+    ]
+  }
+}

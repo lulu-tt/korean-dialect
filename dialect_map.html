@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>지역어 지도 — 국립국어원</title>
+
+<!-- 파비콘 및 폰트 아이콘 -->
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+
+<!-- OpenLayers -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.9.0/ol.css">
+
+<!-- 공통 스타일시트 -->
+<link rel="stylesheet" href="./styles.css">
+
+<!-- 공통 GNB / Footer 로더 -->
+<script src="./gnb.js" defer></script>
+<script src="./footer.js" defer></script>
+
+<style>
+/* ── 타이틀 영역 (서브 비주얼) : 공통 페이지들과 동일 ── */
+.sub-visual {
+  background: linear-gradient(180deg, #edf4ff 0%, #f8fafc 100%);
+  border-bottom: 1px solid #e2e8f0;
+  padding: 55px 0 50px;
+  text-align: center;
+  position: relative;
+  overflow: visible;
+  display: block !important;
+  height: auto !important;
+  min-height: 180px;
+}
+.sub-visual::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.03) 0%, transparent 40%); pointer-events: none; }
+.sv-title {
+  font-size: 30px;
+  font-weight: 800;
+  color: #1e3a8a;
+  letter-spacing: -0.03em;
+  margin: 0 0 16px;
+  position: relative;
+  z-index: 1;
+}
+.loc-sep { color: #cbd5e1; font-size: 12px; }
+
+
+
+#main.wrap { margin-top: 32px; margin-bottom: 80px; }
+
+/* ── 본문 영역 배경 화이트 ── */
+body { background: #ffffff; }
+
+/* ── 좌우 콘텐츠 영역을 줄여 지도 영역 최대 확보 (이 페이지 전용 오버라이드) ── */
+.shell { grid-template-columns: 262px minmax(0, 1fr) 306px; gap: 20px; }
+
+/* ── 지역별 표현 비교: 6개를 한 줄(6열)로 압축 ── */
+.compare__items { grid-template-columns: repeat(6, 1fr); gap: 12px; }
+.citem { padding: 14px 12px; border-radius: 12px; }
+.citem::before { left: 12px; right: 12px; }
+.citem__region { font-size: 11px; margin-bottom: 6px; }
+.citem__word { font-size: 19px; margin-bottom: 8px; }
+.citem__desc { font-size: 12px; line-height: 1.45; }
+.miniicon { width: 26px; height: 26px; font-size: 12px; }
+
+/* ── 비교 영역을 줄여 확보한 공간만큼 지도 높이 확대 ── */
+.map__ol { height: 660px; }
+
+/* ── 상단 지도 설정 툴바 (지도 레이어·스타일을 지도 위가 아닌 상단에 배치) ── */
+.wordbar { padding: 14px 20px; gap: 16px; row-gap: 12px; align-items: center; justify-content: flex-start; flex-wrap: wrap; }
+.mschk { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer; white-space: nowrap; }
+.mschk__cb { width: 16px; height: 16px; accent-color: var(--blue); cursor: pointer; }
+.dlbtns { display: flex; gap: 6px; }
+.dlbtn { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: #475569; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 7px 11px; cursor: pointer; font-family: inherit; transition: 0.15s; }
+.dlbtn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+.dlbtn i { font-size: 15px; }
+.msgroup { display: flex; align-items: center; gap: 10px; }
+.msgroup__label { font-weight: 800; font-size: 13px; color: var(--text); white-space: nowrap; }
+.mslayers { display: flex; align-items: center; gap: 14px; }
+.mslayer { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: #475569; white-space: nowrap; }
+.wordbar .switch { width: 38px; height: 22px; }
+.wordbar .switch::after { width: 18px; height: 18px; }
+.wordbar .switch.is-on::after { left: 18px; }
+.ms-sep { width: 1px; height: 28px; background: var(--line); }
+.wordbar .mapstyles { width: 168px; }
+.wordbar__actions { margin-left: auto; }
+
+/* ── 최근 본 단어 카드 (오늘의 지역어 대체) ── */
+.recentcard { padding: 20px 22px; }
+.recentcard__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.recentcard__title { font-weight: 800; font-size: 16px; color: var(--text); letter-spacing: -0.02em; }
+.recentcard .more { font-size: 13px; font-weight: 700; color: var(--blue); text-decoration: none; }
+.recentcard .more:hover { text-decoration: underline; }
+.recentlist { list-style: none; margin: 0; padding: 0; }
+.recentitem { width: 100%; display: flex; align-items: center; gap: 10px; padding: 12px 4px; background: none; border: none; border-top: 1px solid var(--line); cursor: pointer; font-size: 15px; font-weight: 600; color: #334155; font-family: inherit; text-align: left; transition: color 0.15s; }
+.recentlist li:first-child .recentitem { border-top: none; }
+.recentitem:hover { color: var(--blue); }
+.recentitem__ico { font-size: 18px; color: #94a3b8; flex-shrink: 0; }
+.recentitem:hover .recentitem__ico { color: var(--blue); }
+.recentlist:empty::after { content: "최근 본 단어가 없습니다."; display: block; padding: 12px 4px; font-size: 13px; color: var(--muted); }
+
+/* ── 방언형 분포 (박스형 아코디언) ── */
+.dform__word { font-size: 26px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+.dform__meta { font-size: 13px; color: #475569; margin-top: 6px; }
+.dform__meta b { font-weight: 700; color: #334155; }
+.dform__sep { color: #cbd5e1; margin: 0 8px; }
+.dform__head { display: flex; align-items: center; justify-content: space-between; margin: 22px 0 14px; }
+.dform__label { font-weight: 800; font-size: 15px; color: var(--text); }
+.dform__listbtn { font-size: 12px; font-weight: 700; color: #475569; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; cursor: pointer; font-family: inherit; transition: 0.15s; }
+.dform__listbtn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+
+.dflist { list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.dfitem { border: 1px solid var(--line); border-radius: 14px; background: #fff; overflow: hidden; transition: border-color 0.15s, box-shadow 0.15s; }
+.dfitem.is-open { border-color: #cbd5e1; box-shadow: var(--shadow2); }
+.dfitem__head { display: flex; align-items: center; gap: 10px; width: 100%; padding: 14px 18px; }
+.dfcb { width: 18px; height: 18px; flex-shrink: 0; accent-color: var(--blue); cursor: pointer; }
+.dfitem__expand { flex: 1; min-width: 0; display: flex; align-items: center; gap: 11px; padding: 0; background: none; border: none; cursor: pointer; font-family: inherit; text-align: left; }
+.dfmark { width: 14px; height: 14px; flex-shrink: 0; }
+.dfmark--circle { border-radius: 50%; }
+.dfmark--square { border-radius: 3px; }
+.dfmark--diamond { width: 12px; height: 12px; border-radius: 2px; transform: rotate(45deg); }
+.dfmark--triangle { width: 0; height: 0; background: transparent !important; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 14px solid currentColor; }
+.dfmark--red { background: #ef4444; color: #ef4444; }
+.dfmark--green { background: #22c55e; color: #22c55e; }
+.dfmark--blue { background: #3b82f6; color: #3b82f6; }
+.dfmark--amber { background: #f59e0b; color: #f59e0b; }
+.dfitem__headmain { flex: 1; min-width: 0; }
+.dfitem__word { font-size: 16px; font-weight: 800; color: var(--text); white-space: nowrap; }
+.dfitem__group { font-size: 13px; font-weight: 600; color: #94a3b8; white-space: nowrap; }
+.dfbadge { font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 99px; white-space: nowrap; }
+.dfbadge--red { background: #fee2e2; color: #dc2626; }
+.dfbadge--green { background: #dcfce7; color: #16a34a; }
+.dfbadge--blue { background: #dbeafe; color: #2563eb; }
+.dfbadge--amber { background: #fef3c7; color: #d97706; }
+.dfchev { color: #94a3b8; font-size: 18px; transition: transform 0.2s; flex-shrink: 0; }
+.dfitem.is-open .dfchev { transform: rotate(180deg); }
+.dfitem__panel { display: none; padding: 0 18px 16px; }
+.dfitem.is-open .dfitem__panel { display: block; }
+.dfitem__desc { font-size: 13px; color: #64748b; line-height: 1.5; border-top: 1px dashed var(--line); padding-top: 12px; margin-bottom: 12px; }
+.dfvarlist { display: flex; flex-direction: column; }
+.dfvarrow { display: flex; align-items: center; gap: 11px; padding: 11px 4px; border-top: 1px solid #f1f5f9; }
+.dfvarrow:first-child { border-top: none; }
+.dfvarcb { width: 16px; height: 16px; flex-shrink: 0; accent-color: var(--blue); cursor: pointer; }
+.dfvarrow__word { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; color: #334155; }
+.dfvarrow__n { font-size: 12px; font-weight: 700; color: #94a3b8; }
+
+/* ── 관련정보 박스: 좌측 열 높이에 맞춰 고정, 내부 스크롤 ── */
+.shell .side, .shell .info { align-self: start; }
+
+/* ── 해설 탭 ── */
+.expl { font-size: 14px; line-height: 1.78; color: #334155; }
+.expl__p { margin: 0 0 14px; }
+.expl__types { list-style: none; margin: 0 0 18px; padding: 16px 18px; background: #f8fafc; border: 1px solid var(--line); border-radius: 12px; display: flex; flex-direction: column; gap: 11px; }
+.expl__types li { display: flex; align-items: center; gap: 10px; font-size: 14px; line-height: 1.4; }
+.expl__types b { font-weight: 800; color: var(--text); }
+.expl__badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-size: 12px; font-weight: 800; color: #fff; flex-shrink: 0; }
+.expl__badge--red { background: #ef4444; }
+.expl__badge--green { background: #22c55e; }
+.expl__badge--blue { background: #3b82f6; }
+.expl__badge--amber { background: #f59e0b; }
+.expl__point { display: flex; gap: 12px; margin-bottom: 16px; }
+.expl__point:last-child { margin-bottom: 0; }
+.expl__point p { margin: 0; }
+.expl__num { flex-shrink: 0; align-self: flex-start; font-size: 13px; font-weight: 800; color: var(--blue); background: var(--blue-light); border-radius: 8px; padding: 3px 11px; white-space: nowrap; }
+/* ── 지도 팝업 오버레이 스타일 ── */
+.ol-popup {
+  position: absolute;
+  background-color: white;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.15);
+  padding: 0;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  bottom: 12px;
+  left: -50%;
+  transform: translateX(-50%);
+  min-width: 420px;
+  z-index: 1000;
+  font-family: 'Pretendard', sans-serif;
+  overflow: hidden;
+}
+.ol-popup::after, .ol-popup::before {
+  top: 100%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+.ol-popup::after {
+  border-top-color: white;
+  border-width: 10px;
+  left: 50%;
+  margin-left: -10px;
+}
+.ol-popup::before {
+  border-top-color: #cbd5e1;
+  border-width: 11px;
+  left: 50%;
+  margin-left: -11px;
+}
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 10px 16px;
+}
+.popup-header__title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+}
+.popup-header__word {
+  color: #ef4444;
+  font-weight: 800;
+}
+.popup-close {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+.popup-close:hover {
+  color: #475569;
+}
+.popup-body {
+  padding: 16px;
+}
+.popup-body__title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 10px;
+}
+.popup-body__title span {
+  color: #ef4444;
+}
+.popup-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.popup-table th {
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 700;
+  padding: 8px;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: center;
+}
+.popup-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #f1f5f9;
+  text-align: center;
+  color: #334155;
+  font-weight: 600;
+}
+.popup-speaker-btn {
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  transition: all 0.2s;
+  vertical-align: middle;
+}
+.popup-speaker-btn:hover {
+  background: #fca5a5;
+  transform: scale(1.1);
+}
+.popup-speaker-btn.is-playing {
+  animation: pulse 1s infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2); }
+  100% { transform: scale(1); }
+}
+
+/* ══════════ 개선 시안 전용 컴포넌트 ══════════ */
+
+/* ── 브레드크럼(링크형) ── */
+.crumbs { display: inline-flex; align-items: center; gap: 8px; background: #ffffff; padding: 8px 20px; border-radius: 99px; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02); border: 1px solid #cbd5e1; position: relative; z-index: 1; }
+.crumbs a { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #64748b; text-decoration: none; }
+.crumbs a:hover { color: var(--blue); text-decoration: underline; }
+.crumbs [aria-current="page"] { font-size: 13px; font-weight: 800; color: #1e3a8a; }
+
+/* ── 지도 카드 헤더 (제목 + 도구) ── */
+.mapbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px 22px; box-shadow: var(--shadow); flex-wrap: wrap; }
+.mapbar__title { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+.mapbar__title b { color: var(--blue); }
+.mapbar__meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.mapbar__actions { display: flex; align-items: center; gap: 8px; }
+.toolbtn { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #475569; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 9px 14px; cursor: pointer; font-family: inherit; transition: 0.15s; }
+.toolbtn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+.toolbtn i { font-size: 16px; }
+.toolbtn--primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+.toolbtn--primary:hover { background: #1d4ed8; color: #fff; }
+
+/* ── 팝오버 메뉴 (지도 설정 / 다운로드) ── */
+.popwrap { position: relative; }
+.popmenu { position: absolute; top: calc(100% + 8px); right: 0; z-index: 50; background: #fff; border: 1px solid #cbd5e1; border-radius: 14px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.14); padding: 16px; min-width: 260px; }
+.popmenu[hidden] { display: none; }
+.popmenu__sec { padding: 10px 0; border-top: 1px solid #f1f5f9; }
+.popmenu__sec:first-child { border-top: none; padding-top: 0; }
+.popmenu__label { font-size: 12px; font-weight: 800; color: #94a3b8; margin-bottom: 10px; letter-spacing: 0.02em; }
+.popmenu .mslayers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+.popmenu .mslayer { justify-content: space-between; display: flex; }
+.popmenu .mapstyles { width: 100%; }
+.popmenu .mschk { display: flex; margin-bottom: 8px; }
+.popmenu .mschk:last-child { margin-bottom: 0; }
+.dlmenu__item { display: flex; align-items: center; gap: 10px; width: 100%; background: none; border: none; border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 700; color: #334155; cursor: pointer; font-family: inherit; text-align: left; transition: 0.15s; }
+.dlmenu__item:hover { background: var(--blue-light); color: var(--blue); }
+.dlmenu__item i { font-size: 18px; color: #64748b; }
+.dlmenu__item:hover i { color: var(--blue); }
+.dlmenu__note { display: flex; gap: 6px; align-items: flex-start; margin-top: 10px; padding: 10px 12px; background: #f8fafc; border-radius: 10px; font-size: 12px; color: #64748b; line-height: 1.5; }
+.dlmenu__note i { flex-shrink: 0; margin-top: 1px; }
+
+/* ── 첫 방문 코치 바 ── */
+.coach { display: flex; align-items: center; gap: 10px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 14px; padding: 12px 18px; font-size: 13px; color: #1e40af; line-height: 1.5; }
+.coach > i { font-size: 18px; flex-shrink: 0; color: var(--blue); }
+.coach span { flex: 1; }
+.coach__close { background: none; border: none; color: #60a5fa; font-size: 16px; cursor: pointer; padding: 4px; flex-shrink: 0; }
+.coach__close:hover { color: #1d4ed8; }
+
+/* ── 지도 위 상시 범례 오버레이 ── */
+.maplegend { position: absolute; left: 16px; bottom: 16px; z-index: 3; background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(10px); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1); padding: 12px 14px; min-width: 168px; }
+.maplegend__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 12px; font-weight: 800; color: #475569; }
+.maplegend__fold { background: none; border: none; color: #94a3b8; font-size: 15px; cursor: pointer; padding: 2px; display: flex; }
+.maplegend__fold:hover { color: var(--blue); }
+.maplegend__list { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.maplegend__row { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: #334155; }
+.maplegend__row .dfmark { transform: scale(0.9); }
+.maplegend__row .dfmark--diamond { transform: rotate(45deg) scale(0.9); }
+.maplegend__name { flex: 1; }
+.listenbtn { background: #fff; border: 1px solid var(--line); color: #64748b; width: 24px; height: 24px; border-radius: 50%; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; transition: 0.15s; }
+.listenbtn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+.listenbtn.is-playing { animation: pulse 1s infinite; color: var(--blue); border-color: var(--blue); }
+.maplegend__how { display: flex; align-items: center; gap: 5px; width: 100%; justify-content: center; margin-top: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 6px 8px; font-size: 12px; font-weight: 700; color: #64748b; cursor: pointer; font-family: inherit; transition: 0.15s; }
+.maplegend__how:hover { color: var(--blue); border-color: var(--blue); }
+.maplegend.is-folded .maplegend__list, .maplegend.is-folded .maplegend__how { display: none; }
+.maplegend.is-folded { min-width: 0; }
+
+/* ── 지도 보는 법 안내 오버레이 ── */
+.howto { position: absolute; inset: 0; z-index: 20; background: rgba(15, 23, 42, 0.45); display: flex; align-items: center; justify-content: center; }
+.howto[hidden] { display: none; }
+.howto__panel { background: #fff; border-radius: 18px; box-shadow: 0 20px 50px rgba(15, 23, 42, 0.3); padding: 26px 28px; width: 420px; max-width: calc(100% - 40px); }
+.howto__title { display: flex; align-items: center; justify-content: space-between; font-size: 17px; font-weight: 800; color: var(--text); margin-bottom: 16px; }
+.howto__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 13px; }
+.howto__list li { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; color: #334155; line-height: 1.55; }
+.howto__ico { flex-shrink: 0; width: 34px; height: 34px; border-radius: 10px; background: var(--blue-light); color: var(--blue); display: inline-flex; align-items: center; justify-content: center; font-size: 17px; }
+
+/* ── 토스트 알림 ── */
+.toast { position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%) translateY(20px); z-index: 999; background: #0f172a; color: #fff; font-size: 14px; font-weight: 600; padding: 12px 22px; border-radius: 99px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.35); opacity: 0; pointer-events: none; transition: 0.25s ease; display: flex; align-items: center; gap: 8px; }
+.toast.is-show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast i { color: #4ade80; font-size: 17px; }
+
+.searchhint { font-size: 12px; color: var(--muted); margin: 8px 2px 0; line-height: 1.5; }
+
+/* ── 우측: 범례 탭 보조 문구 / 방언형 듣기 버튼 ── */
+.dform__hint { display: flex; gap: 6px; align-items: flex-start; margin-top: 12px; padding: 9px 12px; background: #f8fafc; border-radius: 10px; font-size: 12px; color: #64748b; line-height: 1.5; }
+.dform__hint i { flex-shrink: 0; margin-top: 1px; color: #94a3b8; }
+.dfvarrow .listenbtn { width: 26px; height: 26px; }
+
+/* ── 해설: 한눈에 보기 요약 + 전문 펼치기 ── */
+.explsum { background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%); border: 1px solid #bfdbfe; border-radius: 14px; padding: 18px; margin-bottom: 16px; }
+.explsum__label { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: var(--blue); margin-bottom: 10px; }
+.explsum__p { margin: 0; font-size: 14px; line-height: 1.7; color: #1e3a8a; }
+.explsum__p b { font-weight: 800; }
+.explmore { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 11px; font-size: 13px; font-weight: 800; color: #475569; cursor: pointer; font-family: inherit; transition: 0.15s; margin-bottom: 16px; }
+.explmore:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+.explmore i { transition: transform 0.2s; }
+.explmore.is-open i { transform: rotate(180deg); }
+.expl--full[hidden] { display: none; }
+
+/* ── 예문 카드 듣기 버튼 ── */
+.excard .listenbtn { width: 28px; height: 28px; font-size: 13px; }
+
+/* ══════════ 모바일 반응형 ══════════
+   출력 순서(DOM 순서 그대로 1열로 쌓임): 검색·단어목록 → 지도 → 관련정보 */
+@media (max-width: 1100px) {
+  .shell { grid-template-columns: 1fr; gap: 24px; }
+  .shell .side, .shell .info { align-self: auto; }
+  .map__ol { height: min(64vw, 480px); min-height: 320px; }
+}
+
+@media (max-width: 720px) {
+  #main.wrap { margin-top: 20px; margin-bottom: 56px; }
+  .sub-visual { padding: 30px 0 26px; }
+  .sv-title { font-size: 23px; margin-bottom: 12px; }
+  .crumbs { gap: 5px; padding: 6px 14px; }
+  .crumbs a, .crumbs [aria-current="page"] { font-size: 11.5px; }
+  .crumbs i { font-size: 12px; }
+
+  /* 지도 카드 헤더: 제목 아래 도구 버튼이 한 줄 가득 3분할 */
+  .mapbar { padding: 14px 16px; }
+  .mapbar__title { font-size: 17px; }
+  .mapbar__actions { width: 100%; flex-wrap: wrap; }
+  .mapbar__actions .popwrap { flex: 1 1 0; }
+  .mapbar__actions > .toolbtn { flex: 1 1 0; }
+  .popwrap > .toolbtn { width: 100%; }
+  .toolbtn { justify-content: center; padding: 10px 6px; font-size: 12.5px; gap: 4px; }
+  .toolbtn i { font-size: 15px; }
+
+  /* 팝오버(지도 설정·다운로드) → 화면 하단 시트 방식으로 전환 */
+  .popmenu { position: fixed; left: 16px; right: 16px; top: auto; bottom: 16px; width: auto; min-width: 0; max-height: 70vh; overflow-y: auto; }
+
+  .coach { flex-wrap: wrap; padding: 12px 14px; }
+  .coach__close { margin-left: auto; }
+
+  .maplegend { left: 10px; bottom: 10px; padding: 10px 12px; min-width: 148px; }
+  .maplegend__row { font-size: 12px; }
+
+  .howto__panel { padding: 20px 18px; }
+
+  /* 지도 팝업(방언형 클릭 정보창) 폭을 화면에 맞춤 */
+  .ol-popup { min-width: min(300px, 84vw); max-width: 84vw; }
+  .popup-header { padding: 8px 12px; }
+  .popup-header__title { font-size: 12px; gap: 8px; flex-wrap: wrap; }
+  .popup-body { padding: 12px; }
+  .popup-table { font-size: 12px; }
+  .popup-table th, .popup-table td { padding: 6px 4px; }
+
+  .seg__btn { font-size: 13px; padding: 14px 0; }
+  .segpanes { padding: 18px; }
+  .dform__word { font-size: 22px; }
+  .dfitem__head { padding: 12px 14px; }
+}
+
+/* 320px대 초소형 화면: 도구 버튼 3분할이 두 줄로 접히지 않도록 추가 축소 */
+@media (max-width: 340px) {
+  .toolbtn { font-size: 11.5px; padding: 9px 4px; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">본문 바로가기</a>
+
+<!-- 공통 GNB -->
+<div id="gnb-common"></div>
+
+<!-- 타이틀 영역 (서브 비주얼) -->
+<div class="sub-visual">
+  <div class="wrap">
+    <h1 class="sv-title">지역어 지도</h1>
+    <nav class="crumbs" aria-label="현재 위치">
+      <a href="./index.html"><i class="ti ti-home" aria-hidden="true"></i> 홈</a>
+      <i class="ti ti-chevron-right loc-sep" aria-hidden="true"></i>
+      <a href="./index.html">지역어 알아보기</a>
+      <i class="ti ti-chevron-right loc-sep" aria-hidden="true"></i>
+      <span aria-current="page">지역어 지도</span>
+    </nav>
+  </div>
+</div>
+
+<!-- 본문 -->
+<main id="main" class="wrap">
+  <section class="shell" aria-label="지역어 지도 개선 UI">
+    <!-- LEFT -->
+    <aside class="side" aria-label="탐색">
+      <form class="searchbar" id="searchForm">
+        <label class="sr-only" for="q">검색어 입력</label>
+        <input id="q" name="q" class="searchbar__input" placeholder="표준어·방언 어느 쪽이든 검색" autocomplete="off" />
+        <button class="searchbar__btn" type="submit" aria-label="검색">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
+            <path d="M10.8 18.2a7.4 7.4 0 1 1 0-14.8 7.4 7.4 0 0 1 0 14.8Z" stroke="currentColor" stroke-width="2" />
+            <path d="M21 21l-4.2-4.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+      </form>
+      <p class="searchhint"><i class="ti ti-arrows-exchange" aria-hidden="true"></i> ‘정지’를 검색하면 표준어 ‘부엌’의 지도를 찾아드립니다.</p>
+
+      <section class="card card--side" aria-label="가나다로 찾기">
+        <div class="card__title">가나다로 찾기</div>
+        <div class="catbox" id="catbox">
+          <div class="initials" role="tablist" aria-label="초성 선택">
+            <button class="initial is-active" type="button" data-initial="all" role="tab" aria-selected="true">전체</button>
+            <button class="initial" type="button" data-initial="ㄱ" role="tab" aria-selected="false">ㄱ</button>
+            <button class="initial" type="button" data-initial="ㄴ" role="tab" aria-selected="false">ㄴ</button>
+            <button class="initial" type="button" data-initial="ㄷ" role="tab" aria-selected="false">ㄷ</button>
+            <button class="initial" type="button" data-initial="ㄹ" role="tab" aria-selected="false">ㄹ</button>
+            <button class="initial" type="button" data-initial="ㅁ" role="tab" aria-selected="false">ㅁ</button>
+            <button class="initial" type="button" data-initial="ㅂ" role="tab" aria-selected="false">ㅂ</button>
+            <button class="initial" type="button" data-initial="ㅅ" role="tab" aria-selected="false">ㅅ</button>
+            <button class="initial" type="button" data-initial="ㅇ" role="tab" aria-selected="false">ㅇ</button>
+            <button class="initial" type="button" data-initial="ㅈ" role="tab" aria-selected="false">ㅈ</button>
+            <button class="initial" type="button" data-initial="ㅊ" role="tab" aria-selected="false">ㅊ</button>
+            <button class="initial" type="button" data-initial="ㅋ" role="tab" aria-selected="false">ㅋ</button>
+            <button class="initial" type="button" data-initial="ㅌ" role="tab" aria-selected="false">ㅌ</button>
+            <button class="initial" type="button" data-initial="ㅍ" role="tab" aria-selected="false">ㅍ</button>
+            <button class="initial" type="button" data-initial="ㅎ" role="tab" aria-selected="false">ㅎ</button>
+          </div>
+
+          <div class="wlist" id="wlist" role="listbox" aria-label="단어 목록" tabindex="0">
+            <div class="wgroup" data-initial-section="ㄱ">
+              <div class="wgroup__title"># 가</div>
+              <button class="witem is-active" type="button" role="option" aria-selected="true" data-word="가위">
+                <span class="witem__word">가위</span>
+                <span class="witem__count">4개</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="가을">
+                <span class="witem__word">가을</span>
+                <span class="witem__count">8개</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="간장">
+                <span class="witem__word">간장</span>
+                <span class="witem__count">6개</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="갈치">
+                <span class="witem__word">갈치</span>
+                <span class="witem__count">9개</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="갈퀴">
+                <span class="witem__word">갈퀴</span>
+                <span class="witem__count">11개</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="감기">
+                <span class="witem__word">감기</span>
+                <span class="witem__count">7개</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="강아지">
+                <span class="witem__word">강아지</span>
+                <span class="witem__count">5개</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="개미">
+                <span class="witem__word">개미</span>
+                <span class="witem__count">6개</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="거지">
+                <span class="witem__word">거지</span>
+                <span class="witem__count">8개</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="고구마">
+                <span class="witem__word">고구마</span>
+                <span class="witem__count">10개</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="고드름">
+                <span class="witem__word">고드름</span>
+                <span class="witem__count">12개</span>
+              </button>
+            </div>
+
+            <div class="wgroup" data-initial-section="ㄴ">
+              <div class="wgroup__title"># 나</div>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="나비">
+                <span class="witem__word">나비</span>
+                <span class="witem__count">6개</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="냄비">
+                <span class="witem__word">냄비</span>
+                <span class="witem__count">7개</span>
+              </button>
+            </div>
+
+            <div class="wgroup" data-initial-section="ㄷ">
+              <div class="wgroup__title"># 다</div>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="다리">
+                <span class="witem__word">다리</span>
+                <span class="witem__count">9개</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="달걀">
+                <span class="witem__word">달걀</span>
+                <span class="witem__count">6개</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card recentcard" aria-label="최근 본 단어">
+        <div class="recentcard__head">
+          <div class="recentcard__title">최근 본 단어</div>
+          <a class="more" href="#">전체 보기</a>
+        </div>
+        <ul class="recentlist" id="recentList" aria-label="최근 본 단어 목록"></ul>
+      </section>
+    </aside>
+
+    <!-- CENTER -->
+    <section class="maincol" aria-label="지도">
+      <header class="mapbar" aria-label="지도 제목 및 도구">
+        <div class="mapbar__titles">
+          <div class="mapbar__title">‘<b id="mapWord">가을</b>’의 방언 분포 지도</div>
+          <div class="mapbar__meta">지역어 조사 및 보완 조사 사업(2004–2018) · 국립국어원</div>
+        </div>
+        <div class="mapbar__actions">
+          <div class="popwrap">
+            <button class="toolbtn" type="button" id="btnSettings" aria-haspopup="true" aria-expanded="false"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i> 지도 설정</button>
+            <div class="popmenu" id="popSettings" hidden>
+              <div class="popmenu__sec">
+                <div class="popmenu__label">지도 레이어</div>
+                <div class="mslayers">
+                  <span class="mslayer">지형 <button class="switch is-on" type="button" role="switch" aria-checked="true" aria-label="지형 레이어"></button></span>
+                  <span class="mslayer">행정구역 <button class="switch is-on" type="button" role="switch" aria-checked="true" aria-label="행정구역 레이어"></button></span>
+                  <span class="mslayer">도로 <button class="switch" type="button" role="switch" aria-checked="false" aria-label="도로 레이어"></button></span>
+                  <span class="mslayer">철도 <button class="switch" type="button" role="switch" aria-checked="false" aria-label="철도 레이어"></button></span>
+                </div>
+              </div>
+              <div class="popmenu__sec">
+                <div class="popmenu__label">지도 스타일</div>
+                <div class="mapstyles">
+                  <button class="style is-active" type="button">기본</button>
+                  <button class="style" type="button">지형</button>
+                  <button class="style" type="button">위성</button>
+                </div>
+              </div>
+              <div class="popmenu__sec">
+                <div class="popmenu__label">표시 요소</div>
+                <label class="mschk"><input type="checkbox" class="mschk__cb" id="hideArea"> 면색(분포권) 숨기기</label>
+                <label class="mschk"><input type="checkbox" class="mschk__cb" id="hideSymbol"> 상징 부호 숨기기</label>
+              </div>
+            </div>
+          </div>
+          <button class="toolbtn" type="button" id="btnShare"><i class="ti ti-link" aria-hidden="true"></i> 공유</button>
+          <div class="popwrap">
+            <button class="toolbtn toolbtn--primary" type="button" id="btnDownload" aria-haspopup="true" aria-expanded="false"><i class="ti ti-download" aria-hidden="true"></i> 다운로드</button>
+            <div class="popmenu" id="popDownload" hidden>
+              <button class="dlmenu__item" type="button" id="dlImage"><i class="ti ti-photo" aria-hidden="true"></i> 지도 이미지 (PNG)</button>
+              <button class="dlmenu__item" type="button" id="dlPdf"><i class="ti ti-file-text" aria-hidden="true"></i> 인쇄용 지도 (PDF)</button>
+              <button class="dlmenu__item" type="button" id="dlCsv"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i> 방언형 자료 (CSV)</button>
+              <div class="dlmenu__note"><i class="ti ti-info-circle" aria-hidden="true"></i> 이미지·PDF에는 단어명, 범례, 출처(국립국어원)가 함께 담겨 수업·연구 자료로 바로 쓸 수 있습니다.</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="coach" id="coach" role="note">
+        <i class="ti ti-bulb" aria-hidden="true"></i>
+        <span>부호의 <b>모양·색</b>은 방언 계열을, 흐린 <b>면색</b>은 분포권을 나타냅니다. <b>지도의 지점을 클릭</b>하면 그 지역에서 조사된 지역어와 <b>실제 발음</b>·제보자 정보를 볼 수 있어요.</span>
+        <button class="coach__close" type="button" id="coachClose" aria-label="안내 닫기"><i class="ti ti-x" aria-hidden="true"></i></button>
+      </div>
+
+      <section class="mapcard" aria-label="지도 카드">
+        <div class="mapwrap" aria-label="지도 영역">
+          <a class="skiplink" href="#olmap">지도 바로가기</a>
+          <div id="olmap" class="map__ol" tabindex="0" aria-label="대한민국 지도"></div>
+
+          <!-- OpenLayers 팝업 컨테이너 -->
+          <div id="popup" class="ol-popup">
+            <div id="popup-content">
+              <!-- JS를 통해 팝업 내용이 유동적으로 렌더링됩니다. -->
+            </div>
+          </div>
+
+          <div class="mapui" aria-label="지도 UI">
+            <button class="mapui__btn" id="map-reset" type="button" aria-label="지도 처음 위치로" title="처음 위치로"><i class="ti ti-refresh" aria-hidden="true"></i></button>
+            <div class="mapui__zoom">
+              <button class="mapui__btn" id="zoom-in" type="button" aria-label="확대">+</button>
+              <button class="mapui__btn" id="zoom-out" type="button" aria-label="축소">−</button>
+            </div>
+          </div>
+
+          <!-- 상시 범례 오버레이 -->
+          <div class="maplegend" id="maplegend" aria-label="지도 범례">
+            <div class="maplegend__head">
+              범례 · 방언 계열
+              <button class="maplegend__fold" type="button" id="legendFold" aria-label="범례 접기"><i class="ti ti-chevron-down" aria-hidden="true"></i></button>
+            </div>
+            <ul class="maplegend__list">
+              <li class="maplegend__row"><span class="dfmark dfmark--circle dfmark--red" aria-hidden="true"></span><span class="maplegend__name">가을계</span><button class="listenbtn" type="button" data-freq="350" aria-label="가을계 대표 발음 듣기"><i class="ti ti-volume" aria-hidden="true"></i></button></li>
+              <li class="maplegend__row"><span class="dfmark dfmark--triangle dfmark--green" aria-hidden="true"></span><span class="maplegend__name">가실계</span><button class="listenbtn" type="button" data-freq="480" aria-label="가실계 대표 발음 듣기"><i class="ti ti-volume" aria-hidden="true"></i></button></li>
+              <li class="maplegend__row"><span class="dfmark dfmark--square dfmark--blue" aria-hidden="true"></span><span class="maplegend__name">가읆계</span><button class="listenbtn" type="button" data-freq="550" aria-label="가읆계 대표 발음 듣기"><i class="ti ti-volume" aria-hidden="true"></i></button></li>
+              <li class="maplegend__row"><span class="dfmark dfmark--diamond dfmark--amber" aria-hidden="true"></span><span class="maplegend__name">ᄀᆞ실계</span><button class="listenbtn" type="button" data-freq="620" aria-label="ᄀᆞ실계 대표 발음 듣기"><i class="ti ti-volume" aria-hidden="true"></i></button></li>
+            </ul>
+            <button class="maplegend__how" type="button" id="btnHowto"><i class="ti ti-help-circle" aria-hidden="true"></i> 지도 보는 법</button>
+          </div>
+
+          <!-- 지도 보는 법 안내 -->
+          <div class="howto" id="howto" hidden role="dialog" aria-modal="true" aria-label="지도 보는 법">
+            <div class="howto__panel">
+              <div class="howto__title">지도 보는 법 <button class="popup-close" type="button" id="howtoClose" aria-label="닫기"><i class="ti ti-x" aria-hidden="true"></i></button></div>
+              <ul class="howto__list">
+                <li><span class="howto__ico"><i class="ti ti-shape-2" aria-hidden="true"></i></span><span>부호의 <b>모양과 색</b>은 같은 뿌리를 가진 <b>방언 계열</b>을 나타냅니다. 예) 빨간 동그라미 = ‘가을’계</span></li>
+                <li><span class="howto__ico"><i class="ti ti-droplet-half-2" aria-hidden="true"></i></span><span>부호 주변의 <b>흐린 면색</b>은 그 계열이 쓰이는 <b>대략적인 분포권</b>입니다.</span></li>
+                <li><span class="howto__ico"><i class="ti ti-volume" aria-hidden="true"></i></span><span>부호를 <b>클릭</b>하면 그 지점에서 채록된 <b>실제 발음</b>과 제보자 정보를 볼 수 있습니다.</span></li>
+                <li><span class="howto__ico"><i class="ti ti-checkbox" aria-hidden="true"></i></span><span>관련 정보의 <b>표시·범례</b> 탭에서 계열·방언형별로 지도 표시를 켜고 끌 수 있습니다.</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </section>
+
+    <!-- RIGHT -->
+    <aside class="info" aria-label="관련 정보">
+      <section class="card info__card">
+        <div class="info__head">
+          <div class="card__title">관련 정보</div>
+          <div class="seg" role="tablist" aria-label="정보 탭">
+            <button class="seg__btn is-active" type="button" role="tab" aria-selected="true" data-seg="desc">
+              표시·범례
+            </button>
+            <button class="seg__btn" type="button" role="tab" aria-selected="false" data-seg="ex">
+              예문
+            </button>
+            <button class="seg__btn" type="button" role="tab" aria-selected="false" data-seg="cmp">
+              해설
+            </button>
+          </div>
+        </div>
+
+        <div class="segpanes">
+          <div class="segpane is-active" role="tabpanel" data-pane="desc">
+            <div class="dform">
+              <div class="dform__word" id="infoWord">가을</div>
+              <div class="dform__meta">표준어: <b>가을</b> <span class="dform__sep">|</span> 품사: <b>명사</b></div>
+              <div class="dform__hint"><i class="ti ti-checkbox" aria-hidden="true"></i> 체크를 끄면 해당 계열·방언형이 지도에서 숨겨집니다. 🔊 버튼으로 발음을 들어 보세요.</div>
+
+              <ul class="dflist" aria-label="방언형 계열 목록">
+                <!-- 가을계 -->
+                <li class="dfitem is-open">
+                  <div class="dfitem__head">
+                    <input type="checkbox" class="dfcb" data-group="gaeul" checked aria-label="가을계 지도 표시">
+                    <button class="dfitem__expand" type="button" aria-expanded="true">
+                      <span class="dfmark dfmark--circle dfmark--red" aria-hidden="true"></span>
+                      <span class="dfitem__headmain"><span class="dfitem__word">가을</span> <span class="dfitem__group">(가을계)</span></span>
+                      <i class="ti ti-chevron-down dfchev" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  <div class="dfitem__panel">
+                    <div class="dfitem__desc">서울, 경기, 충청, 강원 대부분 지역 등</div>
+                    <div class="dfvarlist" data-group="gaeul"></div>
+                  </div>
+                </li>
+
+                <!-- 가읆계 -->
+                <li class="dfitem">
+                  <div class="dfitem__head">
+                    <input type="checkbox" class="dfcb" data-group="gaeulm" checked aria-label="가읆계 지도 표시">
+                    <button class="dfitem__expand" type="button" aria-expanded="false">
+                      <span class="dfmark dfmark--square dfmark--blue" aria-hidden="true"></span>
+                      <span class="dfitem__headmain"><span class="dfitem__word">가읆</span> <span class="dfitem__group">(가읆계)</span></span>
+                      <i class="ti ti-chevron-down dfchev" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  <div class="dfitem__panel">
+                    <div class="dfitem__desc">강원 일부, 경북 북부·동해안 일부 지역 등</div>
+                    <div class="dfvarlist" data-group="gaeulm"></div>
+                  </div>
+                </li>
+
+                <!-- ᄀᆞ실계 (제주) -->
+                <li class="dfitem">
+                  <div class="dfitem__head">
+                    <input type="checkbox" class="dfcb" data-group="jeju" checked aria-label="ᄀᆞ실계 지도 표시">
+                    <button class="dfitem__expand" type="button" aria-expanded="false">
+                      <span class="dfmark dfmark--diamond dfmark--amber" aria-hidden="true"></span>
+                      <span class="dfitem__headmain"><span class="dfitem__word">ᄀᆞ실</span> <span class="dfitem__group">(ᄀᆞ실계)</span></span>
+                      <i class="ti ti-chevron-down dfchev" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  <div class="dfitem__panel">
+                    <div class="dfitem__desc">제주도 일부 지역</div>
+                    <div class="dfvarlist" data-group="jeju"></div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="segpane" role="tabpanel" data-pane="ex">
+            <div class="infoblock" style="margin-bottom: 0;">
+              <div class="infoblock__label" style="font-size: 14px; font-weight: 800; color: var(--blue); margin-bottom: 12px;">구술 발화 예문</div>
+              <div class="exhead" style="margin-bottom: 16px;">
+                <div class="exhead__title" style="font-size: 15px; font-weight: 800; color: var(--text);"><span class="exhead__word" style="color: var(--blue);">가을</span> — 구술발화자료 예문</div>
+                <div class="exhead__desc" style="font-size: 12px; color: var(--muted); line-height: 1.4; margin-top: 4px;">현지 구술 조사(강원도 삼척시)에서 채록된 실제 구술 예문입니다.</div>
+              </div>
+
+              <div class="exlist" aria-label="예문 목록" style="display: flex; flex-direction: column; gap: 14px;">
+                <!-- 1번 예문 -->
+                <article class="excard" style="border-radius: 12px; border: 1px solid #e2e8f0; padding: 14px; background: #ffffff; box-shadow: var(--shadow2);">
+                  <!-- 상단 행: 주제 -->
+                  <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+                    <div>
+                      <div style="font-size: 12px; font-weight: 800; color: #1e3a8a;">
+                        <span style="color: #94a3b8; margin-right: 4px;">01</span> 밭농사
+                      </div>
+                      <div style="font-size: 11px; color: #64748b; margin-top: 2px; line-height: 1.3;">
+                        강원도 삼척시 · 2004년 · 남성, 75세
+                      </div>
+                    </div>
+                  </div>
+                  <!-- 내용 영역: 세로 배치로 폭 좁아도 안 깨지게 대응 -->
+                  <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div>
+                      <div style="font-size: 10px; font-weight: 800; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;">형태음소전사</div>
+                      <div style="font-size: 13px; font-weight: 600; color: #1e293b; line-height: 1.45;"><span style="color: #ef4444; font-weight: 800;">가을</span>에 무슨 일이 있어 가주고 시기를 놓칩니다.</div>
+                    </div>
+                    <div>
+                      <div style="font-size: 10px; font-weight: 800; background: #eff6ff; color: #2563eb; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;">표준어 대역</div>
+                      <div style="font-size: 13px; color: #64748b; line-height: 1.45;">(<span style="color: #ef4444;">가을</span>에 무슨 일이 있어 가지고 시기를 놓칩니다.)</div>
+                    </div>
+                  </div>
+                </article>
+
+                <!-- 2번 예문 -->
+                <article class="excard" style="border-radius: 12px; border: 1px solid #e2e8f0; padding: 14px; background: #ffffff; box-shadow: var(--shadow2);">
+                  <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+                    <div>
+                      <div style="font-size: 12px; font-weight: 800; color: #1e3a8a;">
+                        <span style="color: #94a3b8; margin-right: 4px;">02</span> 밭농사
+                      </div>
+                      <div style="font-size: 11px; color: #64748b; margin-top: 2px; line-height: 1.3;">
+                        강원도 삼척시 · 2004년 · 남성, 75세
+                      </div>
+                    </div>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div>
+                      <div style="font-size: 10px; font-weight: 800; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;">형태음소전사</div>
+                      <div style="font-size: 13px; font-weight: 600; color: #1e293b; line-height: 1.45;"><span style="color: #ef4444; font-weight: 800;">가을</span>에 하고 그 대신에 쌀보리 봄보리라 하는 것은</div>
+                    </div>
+                    <div>
+                      <div style="font-size: 10px; font-weight: 800; background: #eff6ff; color: #2563eb; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;">표준어 대역</div>
+                      <div style="font-size: 13px; color: #64748b; line-height: 1.45;">(<span style="color: #ef4444;">가을</span>에 하고 그 대신에 쌀보리 봄보리라 하는 것은)</div>
+                    </div>
+                  </div>
+                </article>
+
+                <!-- 3번 예문 -->
+                <article class="excard" style="border-radius: 12px; border: 1px solid #e2e8f0; padding: 14px; background: #ffffff; box-shadow: var(--shadow2);">
+                  <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+                    <div>
+                      <div style="font-size: 12px; font-weight: 800; color: #1e3a8a;">
+                        <span style="color: #94a3b8; margin-right: 4px;">03</span> 밭농사
+                      </div>
+                      <div style="font-size: 11px; color: #64748b; margin-top: 2px; line-height: 1.3;">
+                        강원도 삼척시 · 2004년 · 남성, 75세
+                      </div>
+                    </div>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div>
+                      <div style="font-size: 10px; font-weight: 800; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;">형태음소전사</div>
+                      <div style="font-size: 13px; font-weight: 600; color: #1e293b; line-height: 1.45;"><span style="color: #ef4444; font-weight: 800;">가을</span>이고 말고 <span style="color: #ef4444; font-weight: 800;">가을</span>이고 봄이고 그 붙일 필요 없습니다.</div>
+                    </div>
+                    <div>
+                      <div style="font-size: 10px; font-weight: 800; background: #eff6ff; color: #2563eb; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;">표준어 대역</div>
+                      <div style="font-size: 13px; color: #64748b; line-height: 1.45;">(<span style="color: #ef4444;">가을</span>이고 아니고 <span style="color: #ef4444;">가을</span>이고 봄이고 그 붙일 필요가 없습니다.)</div>
+                    </div>
+                  </div>
+                </article>
+
+                <!-- 4번 예문 -->
+                <article class="excard" style="border-radius: 12px; border: 1px solid #e2e8f0; padding: 14px; background: #ffffff; box-shadow: var(--shadow2);">
+                  <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+                    <div>
+                      <div style="font-size: 12px; font-weight: 800; color: #1e3a8a;">
+                        <span style="color: #94a3b8; margin-right: 4px;">04</span> 논농사
+                      </div>
+                      <div style="font-size: 11px; color: #64748b; margin-top: 2px; line-height: 1.3;">
+                        강원도 삼척시 · 2004년 · 남성, 75세
+                      </div>
+                    </div>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div>
+                      <div style="font-size: 10px; font-weight: 800; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;">형태음소전사</div>
+                      <div style="font-size: 13px; font-weight: 600; color: #1e293b; line-height: 1.5;">개 인제 할머니 생각에는 고다 그래 매 났으니 따, 땅에다 안 댔고 그냥 기둥 뚝 매달레 있으니까 하마 말라 죽으리라 생각했거든요. 근데 말과 일과 우퉁게 반대가 돼 가주고 할머니가 먼저 돌아가셋어요 그해 <span style="color: #ef4444; font-weight: 800;">가을</span>에.</div>
+                    </div>
+                    <div>
+                      <div style="font-size: 10px; font-weight: 800; background: #eff6ff; color: #2563eb; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;">표준어 대역</div>
+                      <div style="font-size: 13px; color: #64748b; line-height: 1.5;">(그래 이제 할머니 생각에는 거기다 그래 매어 놨으니 땅에다 안 대었고 그냥 기둥 뚝 매달려 있으니까 벌써 말라 죽으리라 생각했거든요. 그런데 말과 일과 어떻게 반대가 돼 가지고 할머니가 먼저 돌아가셨어요 그해 <span style="color: #ef4444;">가을</span>에.)</div>
+                    </div>
+                  </div>
+                </article>
+
+                <!-- 5번 예문 -->
+                <article class="excard" style="border-radius: 12px; border: 1px solid #e2e8f0; padding: 14px; background: #ffffff; box-shadow: var(--shadow2);">
+                  <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+                    <div>
+                      <div style="font-size: 12px; font-weight: 800; color: #1e3a8a;">
+                        <span style="color: #94a3b8; margin-right: 4px;">05</span> 가을걷이
+                      </div>
+                      <div style="font-size: 11px; color: #64748b; margin-top: 2px; line-height: 1.3;">
+                        강원도 삼척시 · 2004년 · 남성, 75세
+                      </div>
+                    </div>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div>
+                      <div style="font-size: 10px; font-weight: 800; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;">형태음소전사</div>
+                      <div style="font-size: 13px; font-weight: 600; color: #1e293b; line-height: 1.5;">그 먼 얘기냐면 수확 다 인지 인지는 그 저 타작 안 해도 그건 암만 거 어다 갖다 재서 이래 나도 <span style="color: #ef4444; font-weight: 800;">가을</span>에 시원한 바람 부고 하니까 어디 썩거나 이런 염려가 욷고</div>
+                    </div>
+                    <div>
+                      <div style="font-size: 10px; font-weight: 800; background: #eff6ff; color: #2563eb; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;">표준어 대역</div>
+                      <div style="font-size: 13px; color: #64748b; line-height: 1.5;">(그 뭔 얘기냐면 수확 다 인제는 그 저 타작 안 해도 그건 암만 그 어디다 갖다 재서 이래 놔도 <span style="color: #ef4444;">가을</span>에 시원한 바람 불고 하니까 어디 썩거나 이런 염려가 없고)</div>
+                    </div>
+                  </div>
+                </article>
+
+                <!-- 6번 예문 -->
+                <article class="excard" style="border-radius: 12px; border: 1px solid #e2e8f0; padding: 14px; background: #ffffff; box-shadow: var(--shadow2);">
+                  <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+                    <div>
+                      <div style="font-size: 12px; font-weight: 800; color: #1e3a8a;">
+                        <span style="color: #94a3b8; margin-right: 4px;">06</span> 마을 일손
+                      </div>
+                      <div style="font-size: 11px; color: #64748b; margin-top: 2px; line-height: 1.3;">
+                        강원도 삼척시 · 2004년 · 남성, 75세
+                      </div>
+                    </div>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div>
+                      <div style="font-size: 10px; font-weight: 800; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;">형태음소전사</div>
+                      <div style="font-size: 13px; font-weight: 600; color: #1e293b; line-height: 1.45;">그 즉시 모 심군 즉시 한 말 주는데 가으레 줌 두 말 줘야 되거든요.</div>
+                    </div>
+                    <div>
+                      <div style="font-size: 10px; font-weight: 800; background: #eff6ff; color: #2563eb; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;">표준어 대역</div>
+                      <div style="font-size: 13px; color: #64748b; line-height: 1.45;">(그 즉시 모심은 즉시 한 말 주는데 <span style="color: #ef4444;">가을</span>에 주면 두 말을 줘야 되거든요.)</div>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </div>
+
+          <div class="segpane" role="tabpanel" data-pane="cmp">
+            <div class="infoblock">
+              <div class="infoblock__label">해설</div>
+
+              <div class="explsum">
+                <div class="explsum__label"><i class="ti ti-sparkles" aria-hidden="true"></i> 한눈에 보기</div>
+                <p class="explsum__p">전국 어디서나 <b>‘가을’</b>이 널리 쓰이지만, 남부 지방에서는 <b>‘가실’</b>, 강원·경북 산간에서는 <b>‘가읅’</b>, 제주에서는 <b>‘ᄀᆞ실’</b>이 함께 살아 있습니다. 지난 20년 사이 표준어 ‘가을’이 토박이 형태들을 빠르게 밀어내고 있는 모습도 이 지도에서 확인할 수 있습니다.</p>
+              </div>
+              <button class="explmore" type="button" id="explMore" aria-expanded="false"><i class="ti ti-chevron-down" aria-hidden="true"></i> 전문 해설 읽기 (연구자용)</button>
+
+              <div class="expl expl--full" id="explFull" hidden>
+                <p class="expl__p">‘가을(&lt;ᄀᆞᅀᆞᆶ)’의 방언형은, 아래 제시한 바와 같이 크게 네 유형으로 나뉜다. 이들은 각각 어두음절의 ‘ᄋᆞ&gt;아’ 변화와 비어두음절의 ‘ᄋᆞ&gt;으’ 변화 및 ‘아으&gt;아ː’의 축약 그리고 ‘ㅿ&gt;ø’ 변화와 ‘ㅿ:ㅅ’의 대응, 치찰음 ‘ㅅ’ 뒤에서의 ‘으&gt;이’ 변화, 어말의 ‘ㅎ:ㄱ’의 대응 등을 선택적으로 겪은 형태들이다.</p>
+
+                <ul class="expl__types">
+                  <li><span class="expl__badge expl__badge--red">①</span><span><b>‘가을’계</b> : 가을(∼갈), 가울</span></li>
+                  <li><span class="expl__badge expl__badge--green">②</span><span><b>‘가실’계</b> : 가실</span></li>
+                  <li><span class="expl__badge expl__badge--blue">③</span><span><b>‘가읅’계</b> : 가읅(∼갉), 가싥</span></li>
+                  <li><span class="expl__badge expl__badge--amber">④</span><span><b>‘ᄀᆞ실’계</b> : ᄀᆞ실, ᄀᆞ슬, ᄀᆞ을</span></li>
+                </ul>
+
+                <p class="expl__p">전국적으로 ‘가을’계가 분포한 가운데, ‘가실’계(‘ᄀᆞ실’계 포함)가 남부 지역에 한정하여 나타나며 ‘가읅’은 강원도 및 경북 중부 지역에 일정한 띠를 이루며 분포해 있는 모습을 보여준다. 이 지도를, ≪한국언어지도≫(2008)에 실린 ‘가을’의 언어지도(제288면)와 비교할 때 세 가지 점에서 두드러진 차이가 발견된다.</p>
+
+                <div class="expl__point" style="display: block; margin-bottom: 20px;">
+                  <p style="margin: 0; font-weight: 800; color: var(--blue); font-size: 15px; margin-bottom: 6px;">[첫째]</p>
+                  <p style="margin: 0; line-height: 1.6; color: #334155;">주로 서부 지역에 분포하던 ‘가을’계가 동쪽으로 매우 넓게 확산하여 전국적인 형태가 되었다(‘제주도’에도 전파됨). ≪한국언어지도≫에 나타난 ‘가을’계의 분포와 우리의 ‘가을’계(빨간색의 동그라미)의 분포를 비교해 보면 이러한 사실이 단적으로 드러난다. ≪한국언어지도≫에서 강원도와 충청북도 및 경상북도는 ‘가읅’계가 우세한 지역이었는데 이번 지도에서는 ‘가을’(또는 ‘갉’)이 이들 지역을 거의 평정한 것이다. 이들 지역에 표준어 ‘가을’이 유입되어 활발히 쓰이게 된 결과로 여겨진다. ≪한국언어지도≫가 ≪한국방언자료집≫(1987-1995)에 바탕을 두었고 우리의 지도가 ‘지역어 조사 및 보완조사 사업’(2004~2018)에 바탕을 두었다는 사실을 고려할 때, 이 두 지도는 20년 정도의 그리 길지 않은 시간 속에서 표준어(‘가을’)가 기존 방언형들을 밀어내고 그 자리를 대신 차지해 가고 있는 현실을 그대로 드러내 준다.</p>
+                </div>
+
+                <div class="expl__point" style="display: block; margin-bottom: 20px;">
+                  <p style="margin: 0; font-weight: 800; color: var(--blue); font-size: 15px; margin-bottom: 6px;">[둘째]</p>
+                  <p style="margin: 0; line-height: 1.6; color: #334155;">‘가실’계가 훨씬 더 널리 분포한다. ≪한국언어지도≫에서는 전남 및 그 인근 지역에 ‘가실’계(녹색의 △)가 분포하였으나 이번 지도에서는, 비록 수의적이긴 하지만, 전남·경남을 비롯해 그 인근의 상당수 지역에서 ‘가실’이 사용되는 것으로 나타났다. 정말 ‘가실’이 지역적 분포를 넓히게 된 것인지 아니면 ≪한국언어지도≫가 ‘가실’의 수의적 출현을 반영하지 않은 것이었는지 현재로선 밝혀 말하기 어렵다.</p>
+                </div>
+
+                <div class="expl__point" style="display: block; margin-bottom: 0;">
+                  <p style="margin: 0; font-weight: 800; color: var(--blue); font-size: 15px; margin-bottom: 6px;">[셋째]</p>
+                  <p style="margin: 0; line-height: 1.6; color: #334155;">‘가읅’계의 사용 지역이 축소되었다. 표준어 ‘가을’이 동진함으로써 ‘가읅’계는 강원도 및 경북 중부 지역에 한정적으로 일정한 띠를 이루며 분포하게 되었다. 이와 더불어 ‘가읅’과 ‘가실’의 혼효형인 ‘가싥’ 또한 극히 일부 지역(강원도 평창, 경북 영덕)에 분포하는 형태로 전락하였다.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+  </section>
+</main>
+
+<!-- 공통 Footer -->
+<div id="footer-common"></div>
+
+<!-- OpenLayers -->
+<script src="https://cdn.jsdelivr.net/npm/ol@v10.9.0/dist/ol.js"></script>
+<script>
+/* ────────────── 지역어 지도 상호작용 (app.js 대체 인라인 스크립트) ────────────── */
+(function () {
+  'use strict';
+
+  // 지도 기본 뷰 (남한이 화면에 꽉 차도록)
+  var MAP_CENTER = [127.75, 36.35];
+  var MAP_ZOOM = 7.1;
+
+  /* ─ OpenLayers 지도 초기화 ─ */
+  var olMap = null;
+  (function initMap() {
+    var target = document.getElementById('olmap');
+    if (!target) return;
+    if (!window.ol || !ol.Map) {
+      // 오프라인 등으로 타일을 못 불러오는 경우 대체 안내
+      target.style.display = 'flex';
+      target.style.alignItems = 'center';
+      target.style.justifyContent = 'center';
+      target.style.color = '#64748b';
+      target.style.fontWeight = '700';
+      target.textContent = '지도를 불러올 수 없습니다 (네트워크 확인 필요).';
+      return;
+    }
+    olMap = new ol.Map({
+      target: 'olmap',
+      layers: [ new ol.layer.Tile({ source: new ol.source.OSM() }) ],
+      view: new ol.View({ center: ol.proj.fromLonLat(MAP_CENTER), zoom: MAP_ZOOM }),
+      keyboardEventTarget: target
+    });
+    requestAnimationFrame(function () { if (olMap) olMap.updateSize(); });
+  })();
+
+  function zoomBy(delta) {
+    if (!olMap) return;
+    var view = olMap.getView();
+    view.animate({ zoom: (view.getZoom() || MAP_ZOOM) + delta, duration: 250 });
+  }
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ─ 공용 발음 재생 (시연용 비프음) ─ */
+  var _audioCtx = null;
+  function beep(freq, btn) {
+    if (btn && btn.classList.contains('is-playing')) { btn.classList.remove('is-playing'); return; }
+    if (btn) btn.classList.add('is-playing');
+    try {
+      if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      var osc = _audioCtx.createOscillator();
+      var gain = _audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(_audioCtx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq || 440, _audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.1, _audioCtx.currentTime);
+      osc.start();
+      osc.stop(_audioCtx.currentTime + 1.2);
+      osc.onended = function () { if (btn) btn.classList.remove('is-playing'); };
+    } catch (e) {
+      if (btn) setTimeout(function () { btn.classList.remove('is-playing'); }, 1200);
+    }
+  }
+  if ($('zoom-in'))  $('zoom-in').addEventListener('click', function () { zoomBy(0.6); });
+  if ($('zoom-out')) $('zoom-out').addEventListener('click', function () { zoomBy(-0.6); });
+  if ($('map-reset')) $('map-reset').addEventListener('click', function () {
+    if (!olMap) return;
+    olMap.getView().animate({ center: ol.proj.fromLonLat(MAP_CENTER), zoom: MAP_ZOOM, duration: 350 });
+  });
+
+  /* ─ 초성 필터 ─ */
+  var initials = document.querySelectorAll('.initial');
+  var groups = document.querySelectorAll('.wgroup');
+  initials.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      initials.forEach(function (b) { b.classList.remove('is-active'); b.setAttribute('aria-selected', 'false'); });
+      btn.classList.add('is-active');
+      btn.setAttribute('aria-selected', 'true');
+      var key = btn.dataset.initial;
+      groups.forEach(function (g) {
+        g.style.display = (key === 'all' || g.dataset.initialSection === key) ? '' : 'none';
+      });
+    });
+  });
+
+  /* ─ 최근 본 단어 ─ */
+  var recentWords = ['가을', '바람', '감자']; // 초기 표시값
+  var RECENT_MAX = 6;
+  var recentList = $('recentList');
+
+  function renderRecent() {
+    if (!recentList) return;
+    recentList.innerHTML = recentWords.map(function (w) {
+      return '<li><button class="recentitem" type="button" data-word="' + w + '">' +
+             '<i class="ti ti-clock recentitem__ico" aria-hidden="true"></i><span>' + w + '</span></button></li>';
+    }).join('');
+  }
+
+  function addRecent(word) {
+    if (!word) return;
+    recentWords = recentWords.filter(function (w) { return w !== word; }); // 중복 제거
+    recentWords.unshift(word);                                            // 맨 앞에 추가
+    if (recentWords.length > RECENT_MAX) recentWords = recentWords.slice(0, RECENT_MAX);
+    renderRecent();
+    if (typeof relayout === 'function') relayout(); // 목록 변경으로 높이가 바뀌면 좌우 정렬 재계산
+  }
+
+  function selectWord(word) {
+    var info = $('infoWord'); if (info) info.textContent = word;
+    var mw = $('mapWord'); if (mw) mw.textContent = word;   // 지도 카드 제목 연동
+    addRecent(word);
+  }
+
+  renderRecent();
+
+  // 최근 본 단어 클릭 → 해당 단어 선택
+  if (recentList) recentList.addEventListener('click', function (e) {
+    var btn = e.target.closest('.recentitem');
+    if (btn) selectWord(btn.dataset.word || '');
+  });
+
+  /* ─ 단어 선택 (카테고리 목록) ─ */
+  var witems = document.querySelectorAll('.witem');
+  witems.forEach(function (item) {
+    item.addEventListener('click', function () {
+      witems.forEach(function (w) { w.classList.remove('is-active'); w.setAttribute('aria-selected', 'false'); });
+      item.classList.add('is-active');
+      item.setAttribute('aria-selected', 'true');
+      selectWord(item.dataset.word || '');
+    });
+  });
+
+  /* ─ 관련 정보 탭 (설명 / 예문 / 비교) ─ */
+  var segBtns = document.querySelectorAll('.seg__btn');
+  var segPanes = document.querySelectorAll('.segpane');
+  segBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      segBtns.forEach(function (b) { b.classList.remove('is-active'); b.setAttribute('aria-selected', 'false'); });
+      btn.classList.add('is-active');
+      btn.setAttribute('aria-selected', 'true');
+      var key = btn.dataset.seg;
+      segPanes.forEach(function (p) { p.classList.toggle('is-active', p.dataset.pane === key); });
+    });
+  });
+
+  /* ─ 방언형 분포 아코디언 펼침/접힘 ─ */
+  document.querySelectorAll('.dfitem__expand').forEach(function (head) {
+    head.addEventListener('click', function () {
+      var item = head.closest('.dfitem');
+      var open = item.classList.toggle('is-open');
+      head.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  });
+
+  /* ─ 방언형(단어)별 지도 마커 표출 (on/off) ─ */
+  // 계열(color·shape) 아래 방언형(word)마다 좌표를 두어 단어 단위로 표시/숨김한다.
+  var GROUPS = {
+    gaeul:  { color: '#ef4444', shape: 'circle', variants: [
+      { word: '가을',   n: '1,245', points: [[126.98,37.57],[127.05,37.42],[126.75,37.30],[127.15,36.35]] },
+      { word: '가으을', n: '102',   points: [[127.50,36.80],[126.85,36.55]] },
+      { word: '가얼',   n: '88',    points: [[128.20,37.85],[127.75,35.85]] },
+      { word: '갈',     n: '64',    points: [[127.40,35.55],[127.92,36.98]] }, // 충청북도 충주시 좌표 [127.92, 36.98] 추가
+      { word: '가알',   n: '41',    points: [[126.90,35.15]] },
+      { word: '가을철', n: '23',    points: [[127.95,36.60]] }
+    ] },
+    gasil:  { color: '#22c55e', shape: 'triangle', variants: [
+      { word: '가실',   n: '512', points: [[126.90,34.80],[127.30,34.95]] },
+      { word: '가시일', n: '88',  points: [[128.05,35.20]] }
+    ] },
+    gaeulm: { color: '#3b82f6', shape: 'square', variants: [
+      { word: '가읆',   n: '180', points: [[128.90,37.75],[129.20,36.95]] },
+      { word: '가을ㄱ', n: '95',  points: [[129.35,36.55]] },
+      { word: '갉',     n: '60',  points: [[128.60,37.10]] },
+      { word: '가앎',   n: '42',  points: [[129.10,37.45]] },
+      { word: '가싥',   n: '28',  points: [[128.75,36.70]] },
+      { word: '가실ㄱ', n: '15',  points: [[129.30,37.20]] }
+    ] },
+    jeju:   { color: '#f59e0b', shape: 'diamond', variants: [
+      { word: 'ᄀᆞ실', n: '58', points: [[126.53,33.45]] },
+      { word: 'ᄀᆞ슬', n: '31', points: [[126.62,33.28]] },
+      { word: 'ᄀᆞ을', n: '12', points: [[126.40,33.50]] }
+    ] }
+  };
+
+  function markerStyle(color, shape, big) {
+    if (!window.ol) return null;
+    var stroke = new ol.style.Stroke({ color: '#ffffff', width: big ? 2 : 1.5 });
+    var fill = new ol.style.Fill({ color: color });
+    var r = big ? 9 : 6;   // 호버 시 확대하여 '클릭할 수 있음'을 알림
+    var img;
+    if (shape === 'circle') {
+      img = new ol.style.Circle({ radius: r, fill: fill, stroke: stroke });
+    } else if (shape === 'triangle') {
+      img = new ol.style.RegularShape({ points: 3, radius: r + 1, fill: fill, stroke: stroke });
+    } else if (shape === 'square') {
+      img = new ol.style.RegularShape({ points: 4, radius: r, angle: Math.PI / 4, fill: fill, stroke: stroke });
+    } else { // diamond
+      img = new ol.style.RegularShape({ points: 4, radius: r, angle: 0, fill: fill, stroke: stroke });
+    }
+    return new ol.style.Style({ image: img });
+  }
+
+  function hexToRgba(hex, a) {
+    var n = parseInt(hex.slice(1), 16);
+    return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+  }
+
+  var markerLayer = null;
+  var areaLayer = null;
+  var variantStyles = {};       // varId -> ol.style.Style (마커)
+  var variantStylesBig = {};    // varId -> ol.style.Style (호버 확대 마커)
+  var variantColors = {};       // varId -> 색상 (면색)
+  var activeVariants = {};       // varId -> boolean
+  var hoverFeature = null;       // 현재 호버 중인 마커
+
+  // 방언형별 고유 id 부여 및 초기 활성화
+  Object.keys(GROUPS).forEach(function (gkey) {
+    GROUPS[gkey].variants.forEach(function (v, i) {
+      v.id = gkey + '-' + i;
+      activeVariants[v.id] = true;
+    });
+  });
+
+  // 지도 면색(반투명) + 마커 레이어 생성
+  if (olMap && window.ol) {
+    var features = [];
+    var areaFeatures = [];
+    Object.keys(GROUPS).forEach(function (gkey) {
+      var g = GROUPS[gkey];
+      g.variants.forEach(function (v) {
+        variantStyles[v.id] = markerStyle(g.color, g.shape);
+        variantStylesBig[v.id] = markerStyle(g.color, g.shape, true);
+        variantColors[v.id] = g.color;
+        v.points.forEach(function (pt) {
+          var coord = ol.proj.fromLonLat(pt);
+          var f = new ol.Feature({ geometry: new ol.geom.Point(coord) });
+          f.set('vid', v.id);
+          features.push(f);
+          var a = new ol.Feature({ geometry: new ol.geom.Circle(coord, 26000) });
+          a.set('vid', v.id);
+          areaFeatures.push(a);
+        });
+      });
+    });
+
+    // 면색 레이어 (마커 아래)
+    areaLayer = new ol.layer.Vector({
+      source: new ol.source.Vector({ features: areaFeatures }),
+      style: function (feature) {
+        var id = feature.get('vid');
+        if (!activeVariants[id]) return null;
+        return new ol.style.Style({ fill: new ol.style.Fill({ color: hexToRgba(variantColors[id], 0.16) }) });
+      }
+    });
+    areaLayer.setZIndex(1);
+    olMap.addLayer(areaLayer);
+
+    // 마커(상징 부호) 레이어 (면색 위)
+    markerLayer = new ol.layer.Vector({
+      source: new ol.source.Vector({ features: features }),
+      style: function (feature) {
+        var id = feature.get('vid');
+        if (!activeVariants[id]) return null;
+        return feature === hoverFeature ? variantStylesBig[id] : variantStyles[id];
+      }
+    });
+    markerLayer.setZIndex(2);
+    olMap.addLayer(markerLayer);
+
+    /* ─ 오버레이 팝업 설정 ─ */
+    var popupElement = document.getElementById('popup');
+    var popupContent = document.getElementById('popup-content');
+
+    var overlay = new ol.Overlay({
+      element: popupElement,
+      autoPan: true,
+      autoPanAnimation: { duration: 250 }
+    });
+    olMap.addOverlay(overlay);
+
+    // 팝업 내용 동적 생성 함수
+    function showPopup(type, coord) {
+      var html = '';
+      if (type === 'chungbuk') {
+        html = 
+          '<div class="popup-header">' +
+            '<div class="popup-header__title">' +
+              '<span>1</span>' +
+              '<span class="popup-header__word">갈</span>' +
+              '<span>충청북도</span>' +
+              '<span>가을</span>' +
+            '</div>' +
+            '<button type="button" class="popup-close" id="popup-closer" aria-label="닫기"><i class="ti ti-x"></i></button>' +
+          '</div>' +
+          '<div class="popup-body">' +
+            '<div class="popup-body__title"><span>갈</span>의 지역별 음성 듣기</div>' +
+            '<table class="popup-table">' +
+              '<thead>' +
+                '<tr>' +
+                  '<th>지역</th>' +
+                  '<th>조사시기</th>' +
+                  '<th>제보자</th>' +
+                '</tr>' +
+              '</thead>' +
+              '<tbody>' +
+                '<tr>' +
+                  '<td>' +
+                    '충청북도 충주시' +
+                    '<button type="button" class="popup-speaker-btn" id="popup-audio-btn" data-freq="350" aria-label="음성 듣기">' +
+                      '<i class="ti ti-volume"></i>' +
+                    '</button>' +
+                  '</td>' +
+                  '<td>2015년</td>' +
+                  '<td>80세, 남성</td>' +
+                '</tr>' +
+              '</tbody>' +
+            '</table>' +
+          '</div>';
+      } else if (type === 'gangwon') {
+        html = 
+          '<div class="popup-header">' +
+            '<div class="popup-header__title">' +
+              '<span>1</span>' +
+              '<span class="popup-header__word" style="color: #2563eb;">가을ㄱ(=가:을\'ㄱ)</span>' +
+              '<span>강원도</span>' +
+              '<span>가을</span>' +
+            '</div>' +
+            '<button type="button" class="popup-close" id="popup-closer" aria-label="닫기"><i class="ti ti-x"></i></button>' +
+          '</div>' +
+          '<div class="popup-body">' +
+            '<div class="popup-body__title"><span style="color: #2563eb;">가을ㄱ(=가:을\'ㄱ)</span>의 지역별 음성 듣기</div>' +
+            '<table class="popup-table" style="margin-bottom: 12px;">' +
+              '<thead>' +
+                '<tr>' +
+                  '<th>번호</th>' +
+                  '<th>지역</th>' +
+                  '<th>조사시기</th>' +
+                  '<th>제보자</th>' +
+                '</tr>' +
+              '</thead>' +
+              '<tbody>' +
+                '<tr style="border-bottom: 1px solid #e2e8f0;">' +
+                  '<td>1</td>' +
+                  '<td>' +
+                    '강원도 속초시' +
+                    '<button type="button" class="popup-speaker-btn" style="background:#dbeafe; color:#2563eb;" id="popup-audio-btn-1" data-freq="550" aria-label="속초시 음성 듣기">' +
+                      '<i class="ti ti-volume"></i>' +
+                    '</button>' +
+                  '</td>' +
+                  '<td>2020년</td>' +
+                  '<td>72세, 남성</td>' +
+                '</tr>' +
+                '<tr>' +
+                  '<td>2</td>' +
+                  '<td>' +
+                    '강원도 태백시' +
+                    '<button type="button" class="popup-speaker-btn" style="background:#dbeafe; color:#2563eb;" id="popup-audio-btn-2" data-freq="450" aria-label="태백시 음성 듣기">' +
+                      '<i class="ti ti-volume"></i>' +
+                    '</button>' +
+                  '</td>' +
+                  '<td>2020년</td>' +
+                  '<td>83세, 남성</td>' +
+                '</tr>' +
+              '</tbody>' +
+            '</table>' +
+          '</div>';
+      }
+
+      popupContent.innerHTML = html;
+      overlay.setPosition(coord);
+
+      // 닫기 이벤트 핸들러 바인딩
+      document.getElementById('popup-closer').onclick = function() {
+        overlay.setPosition(undefined);
+        return false;
+      };
+
+      // 오디오 버튼 바인딩
+      var audioCtx = null;
+      function playBeep(freq, btn) {
+        if (btn.classList.contains('is-playing')) {
+          btn.classList.remove('is-playing');
+          return;
+        }
+        btn.classList.add('is-playing');
+        try {
+          if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          var osc = audioCtx.createOscillator();
+          var gain = audioCtx.createGain();
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 1.2);
+          osc.onended = function() {
+            btn.classList.remove('is-playing');
+          };
+        } catch (e) {
+          setTimeout(function() {
+            btn.classList.remove('is-playing');
+          }, 1200);
+        }
+      }
+
+      var btnSingle = document.getElementById('popup-audio-btn');
+      if (btnSingle) {
+        btnSingle.onclick = function() { playBeep(350, btnSingle); };
+      }
+      var btn1 = document.getElementById('popup-audio-btn-1');
+      if (btn1) {
+        btn1.onclick = function() { playBeep(550, btn1); };
+      }
+      var btn2 = document.getElementById('popup-audio-btn-2');
+      if (btn2) {
+        btn2.onclick = function() { playBeep(450, btn2); };
+      }
+    }
+
+    // 모든 마커 공통 팝업 (라벨이 있는 헤더 + 채록 정보 + 발음 듣기)
+    var GROUP_LABEL = { gaeul: '가을계', gasil: '가실계', gaeulm: '가읆계', jeju: 'ᄀᆞ실계' };
+    function showGenericPopup(vid, coord) {
+      var gkey = vid.split('-')[0];
+      var g = GROUPS[gkey];
+      if (!g) return;
+      var v = null;
+      g.variants.forEach(function (x) { if (x.id === vid) v = x; });
+      if (!v) return;
+      var html =
+        '<div class="popup-header">' +
+          '<div class="popup-header__title">' +
+            '<span>방언형</span>' +
+            '<span class="popup-header__word" style="color:' + g.color + '">' + v.word + '</span>' +
+            '<span>' + GROUP_LABEL[gkey] + ' · 표준어 ‘가을’</span>' +
+          '</div>' +
+          '<button type="button" class="popup-close" id="popup-closer" aria-label="닫기"><i class="ti ti-x"></i></button>' +
+        '</div>' +
+        '<div class="popup-body">' +
+          '<div class="popup-body__title"><span style="color:' + g.color + '">' + v.word + '</span>의 채록 정보 · 발음 듣기</div>' +
+          '<table class="popup-table">' +
+            '<thead><tr><th>지역</th><th>조사시기</th><th>제보자</th></tr></thead>' +
+            '<tbody><tr>' +
+              '<td>조사 지점 (예시)' +
+                '<button type="button" class="popup-speaker-btn" id="popup-audio-btn" aria-label="음성 듣기"><i class="ti ti-volume"></i></button>' +
+              '</td>' +
+              '<td>2012년</td>' +
+              '<td>78세, 여성</td>' +
+            '</tr></tbody>' +
+          '</table>' +
+        '</div>';
+      popupContent.innerHTML = html;
+      overlay.setPosition(coord);
+      document.getElementById('popup-closer').onclick = function () { overlay.setPosition(undefined); return false; };
+      var b = document.getElementById('popup-audio-btn');
+      if (b) b.onclick = function () { beep(420, b); };
+    }
+
+    // 마커 클릭(click) 이벤트 리스너 등록 — 모든 마커가 클릭 가능
+    olMap.on('click', function(evt) {
+      var pixel = olMap.getEventPixel(evt.originalEvent);
+      var feature = olMap.forEachFeatureAtPixel(pixel, function(f) { return f; }, {
+        layerFilter: function(layer) { return layer === markerLayer; }
+      });
+      if (!feature) return;
+      var vid = feature.get('vid');
+      var coord = feature.getGeometry().getCoordinates();
+
+      if (vid === 'gaeul-3') showPopup('chungbuk', coord);        // 상세 데이터가 있는 지점
+      else if (vid === 'gaeulm-1') showPopup('gangwon', coord);
+      else showGenericPopup(vid, coord);
+    });
+
+    // 호버: 모든 마커에서 커서 변경 + 마커 확대(클릭 어포던스)
+    olMap.on('pointermove', function(evt) {
+      if (evt.dragging) return;
+      var pixel = olMap.getEventPixel(evt.originalEvent);
+      var feature = olMap.forEachFeatureAtPixel(pixel, function(f) { return f; }, {
+        layerFilter: function(layer) { return layer === markerLayer; }
+      }) || null;
+      if (feature !== hoverFeature) {
+        hoverFeature = feature;
+        markerLayer.changed();
+      }
+      document.body.style.cursor = feature ? 'pointer' : '';
+    });
+  }
+
+  function refreshMarkers() {
+    if (markerLayer) markerLayer.changed();
+    if (areaLayer) areaLayer.changed();
+  }
+
+  // 방언형 목록(한 줄씩) 렌더링
+  document.querySelectorAll('.dfvarlist').forEach(function (list) {
+    var gkey = list.dataset.group;
+    var g = GROUPS[gkey];
+    if (!g) return;
+    list.innerHTML = g.variants.map(function (v, i) {
+      return '<label class="dfvarrow">' +
+               '<input type="checkbox" class="dfvarcb" data-vid="' + v.id + '" data-group="' + gkey + '" checked aria-label="' + v.word + ' 지도 표시">' +
+               '<span class="dfvarrow__word">' + v.word + '</span>' +
+               '<span class="dfvarrow__n" title="채록 건수">' + v.n + '건</span>' +
+               '<button type="button" class="listenbtn" data-freq="' + (320 + (i * 45) % 380) + '" aria-label="' + v.word + ' 발음 듣기"><i class="ti ti-volume" aria-hidden="true"></i></button>' +
+             '</label>';
+    }).join('');
+  });
+
+  // 계열 체크박스 상태 갱신(전체/일부/없음)
+  function syncGroupCheckbox(gkey) {
+    var groupCb = document.querySelector('.dfcb[data-group="' + gkey + '"]');
+    if (!groupCb) return;
+    var ids = GROUPS[gkey].variants.map(function (v) { return v.id; });
+    var onCount = ids.filter(function (id) { return activeVariants[id]; }).length;
+    groupCb.checked = onCount === ids.length;
+    groupCb.indeterminate = onCount > 0 && onCount < ids.length;
+  }
+
+  // 방언형(단어) 체크박스 → 해당 단어 마커 표시/숨김
+  document.querySelectorAll('.dfvarcb').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      activeVariants[cb.dataset.vid] = cb.checked;
+      syncGroupCheckbox(cb.dataset.group);
+      refreshMarkers();
+    });
+  });
+
+  // 계열 체크박스(마스터) → 하위 방언형 전체 on/off
+  document.querySelectorAll('.dfcb').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      var gkey = cb.dataset.group;
+      cb.indeterminate = false;
+      GROUPS[gkey].variants.forEach(function (v) { activeVariants[v.id] = cb.checked; });
+      document.querySelectorAll('.dfvarcb[data-group="' + gkey + '"]').forEach(function (vcb) {
+        vcb.checked = cb.checked;
+      });
+      refreshMarkers();
+    });
+  });
+
+  /* ─ 지도 레이어 스위치 토글 ─ */
+  document.querySelectorAll('.switch').forEach(function (sw) {
+    sw.addEventListener('click', function () {
+      var on = sw.classList.toggle('is-on');
+      sw.setAttribute('aria-checked', on ? 'true' : 'false');
+    });
+  });
+
+  /* ─ 지도 스타일 선택 ─ */
+  var styleBtns = document.querySelectorAll('.mapstyles .style');
+  styleBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      styleBtns.forEach(function (b) { b.classList.remove('is-active'); });
+      btn.classList.add('is-active');
+    });
+  });
+
+  /* ─ 면색 / 상징 부호 숨기기 ─ */
+  if ($('hideArea')) $('hideArea').addEventListener('change', function () {
+    if (areaLayer) areaLayer.setVisible(!this.checked);
+  });
+  if ($('hideSymbol')) $('hideSymbol').addEventListener('change', function () {
+    if (markerLayer) markerLayer.setVisible(!this.checked);
+  });
+
+  /* ─ 지도 다운로드 (이미지 / PDF / CSV) ─ */
+  function withMapCanvas(cb) {
+    if (!olMap) return;
+    olMap.once('rendercomplete', function () {
+      var size = olMap.getSize();
+      var out = document.createElement('canvas');
+      out.width = size[0];
+      out.height = size[1];
+      var ctx = out.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, out.width, out.height);
+      document.querySelectorAll('#olmap canvas').forEach(function (canvas) {
+        if (canvas.width === 0) return;
+        var op = canvas.parentNode.style.opacity || canvas.style.opacity;
+        ctx.globalAlpha = op === '' ? 1 : Number(op);
+        var t = canvas.style.transform;
+        var m = /^matrix\(([^\)]*)\)$/.exec(t);
+        if (m) {
+          var v = m[1].split(',').map(Number);
+          ctx.setTransform(v[0], v[1], v[2], v[3], v[4], v[5]);
+        } else {
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
+        }
+        ctx.drawImage(canvas, 0, 0);
+      });
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.globalAlpha = 1;
+      cb(out);
+    });
+    olMap.renderSync();
+  }
+
+  function triggerDownload(href, filename) {
+    var a = document.createElement('a');
+    a.href = href;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  if ($('dlImage')) $('dlImage').addEventListener('click', function () {
+    withMapCanvas(function (canvas) {
+      triggerDownload(canvas.toDataURL('image/png'), '지역어지도_가을.png');
+    });
+  });
+
+  if ($('dlPdf')) $('dlPdf').addEventListener('click', function () {
+    withMapCanvas(function (canvas) {
+      var url = canvas.toDataURL('image/png');
+      var w = window.open('', '_blank');
+      if (!w) { alert('팝업이 차단되어 PDF 저장 창을 열 수 없습니다.'); return; }
+      w.document.write('<html><head><title>지역어 지도 - 가을</title></head>' +
+        '<body style="margin:0"><img src="' + url + '" style="width:100%" ' +
+        'onload="setTimeout(function(){window.focus();window.print();},300)"></body></html>');
+      w.document.close();
+    });
+  });
+
+  if ($('dlCsv')) $('dlCsv').addEventListener('click', function () {
+    var groupName = { gaeul: '가을계', gasil: '가실계', gaeulm: '가읆계', jeju: 'ᄀᆞ실계' };
+    var groupRegion = {
+      gaeul: '서울·경기·충청·강원 대부분',
+      gasil: '전남·경남 서부·충남 일부',
+      gaeulm: '강원·경북 북부·동해안 일부',
+      jeju: '제주도 일부'
+    };
+    var rows = [['계열', '방언형', '건수', '대표 지역']];
+    Object.keys(GROUPS).forEach(function (gkey) {
+      GROUPS[gkey].variants.forEach(function (v) {
+        rows.push([groupName[gkey], v.word, v.n.replace(/,/g, ''), groupRegion[gkey]]);
+      });
+    });
+    var csv = '﻿' + rows.map(function (r) {
+      return r.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(',');
+    }).join('\r\n');
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+    triggerDownload(url, '지역어_가을_방언형.csv');
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  });
+
+  /* ─ 좌우 박스 높이 정렬 ─
+     · 관련정보 박스 = 좌측 열 전체 높이 (내부 스크롤)
+     · 지도 박스   = 좌측 열 전체 하단에 맞춤 (비교 섹션 제거로 지도 최대 확보) */
+  function syncInfoHeight() {
+    var side = document.querySelector('.side');
+    var info = document.querySelector('.info');
+    if (!side || !info) return;
+    if (window.innerWidth <= 1100) { info.style.height = ''; return; }
+    info.style.height = side.offsetHeight + 'px';
+  }
+
+  function syncCenterBoxes() {
+    var side = document.querySelector('.side'); // 좌측 열 전체
+    var mapEl = document.getElementById('olmap');
+    if (!side || !mapEl) return;
+
+    if (window.innerWidth <= 1100) {          // 1열(모바일)에서는 고정 해제
+      mapEl.style.height = '';
+      if (olMap) olMap.updateSize();
+      return;
+    }
+
+    // 지도 높이: 좌측 열 전체 하단선에 맞춤
+    var mapH = Math.max(420, Math.round(side.getBoundingClientRect().bottom - mapEl.getBoundingClientRect().top));
+    mapEl.style.height = mapH + 'px';
+    if (olMap) olMap.updateSize();
+  }
+
+  function relayout() { syncInfoHeight(); syncCenterBoxes(); }
+
+  relayout();
+  window.addEventListener('load', relayout);
+  window.addEventListener('resize', relayout);
+
+  /* ─ 검색 폼 (제출 시 새로고침 방지) ─ */
+  var form = $('searchForm');
+  if (form) form.addEventListener('submit', function (e) { e.preventDefault(); });
+
+  /* ══════════ 개선 시안 추가 상호작용 ══════════ */
+
+  /* ─ 팝오버 (지도 설정 / 다운로드) ─ */
+  function bindPop(btnId, popId) {
+    var btn = $(btnId), pop = $(popId);
+    if (!btn || !pop) return;
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var willOpen = pop.hidden;
+      document.querySelectorAll('.popmenu').forEach(function (p) { p.hidden = true; });
+      pop.hidden = !willOpen;
+      btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    });
+    pop.addEventListener('click', function (e) { e.stopPropagation(); });
+  }
+  bindPop('btnSettings', 'popSettings');
+  bindPop('btnDownload', 'popDownload');
+  document.addEventListener('click', function () {
+    document.querySelectorAll('.popmenu').forEach(function (p) { p.hidden = true; });
+  });
+
+  /* ─ 공유 → 상태 URL 복사 + 토스트 ─ */
+  var toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i> 현재 단어와 표시 상태가 담긴 링크를 복사했습니다.';
+  document.body.appendChild(toast);
+  var toastTimer = null;
+  function showToast() {
+    toast.classList.add('is-show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.classList.remove('is-show'); }, 2400);
+  }
+  if ($('btnShare')) $('btnShare').addEventListener('click', function () {
+    var mw = $('mapWord');
+    var url = location.href.split('?')[0] + '?word=' + encodeURIComponent(mw ? mw.textContent : '');
+    if (navigator.clipboard) navigator.clipboard.writeText(url).catch(function () {});
+    showToast();
+  });
+
+  /* ─ 첫 방문 코치 바 닫기 ─ */
+  if ($('coachClose')) $('coachClose').addEventListener('click', function () {
+    var c = $('coach');
+    if (c) { c.style.display = 'none'; relayout(); }
+  });
+
+  /* ─ 지도 범례 접기 / 지도 보는 법 ─ */
+  if ($('legendFold')) $('legendFold').addEventListener('click', function () {
+    var lg = $('maplegend');
+    var folded = lg.classList.toggle('is-folded');
+    this.setAttribute('aria-label', folded ? '범례 펼치기' : '범례 접기');
+    this.innerHTML = folded ? '<i class="ti ti-chevron-up" aria-hidden="true"></i>' : '<i class="ti ti-chevron-down" aria-hidden="true"></i>';
+  });
+  if ($('btnHowto')) $('btnHowto').addEventListener('click', function () { $('howto').hidden = false; });
+  if ($('howtoClose')) $('howtoClose').addEventListener('click', function () { $('howto').hidden = true; });
+  if ($('howto')) $('howto').addEventListener('click', function (e) { if (e.target === this) this.hidden = true; });
+
+  /* ─ 듣기 버튼 공통 처리 (범례·방언형 목록·예문, 위임) ─ */
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.listenbtn');
+    if (!btn) return;
+    e.preventDefault();   // label 내부 버튼이 체크박스를 토글하지 않도록
+    e.stopPropagation();
+    beep(Number(btn.dataset.freq) || 440, btn);
+  }, true);
+
+  /* ─ 예문 카드마다 발화 듣기 버튼 주입 ─ */
+  document.querySelectorAll('.excard').forEach(function (card, i) {
+    var head = card.querySelector('div');
+    if (!head) return;
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'listenbtn';
+    b.dataset.freq = String(320 + i * 45);
+    b.setAttribute('aria-label', '예문 발화 듣기');
+    b.innerHTML = '<i class="ti ti-volume" aria-hidden="true"></i>';
+    head.appendChild(b);
+  });
+
+  /* ─ 단어 개수 라벨 명확화: "4개" → "방언형 4종" ─ */
+  document.querySelectorAll('.witem__count').forEach(function (el) {
+    var t = el.textContent.trim();
+    if (/^\d+개$/.test(t)) el.textContent = '방언형 ' + t.replace('개', '종');
+  });
+
+  /* ─ 해설: 전문 해설 펼치기/접기 ─ */
+  if ($('explMore')) $('explMore').addEventListener('click', function () {
+    var full = $('explFull');
+    var open = full.hidden;
+    full.hidden = !open;
+    this.classList.toggle('is-open', open);
+    this.setAttribute('aria-expanded', open ? 'true' : 'false');
+    this.innerHTML = '<i class="ti ti-chevron-down" aria-hidden="true"></i> ' + (open ? '전문 해설 접기' : '전문 해설 읽기 (연구자용)');
+    relayout();
+  });
+})();
+</script>
+<script src="./share.js" defer></script>
+
+</body>
+</html>

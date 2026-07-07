@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>문학 속 지역어 — 국립국어원</title>
+
+  <!-- 파비콘 및 폰트 아이콘 -->
+  <link rel="shortcut icon" href="./favicon.ico">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+
+  <!-- 공통 스타일시트 -->
+  <link rel="stylesheet" href="./styles.css">
+
+  <!-- 공통 GNB / Footer 로더 -->
+  <script src="./gnb.js" defer></script>
+  <script src="./footer.js" defer></script>
+
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --secondary: #7C3AED;
+      --success: #10B981;
+      --warning: #F59E0B;
+      --danger: #EF4444;
+      --neutral: #6B7280;
+      --ink: #111827;
+      --muted: #6B7280;
+      --surface: #F9FAFB;
+      --line: #E5E7EB;
+      --bg: #FFFFFF;
+      --soft-blue: #EFF6FF;
+      --soft-purple: #F5F3FF;
+      --soft-green: #ECFDF5;
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --shadow: 0 20px 48px rgba(15, 23, 42, .10);
+      --shadow-sm: 0 10px 28px rgba(15, 23, 42, .08);
+    }
+
+    /* ── 타이틀 영역 (서브 비주얼) ── */
+    .sub-visual {
+      background: linear-gradient(180deg, #edf4ff 0%, #f8fafc 100%);
+      border-bottom: 1px solid #e2e8f0;
+      padding: 55px 0 50px;
+      text-align: center;
+      position: relative;
+      overflow: visible;
+      display: block !important;
+      height: auto !important;
+      min-height: 180px;
+    }
+    .sub-visual::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.03) 0%, transparent 40%); pointer-events: none; }
+    .wrap { max-width: 1440px; margin: 0 auto; padding: 0 20px; position: relative; }
+    .sv-title {
+      font-size: 30px;
+      font-weight: 800;
+      color: #1e3a8a;
+      letter-spacing: -0.03em;
+      margin: 0 0 16px;
+      position: relative;
+      z-index: 1;
+    }
+    .location-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #ffffff;
+      padding: 6px 20px;
+      border-radius: 99px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02);
+      border: 1px solid #cbd5e1;
+      position: relative;
+      z-index: 1;
+    }
+    .loc-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #475569;
+    }
+    .loc-item.home {
+      color: #3b82f6;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .loc-item select {
+      border: none;
+      background: transparent;
+      font-size: 13px;
+      font-weight: 600;
+      color: #334155;
+      padding: 0 16px 0 0;
+      cursor: pointer;
+      appearance: none;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right center;
+      font-family: inherit;
+    }
+    .loc-item select:focus { outline: none; box-shadow: none; }
+    .loc-sep { color: #cbd5e1; font-size: 12px; }
+
+    /* 레이아웃 흔들림 방지 상속 */
+    html {
+      scrollbar-gutter: stable;
+    }
+    body {
+      background: #ffffff !important;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      margin: 0;
+      font-family: Pretendard, -apple-system, sans-serif;
+    }
+
+    /* 본문 영역 커스텀 백그라운드 디자인 */
+    .lit-container {
+      background: #ffffff;
+      padding: 36px 0 80px;
+      flex: 1;
+    }
+
+    .page {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.3fr .7fr;
+      gap: 28px;
+      align-items: end;
+      margin-bottom: 26px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, .10);
+      color: var(--primary-dark);
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .hero h2 {
+      margin: 0 0 12px;
+      font-size: 32px;
+      letter-spacing: -0.04em;
+      line-height: 1.2;
+      color: #1e3a8a;
+      font-weight: 800;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+      max-width: 720px;
+      line-height: 1.5;
+    }
+
+    .metric-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .metric {
+      background: rgba(255,255,255,.9);
+      border: 1px solid rgba(229,231,235,.8);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 10px 24px rgba(15,23,42,.03);
+    }
+    .metric strong { display:block; font-size: 22px; letter-spacing: -.02em; color: #1e3a8a; }
+    .metric span { color: var(--muted); font-size: 13px; }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin: 22px 0;
+      padding: 14px;
+      border: 1px solid rgba(229, 231, 235, .9);
+      border-radius: 20px;
+      background: rgba(255,255,255,.82);
+      box-shadow: 0 14px 32px rgba(15,23,42,.06);
+      position: sticky;
+      top: 90px; /* GNB 높이 고려 */
+      z-index: 20;
+      backdrop-filter: blur(14px);
+    }
+
+    .toggle-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .toggle {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #374151;
+      padding: 9px 13px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      transition: all .18s ease;
+    }
+    .toggle:hover { border-color: rgba(37,99,235,.35); color: var(--primary-dark); }
+    .toggle.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 8px 18px rgba(37,99,235,.22);
+    }
+
+    .preview-wrap {
+      display: grid;
+      justify-content: center;
+      padding: 20px;
+      border-radius: 28px;
+      background: rgba(17,24,39,.03);
+      border: 1px solid rgba(17,24,39,.05);
+      overflow: auto;
+    }
+
+    .device {
+      width: 100%;
+      background: #fff;
+      border: 1px solid rgba(229,231,235,.9);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: width .2s ease;
+    }
+    .device.desktop { width: 100%; min-width: 1100px; }
+    .device.tablet { width: 768px; max-width: 100%; }
+    .device.mobile { width: 375px; max-width: 100%; border-radius: 32px; }
+
+    .app-top {
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      padding: 22px 28px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+    .brand {
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width: 0;
+      text-align: left;
+    }
+    .logo {
+      width: 42px; height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color:#fff;
+      display:grid; place-items:center;
+      font-weight: 900;
+      box-shadow: 0 10px 22px rgba(37,99,235,.25);
+      flex: 0 0 auto;
+    }
+    .brand-title { font-weight: 850; letter-spacing: -.02em; }
+    .brand-sub { color: var(--muted); font-size: 12px; margin-top: 1px; }
+    .top-actions { display:flex; gap: 8px; align-items:center; }
+    .ghost-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 12px;
+      padding: 10px 12px;
+      color: #374151;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .app-main {
+      padding: 30px;
+      background: linear-gradient(180deg, #fff 0%, #FBFCFF 100%);
+    }
+
+    .search-card {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.95);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+    .search-core {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      padding: 20px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+    .input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 2px solid transparent;
+      background: var(--surface);
+      border-radius: 18px;
+      padding: 0 16px;
+      height: 58px;
+      transition: all .18s ease;
+      position: relative;
+    }
+    .input-wrap.focused { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 5px rgba(37,99,235,.10); }
+    .input-wrap input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      font-size: 17px;
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .input-wrap input::placeholder { color: #9CA3AF; font-weight: 500; }
+    .search-btn {
+      border: 0;
+      background: var(--primary);
+      color: #fff;
+      padding: 0 24px;
+      min-width: 112px;
+      border-radius: 18px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 12px 26px rgba(37,99,235,.25);
+    }
+
+    .suggestions {
+      display: none;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 10px;
+      padding: 0 20px 18px;
+      background: #fff;
+    }
+    .state-default .suggestions { display: grid; }
+    .suggestion {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 15px;
+      padding: 12px;
+      min-height: 72px;
+      text-align: left;
+    }
+    .suggestion b { font-size: 13px; display:block; margin-bottom: 4px; }
+    .suggestion span { color: var(--muted); font-size: 12px; }
+
+    .filter-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      background: #FBFCFF;
+      border-bottom: 1px solid var(--line);
+    }
+    .quick-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items:center; }
+    .mini-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 8px 11px;
+      color: #374151;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .filter-toggle-btn {
+      border: 0;
+      background: rgba(37,99,235,.10);
+      color: var(--primary-dark);
+      border-radius: 999px;
+      padding: 10px 13px;
+      font-weight: 850;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 16px 20px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 800;
+      border: 1px solid rgba(37,99,235,.20);
+      color: var(--primary-dark);
+      background: var(--soft-blue);
+    }
+    .chip.purple { color:#6D28D9; background: var(--soft-purple); border-color: rgba(124,58,237,.18); }
+    .chip.green { color:#047857; background: var(--soft-green); border-color: rgba(16,185,129,.20); }
+    .chip .x { opacity:.72; }
+    .empty-chip-note { color: var(--muted); font-size: 13px; }
+    .state-default .chip.has-filter { display: none; }
+    .state-default .empty-chip-note { display: inline; }
+    .state-expanded .empty-chip-note, .state-results .empty-chip-note { display:none; }
+
+    .filter-panel {
+      display: none;
+      padding: 20px;
+      background: #FBFCFF;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+    }
+    .state-expanded .filter-panel, .state-results .filter-panel { display: block; }
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .field label {
+      display:block;
+      font-size: 13px;
+      font-weight: 850;
+      color:#374151;
+      margin-bottom: 7px;
+    }
+    .select {
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      height: 48px;
+      border-radius: 14px;
+      border: 1px solid #D8DEE8;
+      background: #fff;
+      padding: 0 13px;
+      font-size: 14px;
+      font-weight: 700;
+      color:#111827;
+    }
+    .select.muted { color: #9CA3AF; font-weight: 600; }
+    .filter-tools {
+      display:flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 14px;
+    }
+
+    .content-grid {
+      display: block;
+      margin-top: 24px;
+    }
+
+    .results-area {
+      display: block;
+    }
+    .empty-guide {
+      display: none;
+      margin-top: 24px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      padding: 30px;
+      box-shadow: var(--shadow-sm);
+      text-align: center;
+    }
+    .empty-guide h2 { margin: 0 0 8px; font-size: 24px; letter-spacing: -.02em; color: #1e3a8a; }
+    .empty-guide p { margin: 0 auto 22px; max-width: 620px; color: var(--muted); }
+    .guide-grid {
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      text-align:left;
+    }
+    .guide-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      background: var(--surface);
+    }
+    .guide-card strong { display:block; margin-bottom: 5px; color: #1e3a8a; }
+    .guide-card span { color: var(--muted); font-size: 13px; }
+
+    .summary-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 14px;
+      text-align: left;
+    }
+    .summary-top { display:flex; justify-content:space-between; gap: 14px; align-items: start; }
+    .summary-card h2 { margin:0 0 8px; font-size: 22px; letter-spacing:-.02em; color: #1e3a8a; }
+    .summary-card p { margin:0; color: var(--muted); }
+    .count-badge {
+      min-width: 88px;
+      text-align: center;
+      border-radius: 18px;
+      padding: 12px 14px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      box-shadow: 0 14px 24px rgba(37,99,235,.22);
+    }
+    .count-badge b { display:block; font-size: 24px; line-height:1; }
+    .count-badge span { font-size: 12px; opacity:.9; }
+
+    .view-options {
+      display:flex;
+      gap: 8px;
+      flex-wrap:wrap;
+      margin-top: 18px;
+    }
+      color:#4B5563;
+    }
+    .view-pill.active { background: #111827; color:#fff; border-color:#111827; }
+
+    .result-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 24px;
+    }
+    .result-card {
+      background: #ffffff; 
+      border: 1px solid #e5e7eb; 
+      border-radius: 20px; 
+      padding: 32px 30px; 
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02); 
+      display: flex; 
+      flex-direction: column; 
+      height: 100%; 
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+      text-align: left;
+    }
+    .result-card:hover {
+      transform: translateY(-4px); 
+      border-color: #3b82f6; 
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08); 
+    }
+    .result-head {
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 16px; 
+    }
+    .dialect-word {
+      display: flex; 
+      align-items: center; 
+      gap: 8px; 
+    }
+    .dialect-word strong {
+      font-size: 18px; 
+      color: #111827; 
+      font-weight: 700; 
+      letter-spacing: -0.02em;
+    }
+    .tag {
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .tag.region {
+      background: #eff6ff; 
+      color: #2563eb; 
+    }
+    .tag.type {
+      background: #f5f3ff;
+      color: #7c3aed;
+    }
+    .source-meta {
+      font-size: 13px; 
+      color: #6b7280; 
+      font-weight: 500; 
+      line-height: 1.4;
+      text-align: right;
+    }
+    .quote {
+      font-size: 15.5px; 
+      font-weight: 400; 
+      line-height: 1.8; 
+      color: #111827; 
+      margin-bottom: 24px; 
+      font-style: normal; 
+      border: none;
+      padding: 0;
+      background: transparent;
+      margin-top: 8px;
+      flex: 1;
+    }
+    .quote mark {
+      font-style: normal; 
+      color: #2563eb; 
+      background: rgba(30, 64, 175, 0.06); 
+      padding: 1px 4px; 
+      border-radius: 4px; 
+      border-bottom: 1.5px solid #3b82f6; 
+    }
+    .result-meta {
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      border-top: 1px solid #e5e7eb; 
+      padding-top: 16px; 
+      margin-top: auto; 
+      color: #6b7280;
+      font-size: 12px;
+    }
+    .card-actions {
+      display: flex;
+      gap: 12px;
+    }
+    .tiny-btn {
+      color:#374151;
+      cursor: pointer;
+    }
+
+    .insight-panel {
+      display: grid;
+      gap: 14px;
+      align-self: start;
+      text-align: left;
+    }
+    .side-card {
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:18px;
+      box-shadow: 0 12px 26px rgba(15,23,42,.055);
+    }
+    .side-card h3 { margin:0 0 12px; font-size:16px; letter-spacing:-.01em; color: #1e3a8a; }
+    .mini-map {
+      height: 170px;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 44% 39%, rgba(37,99,235,.25) 0 14px, transparent 15px),
+        radial-gradient(circle at 56% 67%, rgba(16,185,129,.26) 0 10px, transparent 11px),
+        radial-gradient(circle at 70% 48%, rgba(245,158,11,.24) 0 8px, transparent 9px),
+        linear-gradient(145deg, #F8FAFC, #EEF2FF);
+      border:1px solid #E5E7EB;
+      position:relative;
+      overflow:hidden;
+    }
+    .mini-map:before {
+      content:"";
+      position:absolute;
+      width: 120px; height: 150px;
+      left: 96px; top: 14px;
+      border: 3px solid rgba(37,99,235,.28);
+      border-radius: 48% 44% 50% 46%;
+      transform: rotate(10deg);
+    }
+    .mini-map span {
+      position:absolute;
+      left: 18px; bottom: 14px;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:7px 10px;
+      font-weight:800;
+      font-size:12px;
+      color:#374151;
+    }
+    .rank-list { display:grid; gap:10px; }
+    .rank-item { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:13px; }
+    .bar { flex: 1; height: 8px; background:#EEF2FF; border-radius:999px; overflow:hidden; }
+    .bar i { display:block; height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius:999px; }
+
+    .spec-section {
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 36px;
+      text-align: left;
+    }
+    .spec-card {
+      background: rgba(255,255,255,.9);
+      border:1px solid rgba(229,231,235,.9);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: 0 14px 32px rgba(15,23,42,.06);
+    }
+    .spec-card h3 { margin:0 0 10px; font-size:18px; color: #1e3a8a; font-weight: 800; }
+    .spec-card ul { margin:0; padding-left:20px; color: var(--muted); font-size:14px; }
+    .spec-card li + li { margin-top: 6px; }
+
+    .mobile .app-top { padding: 16px; }
+    .mobile .brand-sub, .mobile .top-actions { display:none; }
+    .mobile .app-main { padding: 16px; }
+    .mobile .search-core { grid-template-columns: 1fr; padding: 15px; }
+    .mobile .search-btn { height: 52px; }
+    .mobile .suggestions { grid-template-columns: 1fr; padding: 0 15px 15px; }
+    .mobile .filter-head { align-items:flex-start; flex-direction:column; padding: 14px 15px; }
+    .mobile .chip-row { padding: 14px 15px; }
+    .mobile .filter-panel { padding: 15px; }
+    .mobile .filter-grid { grid-template-columns: 1fr; }
+    .mobile .content-grid { grid-template-columns: 1fr; gap: 16px; }
+    .mobile .insight-panel { display:none; }
+    .mobile .guide-grid { grid-template-columns: 1fr; }
+    .mobile .summary-top { flex-direction: column; }
+    .mobile .count-badge { width:100%; }
+    .mobile .result-head { flex-direction: column; }
+    .mobile .source-meta { text-align:left; }
+    .mobile .dialect-word strong { font-size: 22px; }
+
+    .tablet .filter-grid { grid-template-columns: repeat(2, 1fr); }
+    .tablet .content-grid { grid-template-columns: 1fr; }
+    .tablet .insight-panel { grid-template-columns: repeat(2, 1fr); }
+    .tablet .suggestions { grid-template-columns: repeat(2, 1fr); }
+
+    .notes {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align:center;
+    }
+
+    @media (max-width: 900px) {
+      .page { padding: 0 16px 56px; }
+      .hero { grid-template-columns: 1fr; }
+      .metric-strip { grid-template-columns: 1fr 1fr 1fr; }
+      .spec-section { grid-template-columns: 1fr; }
+      .toolbar { position: static; }
+    }
+    @media (max-width: 560px) {
+      .metric-strip { grid-template-columns: 1fr; }
+      .preview-wrap { padding: 12px; }
+      .device.mobile { max-width: 100%; }
+    }
+
+    /* ── 본문 검색창 (region_culture.html 스타일과 동기화) ── */
+    .rc-search { position: relative; max-width: 640px; margin: 10px auto 30px; z-index: 10; width: 100%; }
+    .rc-search__input {
+      width: 100%; height: 56px; padding: 0 60px 0 28px; border-radius: 999px;
+      border: 1px solid #cbd5e1; background: #fff; font-size: 16px; font-weight: 600;
+      color: var(--ink); box-shadow: var(--shadow-sm); outline: none; transition: 0.25s;
+    }
+    .rc-search__input::placeholder { color: #94a3b8; font-weight: 500; }
+    .rc-search__input:focus { border-color: var(--primary); box-shadow: 0 0 0 5px rgba(37,99,235,.10); }
+    .rc-search__btn {
+      position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
+      width: 42px; height: 42px; border-radius: 50%; border: none; cursor: pointer;
+      background: var(--primary); color: #fff; font-size: 19px; display: grid; place-items: center;
+      transition: 0.2s;
+    }
+    .rc-search__btn:hover { background: var(--primary-dark); transform: translateY(-50%) scale(1.05); }
+  </style>
+</head>
+<body>
+
+<!-- 공통 GNB -->
+<div id="gnb-common"></div>
+
+<!-- 타이틀 영역 (서브 비주얼) -->
+<div class="sub-visual">
+  <div class="wrap">
+    <h1 class="sv-title">문학 속 지역어</h1>
+    <div class="location-bar">
+      <div class="loc-item home" onclick="location.href='./index.html'" style="cursor:pointer;" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">
+        <select aria-label="상위 메뉴 이동" onchange="if(this.value) location.href=this.value;">
+          <option value="./region_culture.html" selected>지역어 자료관</option>
+          <option value="./dialect_search_prototype.html">지역어 검색</option>
+          <option value="./dialect_map.html">지역어 지도</option>
+          <option value="./dialect_awareness.html">지역어 현황(기상도)</option>
+        </select>
+      </div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">
+        <select aria-label="현재 페이지">
+          <option selected>문학 속 지역어</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 본문 -->
+<main class="lit-container">
+  <div class="page">
+
+    <section class="preview-wrap" style="display: block; padding: 0; border: none; background: transparent; overflow: visible;">
+      <div id="device" class="device desktop state-default" style="border: none; box-shadow: none; border-radius: 0; background: transparent; transition: none; min-width: 0; width: 100%;">
+
+        <div class="app-main" style="padding: 0; background: transparent;">
+          <section class="search-card" style="box-shadow: none; border: none; background: transparent; padding: 0;">
+            <!-- region_culture.html 스타일과 일치하는 검색창 영역 -->
+            <div class="rc-search">
+              <input type="text" class="rc-search__input" placeholder="검색어를 입력해 주세요. (예: 안녕하시오, 경상도)" value="경상도 김동인 명사" aria-label="검색어 입력">
+              <button type="button" class="rc-search__btn" aria-label="검색"><i class="ti ti-search" aria-hidden="true"></i></button>
+            </div>
+
+
+
+
+            <div class="filter-head" style="display: flex; justify-content: flex-end; align-items: center;">
+              <div class="toggle-group" data-group="state" style="display: flex; gap: 8px; margin: 0;">
+                <button class="toggle active" data-state="default">기본 상태</button>
+                <button class="toggle" data-state="expanded">필터 확장</button>
+              </div>
+            </div>
+
+            <div class="filter-panel">
+              <div class="filter-grid">
+                <div class="field">
+                  <label for="filter-region">지역 선택</label>
+                  <select id="filter-region" class="select" style="border: 1px solid #D8DEE8; background: #fff; padding: 0 13px; font-size: 14px; font-weight: 700; color: #111827; height: 38px; border-radius: 8px; appearance: none; background: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2394a3b8\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E') no-repeat right 12px center; padding-right: 32px; font-family: inherit; cursor: pointer; width: 100%; box-sizing: border-box;">
+                    <option value="강원도">강원도</option>
+                    <option value="경기도">경기도</option>
+                    <option value="경상도" selected>경상도</option>
+                    <option value="전라도">전라도</option>
+                    <option value="제주도">제주도</option>
+                    <option value="충청도">충청도</option>
+                    <option value="평안도">평안도</option>
+                    <option value="함경도">함경도</option>
+                    <option value="황해도">황해도</option>
+                  </select>
+                </div>
+                <div class="field"><label>작가 선택</label><div class="select">김동인 <span>⌄</span></div></div>
+                <div class="field"><label>작품 선택</label><div class="select muted">전체 작품 <span>⌄</span></div></div>
+                <div class="field">
+                  <label for="filter-type">지역어 타입</label>
+                  <select id="filter-type" class="select" style="border: 1px solid #D8DEE8; background: #fff; padding: 0 13px; font-size: 14px; font-weight: 700; color: #111827; height: 38px; border-radius: 8px; appearance: none; background: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2394a3b8\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E') no-repeat right 12px center; padding-right: 32px; font-family: inherit; cursor: pointer; width: 100%; box-sizing: border-box;">
+                    <option value="표준어">표준어</option>
+                    <option value="지역어" selected>지역어</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="filter-scope">검색 범위</label>
+                  <select id="filter-scope" class="select" style="border: 1px solid #D8DEE8; background: #fff; padding: 0 13px; font-size: 14px; font-weight: 700; color: #111827; height: 38px; border-radius: 8px; appearance: none; background: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2394a3b8\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E') no-repeat right 12px center; padding-right: 32px; font-family: inherit; cursor: pointer; width: 100%; box-sizing: border-box;">
+                    <option value="포함" selected>포함</option>
+                    <option value="일치">일치</option>
+                    <option value="시작문자">시작문자</option>
+                    <option value="끝문자">끝문자</option>
+                  </select>
+                </div>
+                <div class="field"><label>문장 포함 여부</label><div class="select">예문 있음 <span>⌄</span></div></div>
+                <div class="field"><label>정렬</label><div class="select">관련도순 <span>⌄</span></div></div>
+                <div class="field">
+                  <label for="filter-view-mode">보기 방식</label>
+                  <select id="filter-view-mode" class="select" style="border: 1px solid #D8DEE8; background: #fff; padding: 0 13px; font-size: 14px; font-weight: 700; color: #111827; height: 38px; border-radius: 8px; appearance: none; background: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2394a3b8\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E') no-repeat right 12px center; padding-right: 32px; font-family: inherit; cursor: pointer; width: 100%; box-sizing: border-box;">
+                    <option value="카드형" selected>카드형</option>
+                    <option value="문장형">문장형</option>
+                    <option value="작품별">작품별</option>
+                    <option value="지도보기">지도보기</option>
+                  </select>
+                </div>
+              </div>
+              <div class="filter-tools">
+                <button class="mini-btn">초기화</button>
+                <button class="filter-toggle-btn">필터 적용</button>
+              </div>
+            </div>
+
+            <div class="chip-row">
+              <span class="empty-chip-note">선택된 필터가 없습니다. 통합 검색어를 입력하거나 고급 필터를 열어보세요.</span>
+              <span class="chip has-filter">지역 · 경상도 <span class="x">✕</span></span>
+              <span class="chip purple has-filter">작가 · 김동인 <span class="x">✕</span></span>
+              <span class="chip green has-filter">품사 · 명사 <span class="x">✕</span></span>
+            </div>
+          </section>
+
+          <section class="empty-guide">
+            <h2>찾고 싶은 지역어를 자유롭게 입력하세요</h2>
+            <p>기존처럼 “지역별/작가별/검색어별” 탭을 먼저 고르지 않아도 됩니다. 검색어를 입력한 뒤 필요한 조건만 필터로 추가합니다.</p>
+            <div class="guide-grid">
+              <div class="guide-card"><strong>① 먼저 입력</strong><span>지역어, 작가명, 작품명을 한 번에 검색</span></div>
+              <div class="guide-card"><strong>② 조건 추가</strong><span>지역·작가·작품·품사를 칩으로 조합</span></div>
+              <div class="guide-card"><strong>③ 맥락 확인</strong><span>문장, 해설, 관련 지역어를 카드로 확인</span></div>
+            </div>
+          </section>
+
+          <section class="content-grid results-area">
+            <div>
+              <div class="summary-text-area" style="margin: 20px 0 25px; text-align: center; border-bottom: 1px solid var(--line); padding-bottom: 20px;">
+                <div style="display: inline-block;">
+                  <h2 style="font-size: 22px; font-weight: 800; color: #1e3a8a; margin: 0 0 6px; letter-spacing: -0.02em;">선택 조건 방언 검색 결과</h2>
+                  <p style="font-size: 14px; color: var(--muted); margin: 0; font-weight: 500;">
+                    선택된 조건으로 검색된 지역어는 총 <strong style="color: var(--primary); font-weight: 800;">5</strong>건입니다. (문장 맥락, 작품 정보, 해설 중심)
+                  </p>
+                </div>
+              </div>
+
+              <div class="result-list">
+                <!-- 카드 1 (가달) -->
+                <article class="result-card">
+                  <div class="result-head">
+                    <div class="dialect-word">
+                      <strong>가달</strong>
+                      <span class="tag region">제주도</span>
+                      <span class="tag type">명사</span>
+                    </div>
+                    <div class="source-meta">현기영 · 바람 타는 섬<br/>대응 표준어: 다리</div>
+                  </div>
+                  <p class="quote">
+                    “<mark>가달</mark>이 넷, 호호호. 아, 순주는 좋겠네. 어디서 연애하고 있을까? 지금쯤 한창 네 <mark>가달</mark>이 얼크러져 있을 테지?”
+                  </p>
+                  <div class="result-meta">
+                    <span>뜻풀이: 사람이나 동물의 몸통 아래에 붙어서 딛고 서거나 뛰는 일을 맡은 신체의 일부분.</span>
+                    <div class="card-actions">
+                      <button class="tiny-btn">상세 보기 →</button>
+                    </div>
+                  </div>
+                </article>
+
+                <!-- 카드 2 (가르각산) -->
+                <article class="result-card">
+                  <div class="result-head">
+                    <div class="dialect-word">
+                      <strong>가르각산</strong>
+                      <span class="tag region">제주도</span>
+                      <span class="tag type">부사</span>
+                    </div>
+                    <div class="source-meta">오성찬 · 그리워라 그 섬<br/>대응 표준어: 제각각</div>
+                  </div>
+                  <p class="quote">
+                    “가장 괴로운 것은 조밥을 먹는 일”이라고 했는데, 한 숟가락 떠 넣으면 <mark>가르각산</mark> 입 안에 흩어져 혀와 입 천장을 찌르던 깔깔한 조밥.
+                  </p>
+                  <div class="result-meta">
+                    <span>뜻풀이: 여럿이 모두 각각.</span>
+                    <div class="card-actions">
+                      <button class="tiny-btn">상세 보기 →</button>
+                    </div>
+                  </div>
+                </article>
+
+                <!-- 카드 3 (가름) -->
+                <article class="result-card">
+                  <div class="result-head">
+                    <div class="dialect-word">
+                      <strong>가름</strong>
+                      <span class="tag region">제주도</span>
+                      <span class="tag type">명사</span>
+                    </div>
+                    <div class="source-meta">현길언 · 김녕사굴 본풀이<br/>대응 표준어: 동네</div>
+                  </div>
+                  <p class="quote">
+                    “강남(江南) 천자국(天子國) 안<mark>가름</mark>(동네) 김정승 댁에서 솟아나신 총맹스런 세 부인입니다.”
+                  </p>
+                  <div class="result-meta">
+                    <span>뜻풀이: 한 마을을 이루고 있는, 자연적으로 형성된 규모가 작은 동네.</span>
+                    <div class="card-actions">
+                      <button class="tiny-btn">상세 보기 →</button>
+                    </div>
+                  </div>
+                </article>
+
+                <!-- 카드 4 (가름째) -->
+                <article class="result-card">
+                  <div class="result-head">
+                    <div class="dialect-word">
+                      <strong>가름째</strong>
+                      <span class="tag region">평안북도</span>
+                      <span class="tag type">명사</span>
+                    </div>
+                    <div class="source-meta">김소월 · 빗<br/>대응 표준어 없음</div>
+                  </div>
+                  <p class="quote">
+                    아아 괴로워라, 다리우는 내 마음의 <mark>가름째</mark>야.
+                  </p>
+                  <div class="result-meta">
+                    <span>뜻풀이: 두 지역으로 갈리는 곳에 있는 등성이나 고개.</span>
+                    <div class="card-actions">
+                      <button class="tiny-btn">상세 보기 →</button>
+                    </div>
+                  </div>
+                </article>
+
+                <!-- 카드 5 (가름팥) -->
+                <article class="result-card">
+                  <div class="result-head">
+                    <div class="dialect-word">
+                      <strong>가름팥</strong>
+                      <span class="tag region">제주도</span>
+                      <span class="tag type">명사</span>
+                    </div>
+                    <div class="source-meta">현길언 · 땅 벌곡<br/>대응 표준어 없음</div>
+                  </div>
+                  <p class="quote">
+                    난전밭(野田) 팔아 백만 원 <mark>가름팥</mark>(洞內田) 팔아 백만 원 딸애기 시집보내고...
+                  </p>
+                  <div class="result-meta">
+                    <span>뜻풀이: 마을 안에 있는 밭.</span>
+                    <div class="card-actions">
+                      <button class="tiny-btn">상세 보기 →</button>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- 공통 Footer -->
+<div id="footer-common"></div>
+
+<script>
+  const device = document.getElementById('device');
+  const deviceButtons = document.querySelectorAll('[data-device]');
+  const stateButtons = document.querySelectorAll('[data-state]');
+
+  deviceButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      deviceButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      device.classList.remove('desktop', 'tablet', 'mobile');
+      device.classList.add(btn.dataset.device);
+    });
+  });
+
+  stateButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      stateButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      device.classList.remove('state-default', 'state-expanded', 'state-results');
+      device.classList.add('state-' + btn.dataset.state);
+    });
+  });
+</script>
+
+<script src="./share.js" defer></script>
+</body>
+</html>
