@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>지역어종합정보 — 자료실 상세</title>
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="./styles.css">
+<script src="./gnb.js" defer></script>
+<script src="./share.js" defer></script>
+<script src="./footer.js" defer></script>
+<style>
+  @font-face {
+    font-family: 'NanumBarunGothicYetHangul';
+    src: url('https://cdn.jsdelivr.net/npm/@kfonts/nanum-barun-gothic-yet-hangul-otf/NanumBarunGothic-YetHangul.woff2') format('woff2'),
+         url('https://cdn.jsdelivr.net/npm/@kfonts/nanum-barun-gothic-yet-hangul-otf/NanumBarunGothic-YetHangul.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  body {
+    font-family: 'Pretendard', 'NanumBarunGothicYetHangul', system-ui, -apple-system, sans-serif;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  .container { width: 100%; max-width: 1100px; margin: 0 auto; padding: 50px 20px 100px; flex: 1; box-sizing: border-box; }
+
+  .sub-visual {
+    background: linear-gradient(180deg, #edf4ff 0%, #f8fafc 100%);
+    border-bottom: 1px solid #e2e8f0;
+    padding: 55px 0 50px;
+    text-align: center;
+    position: relative;
+    overflow: visible;
+    display: block !important;
+    height: auto !important;
+    min-height: 180px;
+  }
+  .sub-visual::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.03) 0%, transparent 40%); pointer-events: none; }
+  .sv-title {
+    font-size: 30px;
+    font-weight: 800;
+    color: #1e3a8a;
+    letter-spacing: -0.03em;
+    margin: 0 0 16px;
+    position: relative;
+    z-index: 1;
+  }
+  .location-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    padding: 6px 20px;
+    border-radius: 99px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02);
+    border: 1px solid #cbd5e1;
+    position: relative;
+    z-index: 1;
+  }
+  .loc-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+  }
+  .loc-item.home {
+    color: #3b82f6;
+    font-size: 14px;
+  }
+  .loc-item select {
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    padding: 0 16px 0 0;
+    cursor: pointer;
+    appearance: none;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right center;
+    font-family: inherit;
+  }
+  .loc-item select:focus { outline: none; box-shadow: none; }
+  .loc-sep { color: #cbd5e1; font-size: 12px; }
+
+  /* Detail Page Styles */
+  .detail-header {
+    margin-top: 20px;
+    padding-bottom: 20px;
+  }
+  .detail-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1.35;
+    margin-bottom: 18px;
+    letter-spacing: -0.02em;
+  }
+  .detail-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+  }
+  .detail-meta-info {
+    font-size: 14px;
+    color: #64748b;
+    font-weight: 500;
+  }
+  .detail-meta-info span {
+    margin-right: 16px;
+  }
+  .detail-sns-share {
+    display: flex;
+    gap: 8px;
+  }
+  .sns-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid #e2e8f0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    background-color: #ffffff;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s ease;
+  }
+  .sns-btn:hover {
+    background-color: #f1f5f9;
+    color: #1e293b;
+    border-color: #cbd5e1;
+  }
+
+  .divider-heavy {
+    height: 2px;
+    background-color: #1e293b;
+    margin: 0;
+  }
+  .divider-light {
+    height: 1px;
+    background-color: #e2e8f0;
+    margin: 0;
+  }
+
+  .detail-body {
+    padding: 40px 10px 40px;
+    font-size: 16px;
+    color: #334155;
+    line-height: 1.85;
+    letter-spacing: -0.01em;
+    min-height: 220px;
+  }
+  .detail-body p {
+    margin: 0 0 10px;
+  }
+  .detail-body .toc-gap {
+    height: 20px;
+  }
+
+  /* Attachment Section */
+  .attach-box {
+    margin: 0 10px 40px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .attach-head {
+    background: #f8fafc;
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #334155;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .attach-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+  }
+  .attach-row .attach-file {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    color: #334155;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .attach-row .attach-file:hover {
+    color: #2563eb;
+    text-decoration: underline;
+  }
+  .attach-row .file-icon {
+    color: #d13a3a;
+    font-size: 20px;
+  }
+  .attach-view-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e3a8a;
+    background: #eef4ff;
+    border: 1px solid #c7d7f5;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+  }
+  .attach-view-btn:hover {
+    background: #1e3a8a;
+    border-color: #1e3a8a;
+    color: #ffffff;
+  }
+
+  /* PDF Viewer Modal */
+  .pdf-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+  }
+  .pdf-modal.is-open {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pdf-modal__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.72);
+  }
+  .pdf-modal__dialog {
+    position: relative;
+    z-index: 1;
+    width: 90%;
+    max-width: 640px;
+    height: auto;
+    max-height: 94vh;
+    margin: 0;
+    background: #ffffff;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  }
+  .pdf-modal__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 12px;
+    background: #f7f8fa;
+    border-bottom: 1px solid #e5e7eb;
+    color: #4b5563;
+  }
+  .pdfbar__group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .pdfbar-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #55585f;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s ease;
+  }
+  .pdfbar-btn:hover { background: #e5e7eb; color: #1f2937; }
+  .pdfbar-page {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 4px;
+    font-size: 13px;
+    color: #6b7280;
+  }
+  .pdfbar-page input {
+    width: 44px;
+    height: 30px;
+    text-align: center;
+    font-size: 13px;
+    color: #1f2937;
+    border: 1px solid #d1d5db;
+    border-radius: 5px;
+    background: #ffffff;
+    box-sizing: border-box;
+    font-family: inherit;
+  }
+  .pdfbar-page input:focus { outline: none; border-color: #2563eb; }
+  .pdfbar-divider {
+    width: 1px;
+    height: 20px;
+    background: #d1d5db;
+    margin: 0 4px;
+  }
+  .pdf-modal__viewport {
+    flex: 1;
+    overflow: auto;
+    background: #525659;
+    padding: 16px;
+  }
+
+  /* PDF Page (첨부 문서 표지 재현) */
+  .pdf-page {
+    width: 100%;
+    aspect-ratio: 1 / 1.414;
+    margin: 0 auto;
+    background: #ffffff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    padding: 52px 60px;
+    box-sizing: border-box;
+    font-family: 'Batang', 'Apple SD Gothic Neo', serif;
+    color: #1a1a1a;
+    display: flex;
+    flex-direction: column;
+  }
+  .cover-top { font-size: 13px; letter-spacing: 0.5px; }
+  .cover-regbox {
+    width: 190px;
+    margin-top: 10px;
+    border: 1px solid #1e3a8f;
+  }
+  .cover-regbox__label {
+    text-align: center;
+    font-size: 13px;
+    padding: 3px 0;
+    letter-spacing: 4px;
+    border-bottom: 1px solid #1e3a8f;
+  }
+  .cover-regbox__num {
+    text-align: center;
+    font-size: 13px;
+    padding: 3px 0;
+    color: #1d4ed8;
+    letter-spacing: 1px;
+  }
+  .cover-title {
+    text-align: center;
+    font-size: clamp(20px, 3.4vw, 27px);
+    font-weight: 400;
+    letter-spacing: 3px;
+    margin: 90px 0 0;
+    line-height: 1.5;
+  }
+  .cover-author {
+    text-align: right;
+    margin-top: 80px;
+    font-size: 16px;
+    line-height: 2.4;
+    letter-spacing: 3px;
+  }
+  .cover-author__name { letter-spacing: 6px; }
+  .cover-logo {
+    margin-top: auto;
+    padding-top: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cover-logo img {
+    height: 48px;
+    width: auto;
+  }
+
+  /* Nav Links (Prev/Next) */
+  .detail-nav-links {
+    border-top: 1px solid #cbd5e1;
+    border-bottom: 1px solid #cbd5e1;
+    margin-top: 40px;
+  }
+  .nav-link-row {
+    display: flex;
+    flex-direction: column;
+    padding: 16px 20px;
+    background-color: #ffffff;
+    transition: background-color 0.15s ease;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .nav-link-row:last-child {
+    border-bottom: none;
+  }
+  .nav-link-row:hover {
+    background-color: #f8fafc;
+  }
+  .nav-link-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 4px;
+    text-decoration: none;
+  }
+  .nav-link-row:hover .nav-link-title {
+    color: #2563eb;
+    text-decoration: underline;
+  }
+  .nav-link-label {
+    font-size: 12px;
+    color: #94a3b8;
+    font-weight: 600;
+  }
+
+  /* Back to List Button */
+  .back-to-list-container {
+    margin-top: 50px;
+    text-align: left;
+  }
+  .back-to-list-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #1e293b;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .back-to-list-btn::before {
+    content: '';
+    display: inline-block;
+    width: 40px;
+    height: 1px;
+    background-color: #1e293b;
+    transition: width 0.2s ease, background-color 0.2s ease;
+  }
+  .back-to-list-btn:hover {
+    color: #2563eb;
+  }
+  .back-to-list-btn:hover::before {
+    background-color: #2563eb;
+    width: 50px;
+  }
+</style>
+</head>
+<body>
+
+<div id="gnb-common"></div>
+
+<div class="sub-visual">
+  <div class="wrap">
+    <h1 class="sv-title">자료실</h1>
+    <div class="location-bar">
+      <div class="loc-item home" onclick="location.href='./index.html'" style="cursor:pointer;" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">
+        <select onchange="if(this.value) location.href=this.value;">
+          <option value="./data_room.html" selected>알림마당</option>
+          <option value="./dialect_search_prototype.html">조사 자료 검색</option>
+          <option value="./index.html">누리집 안내</option>
+          <option value="./dialect_map.html">지역어 지도</option>
+        </select>
+      </div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">
+        <select onchange="if(this.value) location.href=this.value;">
+          <option value="./notice.html">공지사항</option>
+          <option>보도자료</option>
+          <option value="./data_room.html" selected>자료실</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap container">
+  <!-- Detail Header -->
+  <div class="detail-header">
+    <h2 class="detail-title">2025년 세대별·성별 지역어 변이 조사 결과 보고서</h2>
+    <div class="detail-meta-row">
+      <div class="detail-meta-info">
+        <span>등록일 2026-01-27</span>
+        <span>조회수 663</span>
+      </div>
+      <div class="detail-sns-share">
+        <button class="sns-btn" aria-label="페이스북 공유"><i class="ti ti-brand-facebook"></i></button>
+        <button class="sns-btn" aria-label="X 공유"><i class="ti ti-brand-x"></i></button>
+        <button class="sns-btn" aria-label="블로그 공유"><i class="ti ti-message-circle"></i></button>
+        <button class="sns-btn" aria-label="링크 복사"><i class="ti ti-link"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider-heavy"></div>
+
+  <!-- Detail Content -->
+  <div class="detail-body">
+    <p>제1장 사업 개요</p>
+    <p>제2장 지역어 변이 조사 질문지·지침서 정비</p>
+    <p>제3장 세대별 성별 지역어 변이 조사의 실제</p>
+    <p>제4장 세대별 성별 지역어 변이 조사의 결과 분석</p>
+    <p>제5장 전국 방언 지도 제작</p>
+    <p>제6장 지역어 변이 조사의 의의 및 기대 효과</p>
+    <div class="toc-gap"></div>
+    <p>참고 문헌</p>
+    <p>부록</p>
+  </div>
+
+  <!-- Attachment -->
+  <div class="attach-box">
+    <div class="attach-head">첨부 파일</div>
+    <div class="attach-row">
+      <a href="#" class="attach-file"><i class="ti ti-file-type-pdf file-icon"></i>2025년 세대별 성별 지역어 변이 조사 결과 보고서.pdf</a>
+      <button type="button" class="attach-view-btn" onclick="openPdfViewer()"><i class="ti ti-eye"></i> 바로보기</button>
+    </div>
+  </div>
+
+  <div class="divider-heavy"></div>
+
+  <!-- Prev/Next Navigation -->
+  <div class="detail-nav-links">
+    <!-- 이전글 -->
+    <div class="nav-link-row" onclick="location.href='./data_room_detail.html'" style="cursor: pointer;">
+      <a href="./data_room_detail.html" class="nav-link-title">2024년 세대별·성별 지역어 변이 조사 결과 보고서</a>
+      <span class="nav-link-label">이전글</span>
+    </div>
+    <!-- 다음글 -->
+    <div class="nav-link-row">
+      <span class="nav-link-title" style="color: #94a3b8; cursor: default;">다음글이 없습니다.</span>
+      <span class="nav-link-label">다음글</span>
+    </div>
+  </div>
+
+  <!-- 목록으로 이동 버튼 -->
+  <div class="back-to-list-container">
+    <a href="./data_room.html" class="back-to-list-btn">목록으로</a>
+  </div>
+</div>
+
+<!-- PDF 뷰어 레이어 팝업 -->
+<div class="pdf-modal" id="pdfModal" aria-hidden="true">
+  <div class="pdf-modal__overlay" onclick="closePdfViewer()"></div>
+  <div class="pdf-modal__dialog" role="dialog" aria-modal="true" aria-label="첨부 파일 미리보기">
+    <div class="pdf-modal__toolbar">
+      <div class="pdfbar__group">
+        <button type="button" class="pdfbar-btn" aria-label="사이드바 열기"><i class="ti ti-layout-sidebar"></i></button>
+        <button type="button" class="pdfbar-btn" aria-label="이전 쪽"><i class="ti ti-chevron-left"></i></button>
+        <span class="pdfbar-page">
+          <input type="text" value="1" aria-label="현재 쪽">
+          <span class="pdfbar-page__total">/ 22</span>
+        </span>
+        <button type="button" class="pdfbar-btn" aria-label="다음 쪽"><i class="ti ti-chevron-right"></i></button>
+      </div>
+      <div class="pdfbar__group">
+        <button type="button" class="pdfbar-btn" aria-label="축소"><i class="ti ti-zoom-out"></i></button>
+        <button type="button" class="pdfbar-btn" aria-label="확대"><i class="ti ti-zoom-in"></i></button>
+        <button type="button" class="pdfbar-btn" aria-label="화면 맞춤"><i class="ti ti-frame"></i></button>
+      </div>
+      <div class="pdfbar__group">
+        <button type="button" class="pdfbar-btn" aria-label="문서 속성"><i class="ti ti-align-justified"></i></button>
+        <button type="button" class="pdfbar-btn" aria-label="인쇄"><i class="ti ti-printer"></i></button>
+        <a href="#" class="pdfbar-btn" aria-label="내려받기"><i class="ti ti-download"></i></a>
+        <button type="button" class="pdfbar-btn" aria-label="전체 화면"><i class="ti ti-maximize"></i></button>
+        <span class="pdfbar-divider"></span>
+        <button type="button" class="pdfbar-btn" onclick="closePdfViewer()" aria-label="닫기"><i class="ti ti-x"></i></button>
+      </div>
+    </div>
+    <div class="pdf-modal__viewport">
+      <div class="pdf-page">
+        <div class="cover-top">국립국어원 2025-01-38</div>
+        <div class="cover-regbox">
+          <div class="cover-regbox__label">발간등록번호</div>
+          <div class="cover-regbox__num">11-1371028-100035-10</div>
+        </div>
+        <h3 class="cover-title">2025년 세대별·성별<br>지역어 변이 조사</h3>
+        <div class="cover-author">
+          <div>연구 책임자</div>
+          <div class="cover-author__name">정 승 철</div>
+        </div>
+        <div class="cover-logo">
+          <img src="./logo_korean_horizontal.png" alt="국립국어원">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="footer-common"></div>
+
+<script>
+  function openPdfViewer() {
+    var m = document.getElementById('pdfModal');
+    if (!m) return;
+    m.classList.add('is-open');
+    m.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+  function closePdfViewer() {
+    var m = document.getElementById('pdfModal');
+    if (!m) return;
+    m.classList.remove('is-open');
+    m.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closePdfViewer();
+  });
+</script>
+<script src="./share.js" defer></script>
+</body>
+</html>

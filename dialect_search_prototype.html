@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <link rel="stylesheet" href="./styles.css">
 <script src="./gnb.js" defer></script>
+<script src="./share.js" defer></script>
 <script src="./footer.js" defer></script>
 <style>
   @font-face {
@@ -34,7 +35,7 @@
 
 
   /* 본문 영역 전용 스타일 (dialect_search_prototype.html 스타일 포팅) */
-  .container { width: 100%; max-width: 1100px; margin: 0 auto; padding: 40px 20px 80px; flex: 1; box-sizing: border-box; }
+  .container { width: 100%; max-width: 1440px; margin: 0 auto; padding: 40px 20px 80px; flex: 1; box-sizing: border-box; }
   
   .sub-visual { 
     background: linear-gradient(180deg, #edf4ff 0%, #f8fafc 100%); 
@@ -134,6 +135,24 @@
   .ok-char { font-size: 14px; font-weight: 500; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--line); cursor: pointer; background: #ffffff; transition: 0.2s; box-shadow: var(--shadow2); color: #475569; }
   .ok-char:hover { background: #f1f5f9; color: var(--blue); border-color: var(--blue); }
   .ok-row { display: flex; gap: 10px; }
+
+  /* 검색 가능한 표준어 어휘 팝업 (대량 데이터 검색 UI) */
+  .vocab-search-box { position: relative; margin-bottom: 16px; }
+  .vocab-search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 18px; pointer-events: none; }
+  .vocab-search-input { width: 100%; box-sizing: border-box; padding: 12px 16px 12px 44px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 14.5px; font-weight: 600; color: var(--text); font-family: inherit; background: #ffffff; transition: 0.2s ease; }
+  .vocab-search-input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
+  .vocab-initial-buttons { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .vocab-initial-btn { min-width: 40px; height: 40px; padding: 0 6px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 8px; font-size: 14px; font-weight: 600; color: #475569; cursor: pointer; transition: 0.2s; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; }
+  .vocab-initial-btn:hover { border-color: #94a3b8; color: var(--text); }
+  .vocab-initial-btn.active { background: var(--blue); color: #ffffff; border-color: var(--blue); }
+  .vocab-result-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-size: 13px; font-weight: 700; color: #64748b; }
+  .vocab-result-bar em { font-style: normal; color: var(--blue); font-weight: 800; }
+  .vocab-grid-scroll { max-height: 300px; overflow-y: auto; padding: 2px; margin: 0 -2px; }
+  .vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+  .vocab-item { padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--line); font-size: 13px; font-weight: 600; color: #334155; text-align: center; cursor: pointer; font-family: inherit; transition: 0.15s ease; }
+  .vocab-item:hover { background: rgba(37,99,235,0.08); border-color: var(--blue); color: var(--blue); transform: translateY(-1px); }
+  .vocab-item mark { background: transparent; color: var(--blue); font-weight: 800; }
+  .vocab-empty { text-align: center; padding: 40px 0; color: #94a3b8; font-size: 14px; font-weight: 600; }
   .ok-input { flex: 1; border-radius: 99px; padding: 10px 20px; }
 
   .tab-bar { display: flex; border-bottom: 1px solid var(--line); margin-bottom: 24px; overflow-x: auto; gap: 0; }
@@ -1124,31 +1143,22 @@
     <div class="modal-head">
       <div>
         <div class="modal-head-title">검색 가능한 표준어 어휘 목록</div>
-        <div class="modal-head-sub">원하는 자음을 선택한 후 표준어를 클릭하면 검색창에 자동 입력됩니다.</div>
+        <div class="modal-head-sub">검색어를 입력하거나 초성을 선택해 표준어를 찾은 뒤, 어휘를 클릭하면 검색창에 자동 입력됩니다.</div>
       </div>
       <button class="close-btn" onclick="closeVocabModal()" aria-label="닫기"><i class="ti ti-x" aria-hidden="true"></i></button>
     </div>
-    <div class="modal-body" style="max-height: 50vh; overflow-y: auto;">
-      <!-- 초성 선택 영역 -->
-      <div class="ok-chars" style="margin-bottom: 20px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;">
-        <span class="ok-char vocab-chosung-btn" onclick="filterVocabByChosung('ㄱ', this)">ㄱ</span>
-        <span class="ok-char vocab-chosung-btn" onclick="filterVocabByChosung('ㄴ', this)">ㄴ</span>
-        <span class="ok-char vocab-chosung-btn" onclick="filterVocabByChosung('ㄷ', this)">ㄷ</span>
-        <span class="ok-char vocab-chosung-btn" onclick="filterVocabByChosung('ㄹ', this)">ㄹ</span>
-        <span class="ok-char vocab-chosung-btn" onclick="filterVocabByChosung('ㅁ', this)">ㅁ</span>
-        <span class="ok-char vocab-chosung-btn" onclick="filterVocabByChosung('ㅂ', this)">ㅂ</span>
-        <span class="ok-char vocab-chosung-btn" onclick="filterVocabByChosung('ㅅ', this)">ㅅ</span>
-        <span class="ok-char vocab-chosung-btn" onclick="filterVocabByChosung('ㅇ', this)">ㅇ</span>
-        <span class="ok-char vocab-chosung-btn" onclick="filterVocabByChosung('ㅈ', this)">ㅈ</span>
-        <span class="ok-char vocab-chosung-btn" onclick="filterVocabByChosung('ㅊ', this)">ㅊ</span>
-        <span class="ok-char vocab-chosung-btn" onclick="filterVocabByChosung('ㅋ', this)">ㅋ</span>
-        <span class="ok-char vocab-chosung-btn" onclick="filterVocabByChosung('ㅌ', this)">ㅌ</span>
-        <span class="ok-char vocab-chosung-btn" onclick="filterVocabByChosung('ㅍ', this)">ㅍ</span>
-        <span class="ok-char vocab-chosung-btn" onclick="filterVocabByChosung('ㅎ', this)">ㅎ</span>
+    <div class="modal-body">
+      <div class="vocab-search-box">
+        <i class="ti ti-search vocab-search-icon" aria-hidden="true"></i>
+        <input type="text" id="vocabSearchInput" class="vocab-search-input" placeholder="표준어를 입력해 바로 찾기 (예: 감자)" oninput="renderVocabList()" autocomplete="off" aria-label="표준어 검색" />
       </div>
-      <!-- 단어 목록 영역 -->
-      <div id="vocabWordList" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; padding: 10px 0;">
-        <div style="color: var(--muted); font-size: 14px; padding: 20px 0;">자음을 선택하여 단어 목록을 확인해 보세요.</div>
+      <div class="vocab-initial-buttons" id="vocabInitialButtons"></div>
+      <div class="vocab-result-bar">
+        <span>검색 결과 <em id="vocabCount">0</em>개</span>
+      </div>
+      <div class="vocab-grid-scroll">
+        <div class="vocab-grid" id="vocabGridContainer"></div>
+        <div class="vocab-empty" id="vocabEmpty" style="display:none;">일치하는 표준어가 없습니다.</div>
       </div>
     </div>
     <div class="modal-foot">
@@ -1230,72 +1240,121 @@ function showModal() { document.getElementById('modalOverlay').classList.add('sh
 function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
 function handleOverlayClick(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
 
-const vocabData = {
-  'ㄱ': ['감자', '개구리', '겨울', '가을', '고구마', '기와', '구름', '가마솥'],
-  'ㄴ': ['나무', '나비', '노래', '눈물', '냉이', '노을', '누에'],
-  'ㄷ': ['당근', '도라지', '다람쥐', '달력', '돌담', '대문'],
-  'ㄹ': ['라디오', '라면', '리본', '레몬'],
-  'ㅁ': ['무지개', '마늘', '매미', '모자', '모내기', '맷돌'],
-  'ㅂ': ['바람', '비행기', '보리', '배추', '밤하늘', '버선'],
-  'ㅅ': ['사과', '사자', '솔방울', '새해', '시냇물', '송아지'],
-  'ㅇ': ['아버지', '어머니', '아기', '오이', '양파', '우산', '이슬'],
-  'ㅈ': ['장미', '저고리', '자전거', '조개', '장독대', '지붕'],
-  'ㅊ': ['참외', '치마', '책상', '창문', '채송화'],
-  'ㅋ': ['코끼리', '칼', '컴퓨터', '카메라'],
-  'ㅌ': ['토마토', '토끼', '태극기', '풀밭'],
-  'ㅍ': ['포도', '피아노', '파도', '팽이'],
-  'ㅎ': ['하늘', '호랑이', '해바라기', '항아리', '화로']
-};
+/* ── 검색 가능한 표준어 어휘 목록 ──
+   대량 데이터도 검색·초성 필터가 가능하도록 단일 배열로 관리한다.
+   초성은 getInitial()이 유니코드로 자동 계산하므로, 목록을 늘릴 때는
+   이 배열에만 항목을 추가하면 된다. (vocab_dialect.html과 동일 데이터) */
+const VOCAB_ALL = [
+  '가위','가마솥','가을','감자','개구리','거미','거울','고구마','고드름','고양이','곰팡이','구름','국자','그네','기와','김치','까치','깨','꼬리','꽃','꿩',
+  '나무','나물','나비','나팔','냄비','냉이','노을','누룽지',
+  '다리미','달걀','닭','당근','도끼','도라지','도토리','돼지','두꺼비','등불','딸기',
+  '라디오',
+  '마늘','마루','말','매미','머리','메뚜기','며느리','모기','모자','무지개','미꾸라지','민들레',
+  '바가지','바구니','바늘','박쥐','발톱','밤','배추','벼','보리','복숭아','부엌','부지깽이','부추','빗자루',
+  '사과','사마귀','삽','상추','새우','서리','소금','솔개','송아지','수수','시금치','시래기','쐐기',
+  '아궁이','아욱','앵두','어머니','엉겅퀴','여우','옥수수','올챙이','우렁이','우박','우엉','은행','이슬','잉어',
+  '자두','잠자리','재봉틀','저녁','제비','조개','조리','종아리','지렁이','지팡이','진달래','질경이',
+  '참깨','참외','처마','천둥','초승달','추녀',
+  '콩','콩나물',
+  '토끼','토란','톱',
+  '파리','팥','포대기','표주박',
+  '하늘','할머니','할아버지','허수아비','호미','호박','홍시','회오리','흙'
+];
 
-function showVocabModal() { document.getElementById('vocabModalOverlay').classList.add('show'); }
+const HANGUL_CHO = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+
+// 단어 첫 글자의 초성을 반환 (한글이 아니면 '#')
+function getInitial(word) {
+  const code = word.charCodeAt(0);
+  if (code >= 0xAC00 && code <= 0xD7A3) {
+    return HANGUL_CHO[Math.floor((code - 0xAC00) / 588)];
+  }
+  return '#';
+}
+
+let vocabActiveInitial = 'all';
+
+function showVocabModal() {
+  document.getElementById('vocabModalOverlay').classList.add('show');
+  buildVocabInitialButtons();
+  vocabActiveInitial = 'all';
+  const searchInput = document.getElementById('vocabSearchInput');
+  if (searchInput) searchInput.value = '';
+  renderVocabList();
+  if (searchInput) searchInput.focus();
+}
 function closeVocabModal() { document.getElementById('vocabModalOverlay').classList.remove('show'); }
 function handleVocabOverlayClick(e) { if (e.target === document.getElementById('vocabModalOverlay')) closeVocabModal(); }
 
-function filterVocabByChosung(chosung, btnEl) {
-  document.querySelectorAll('.vocab-chosung-btn').forEach(btn => {
-    btn.style.borderColor = 'var(--line)';
-    btn.style.color = '#475569';
-    btn.style.background = '#ffffff';
-  });
-  if (btnEl) {
-    btnEl.style.borderColor = 'var(--blue)';
-    btnEl.style.color = 'var(--blue)';
-    btnEl.style.background = 'rgba(37,99,235,0.08)';
+// 데이터에 존재하는 초성만 '전체'와 함께 버튼으로 생성
+function buildVocabInitialButtons() {
+  const box = document.getElementById('vocabInitialButtons');
+  if (!box || box.dataset.built) return;
+  const present = new Set(VOCAB_ALL.map(getInitial));
+  const initials = HANGUL_CHO.filter(c => present.has(c));
+
+  let html = '<button type="button" class="vocab-initial-btn active" onclick="filterVocabByInitial(this, \'all\')">전체</button>';
+  html += initials.map(c =>
+    `<button type="button" class="vocab-initial-btn" onclick="filterVocabByInitial(this, '${c}')">${c}</button>`
+  ).join('');
+  box.innerHTML = html;
+  box.dataset.built = '1';
+}
+
+function filterVocabByInitial(btn, initial) {
+  document.querySelectorAll('.vocab-initial-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  vocabActiveInitial = initial;
+  renderVocabList();
+}
+
+// 검색어 + 초성 필터를 함께 적용해 목록을 그린다
+function renderVocabList() {
+  const keyword = (document.getElementById('vocabSearchInput').value || '').trim();
+  const container = document.getElementById('vocabGridContainer');
+  const emptyEl = document.getElementById('vocabEmpty');
+  const countEl = document.getElementById('vocabCount');
+
+  let list = VOCAB_ALL.slice().sort((a, b) => a.localeCompare(b, 'ko'));
+  if (vocabActiveInitial !== 'all') {
+    list = list.filter(w => getInitial(w) === vocabActiveInitial);
+  }
+  if (keyword) {
+    list = list.filter(w => w.includes(keyword));
   }
 
-  const listEl = document.getElementById('vocabWordList');
-  listEl.innerHTML = '';
-  
-  const words = vocabData[chosung] || [];
-  if (words.length === 0) {
-    listEl.innerHTML = '<div style="color: var(--muted); font-size: 14px; padding: 20px 0;">등록된 단어가 없습니다.</div>';
+  countEl.textContent = list.length;
+  container.innerHTML = '';
+
+  if (list.length === 0) {
+    emptyEl.style.display = 'block';
     return;
   }
-  
-  words.forEach(word => {
-    const span = document.createElement('span');
-    span.className = 'ok-char';
-    span.textContent = word;
-    span.style.padding = '8px 16px';
-    span.style.fontSize = '14px';
-    span.style.fontWeight = '600';
-    span.style.borderRadius = '10px';
-    span.style.cursor = 'pointer';
-    span.onclick = () => selectVocabWord(word);
-    listEl.appendChild(span);
+  emptyEl.style.display = 'none';
+
+  list.forEach(word => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'vocab-item';
+    if (keyword && word.includes(keyword)) {
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      btn.innerHTML = esc(word).split(esc(keyword)).join('<mark>' + esc(keyword) + '</mark>');
+    } else {
+      btn.textContent = word;
+    }
+    btn.onclick = () => selectVocab(word);
+    container.appendChild(btn);
   });
 }
 
-function selectVocabWord(word) {
+// 어휘 클릭 시 간단·자세히 검색창에 모두 입력하고 검색 실행
+function selectVocab(word) {
   const simpleInput = document.querySelector('.search-input');
-  if (simpleInput) {
-    simpleInput.value = word;
-  }
+  if (simpleInput) simpleInput.value = word;
   const detailInput = document.querySelector('.detail-search-input');
-  if (detailInput) {
-    detailInput.value = word;
-  }
+  if (detailInput) detailInput.value = word;
   closeVocabModal();
+  if (typeof doSearch === 'function') doSearch();
 }
 
 function toggleAccordion(rowId) {

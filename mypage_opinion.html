@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>지역어종합정보 — 나의 의견 제시</title>
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="./styles.css">
+<script src="./gnb.js" defer></script>
+<script src="./share.js" defer></script>
+<script src="./footer.js" defer></script>
+<style>
+  @font-face {
+    font-family: 'NanumBarunGothicYetHangul';
+    src: url('https://cdn.jsdelivr.net/npm/@kfonts/nanum-barun-gothic-yet-hangul-otf/NanumBarunGothic-YetHangul.woff2') format('woff2'),
+         url('https://cdn.jsdelivr.net/npm/@kfonts/nanum-barun-gothic-yet-hangul-otf/NanumBarunGothic-YetHangul.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  body {
+    font-family: 'Pretendard', 'NanumBarunGothicYetHangul', system-ui, -apple-system, sans-serif;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  .container { width: 100%; max-width: 1100px; margin: 0 auto; padding: 50px 20px 100px; flex: 1; box-sizing: border-box; }
+
+  .sub-visual {
+    background: linear-gradient(180deg, #edf4ff 0%, #f8fafc 100%);
+    border-bottom: 1px solid #e2e8f0;
+    padding: 55px 0 50px;
+    text-align: center;
+    position: relative;
+    overflow: visible;
+    display: block !important;
+    height: auto !important;
+    min-height: 180px;
+  }
+  .sub-visual::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.03) 0%, transparent 40%); pointer-events: none; }
+  .sv-title {
+    font-size: 30px;
+    font-weight: 800;
+    color: #1e3a8a;
+    letter-spacing: -0.03em;
+    margin: 0 0 16px;
+    position: relative;
+    z-index: 1;
+  }
+  .location-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    padding: 6px 20px;
+    border-radius: 99px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02);
+    border: 1px solid #cbd5e1;
+    position: relative;
+    z-index: 1;
+  }
+  .loc-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+  }
+  .loc-item.home {
+    color: #3b82f6;
+    font-size: 14px;
+  }
+  .loc-item select {
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    padding: 0 16px 0 0;
+    cursor: pointer;
+    appearance: none;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right center;
+    font-family: inherit;
+  }
+  .loc-item select:focus { outline: none; box-shadow: none; }
+  .loc-sep { color: #cbd5e1; font-size: 12px; }
+
+  /* 안내 박스 */
+  .board-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 22px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #ffffff;
+    padding: 26px 30px;
+    margin-bottom: 34px;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+  }
+  .board-notice__icon {
+    flex: 0 0 auto;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #eff4ff;
+    color: #2563eb;
+    font-size: 26px;
+  }
+  .board-notice__body { flex: 1; }
+  .board-notice__title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 2px 0 12px;
+    letter-spacing: -0.02em;
+  }
+  .board-notice__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .board-notice__list li {
+    position: relative;
+    padding-left: 14px;
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.7;
+  }
+  .board-notice__list li::before {
+    content: '·';
+    position: absolute;
+    left: 2px;
+    top: -1px;
+    font-weight: 700;
+    color: #94a3b8;
+  }
+  .board-notice__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: 2px;
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .board-notice__link::after {
+    content: '\203A';
+    font-size: 15px;
+    line-height: 1;
+  }
+  .board-notice__link:hover { text-decoration: underline; }
+
+  /* Board Top Bar (count + search) */
+  .board-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .board-count {
+    font-size: 15px;
+    color: #475569;
+  }
+  .board-count strong {
+    font-weight: 800;
+    color: #1e293b;
+  }
+  .board-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .board-search input[type="text"] {
+    height: 44px;
+    width: 260px;
+    padding: 0 16px;
+    font-size: 14px;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-family: inherit;
+  }
+  .board-search input[type="text"]::placeholder { color: #94a3b8; }
+  .board-search input[type="text"]:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+  }
+  .board-search .search-btn {
+    height: 44px;
+    padding: 0 22px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s ease;
+  }
+  .board-search .search-btn:hover {
+    background: #1e3a8a;
+    border-color: #1e3a8a;
+    color: #ffffff;
+  }
+
+  /* Board List Styles */
+  .board-list {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .board-list thead tr {
+    border-top: 1px solid #e2e8f0;
+    border-bottom: 1px solid #94a3b8;
+  }
+  .board-list th {
+    padding: 18px 12px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #64748b;
+    text-align: center;
+  }
+  .board-list tbody tr {
+    border-bottom: 1px solid #eef2f6;
+    transition: background-color 0.15s ease;
+  }
+  .board-list tbody tr:hover {
+    background-color: #f8fafc;
+  }
+  .board-list td {
+    padding: 22px 12px;
+    font-size: 15px;
+    color: #334155;
+    vertical-align: middle;
+    text-align: center;
+  }
+  .board-list td.num {
+    color: #64748b;
+    width: 80px;
+  }
+  .board-list td.subject {
+    text-align: left;
+    padding-left: 20px;
+  }
+  .board-list td.subject a {
+    color: #1e293b;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .board-list td.subject a:hover {
+    color: #2563eb;
+    text-decoration: underline;
+  }
+  .board-list td.subject .lock-icon {
+    margin-left: 6px;
+    color: #94a3b8;
+    font-size: 14px;
+    vertical-align: -1px;
+  }
+  .board-list td.subject .cat-badge {
+    display: inline-block;
+    margin-right: 8px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    background: #eef4ff;
+    color: #1e40af;
+    font-size: 12px;
+    font-weight: 700;
+    vertical-align: 1px;
+  }
+  .board-list td.attach {
+    color: #94a3b8;
+    width: 70px;
+  }
+  .board-list td.attach i { font-size: 17px; }
+  .board-list td.date {
+    color: #64748b;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+    width: 130px;
+  }
+  .board-list td.status { width: 110px; }
+  .status-badge {
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    background: #f1f5f9;
+    color: #64748b;
+  }
+  .status-badge.done {
+    background: #eef2ff;
+    color: #4338ca;
+  }
+  .status-badge.wait {
+    background: #fef3c7;
+    color: #b45309;
+  }
+
+  /* 하단 글쓰기 버튼 */
+  .board-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 40px;
+  }
+  .btn-write {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 46px;
+    padding: 0 30px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f766e;
+    background: #ffffff;
+    border: 1.5px solid #0f766e;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+    overflow: hidden;
+    isolation: isolate;
+    transition: color 0.4s ease;
+  }
+  .btn-write i, .btn-write span { position: relative; z-index: 2; }
+  /* 물이 차오르는 효과: 아래에서 위로 채워지는 물결 레이어 */
+  .btn-write::before {
+    content: '';
+    position: absolute;
+    left: -25%;
+    bottom: 0;
+    width: 150%;
+    height: 0;
+    z-index: 1;
+    background: #0f766e;
+    border-radius: 45% 47% 0 0 / 18px 20px 0 0;
+    transition: height 1.6s cubic-bezier(0.33, 0, 0.2, 1), border-radius 1.6s ease;
+  }
+  /* 수면 물결이 일렁이는 레이어 */
+  .btn-write::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 220%;
+    height: 220%;
+    z-index: 1;
+    background: rgba(15, 118, 110, 0.55);
+    border-radius: 42% 45% 47% 44%;
+    transform: translate(-50%, 100%) rotate(0deg);
+    transition: transform 1.6s ease;
+  }
+  .btn-write:hover { color: #ffffff; transition: color 0.9s ease 0.5s; }
+  .btn-write:hover::before {
+    height: 160%;
+    border-radius: 40% 42% 0 0 / 10px 12px 0 0;
+  }
+  .btn-write:hover::after {
+    transform: translate(-50%, 55%) rotate(0deg);
+    animation: waterWave 7s linear infinite 1.6s;
+  }
+  @keyframes waterWave {
+    0%   { transform: translate(-50%, 55%) rotate(0deg); }
+    100% { transform: translate(-50%, 55%) rotate(360deg); }
+  }
+
+  /* Board Pagination */
+  .board-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-top: 40px;
+  }
+  .board-pagination a, .board-pagination span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748b;
+    text-decoration: none;
+    border-radius: 50%;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+  }
+  .board-pagination a.page-num:hover {
+    background-color: #f1f5f9;
+    color: #1e293b;
+  }
+  .board-pagination span.current {
+    background-color: #1e3a8a;
+    color: #ffffff;
+    font-weight: 700;
+  }
+  .board-pagination .arrow-btn {
+    border: 1px solid #e2e8f0;
+    color: #94a3b8;
+    font-size: 16px;
+  }
+  .board-pagination .arrow-btn:hover {
+    background-color: #f1f5f9;
+    color: #1e293b;
+    border-color: #cbd5e1;
+  }
+</style>
+</head>
+<body>
+
+<div id="gnb-common"></div>
+
+<div class="sub-visual">
+  <div class="wrap">
+    <h1 class="sv-title">나의 의견 제시</h1>
+    <div class="location-bar">
+      <div class="loc-item home" onclick="location.href='./index.html'" style="cursor:pointer;" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">내정보</div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">
+        <select onchange="if(this.value) location.href=this.value;">
+          <option value="./mypage_opinion.html" selected>나의 의견 제시</option>
+          <option value="./mypage_edit.html">나의 정보 수정</option>
+          <option value="./mypage_map.html">나의 지도</option>
+          <option value="./mypage_withdraw.html">회원탈퇴</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap container">
+  <!-- 안내 박스 -->
+  <div class="board-notice">
+    <div class="board-notice__icon"><i class="ti ti-bulb" aria-hidden="true"></i></div>
+    <div class="board-notice__body">
+      <p class="board-notice__title">본 게시판은 고객 여러분의 불편 및 의견을 듣고 반영하기 위한 게시판입니다.</p>
+      <ul class="board-notice__list">
+        <li>우리 원과 관련된 문의, 민원은 국민신문고 문의화면을 이용하시기 바랍니다. <a href="https://www.epeople.go.kr" target="_blank" rel="noopener" class="board-notice__link">바로가기</a></li>
+        <li>지역어 종합정보 의견 제시 게시판은 웹접근성이 취약한 환경에 있는 사용자를 위하여 이미지나 사진 사용은 제한하여 정보를 제공하고 있습니다.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 상단 정보 + 검색 -->
+  <div class="board-topbar">
+    <div class="board-count"><strong>12건</strong>, 현재페이지 1/2</div>
+    <div class="board-search">
+      <input type="text" placeholder="검색어를 입력해주세요." aria-label="검색어 입력">
+      <button type="button" class="search-btn">검색</button>
+    </div>
+  </div>
+
+  <table class="board-list">
+    <thead>
+      <tr>
+        <th style="width: 80px;">번호</th>
+        <th>제목</th>
+        <th style="width: 70px;">첨부</th>
+        <th style="width: 130px;">등록일</th>
+        <th style="width: 110px;">상태</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="num">12</td>
+        <td class="subject"><a href="./mypage_opinion_detail.html"><span class="cat-badge">장애 신고</span>지역어 지도에서 방언 음성 자료 재생이 안 됩니다.<i class="ti ti-lock lock-icon" aria-label="비밀글"></i></a></td>
+        <td class="attach"><i class="ti ti-paperclip" aria-label="첨부파일 있음"></i></td>
+        <td class="date">2026.06.30</td>
+        <td class="status"><span class="status-badge done">답변완료</span></td>
+      </tr>
+      <tr>
+        <td class="num">11</td>
+        <td class="subject"><a href="./mypage_opinion_detail.html"><span class="cat-badge">사용 문의</span>어휘 조사 자료 출처 표기 관련 문의드립니다.</a></td>
+        <td class="attach"></td>
+        <td class="date">2026.06.18</td>
+        <td class="status"><span class="status-badge done">답변완료</span></td>
+      </tr>
+      <tr>
+        <td class="num">10</td>
+        <td class="subject"><a href="./mypage_opinion_detail.html"><span class="cat-badge">서비스 개선 의견</span>나만의 지도 제작 기능 개선 건의<i class="ti ti-lock lock-icon" aria-label="비밀글"></i></a></td>
+        <td class="attach"><i class="ti ti-paperclip" aria-label="첨부파일 있음"></i></td>
+        <td class="date">2026.05.22</td>
+        <td class="status"><span class="status-badge wait">접수</span></td>
+      </tr>
+      <tr>
+        <td class="num">9</td>
+        <td class="subject"><a href="./mypage_opinion_detail.html"><span class="cat-badge">장애 신고</span>구술 발화 조사 자료 다운로드 오류 신고</a></td>
+        <td class="attach"><i class="ti ti-paperclip" aria-label="첨부파일 있음"></i></td>
+        <td class="date">2026.05.03</td>
+        <td class="status"><span class="status-badge done">답변완료</span></td>
+      </tr>
+      <tr>
+        <td class="num">8</td>
+        <td class="subject"><a href="./mypage_opinion_detail.html"><span class="cat-badge">내용 오류</span>문학 속 지역어 자료에 오탈자가 있어 제보합니다.</a></td>
+        <td class="attach"></td>
+        <td class="date">2026.04.15</td>
+        <td class="status"><span class="status-badge done">답변완료</span></td>
+      </tr>
+      <tr>
+        <td class="num">7</td>
+        <td class="subject"><a href="./mypage_opinion_detail.html"><span class="cat-badge">사용 문의</span>Open API 신청 절차 문의<i class="ti ti-lock lock-icon" aria-label="비밀글"></i></a></td>
+        <td class="attach"></td>
+        <td class="date">2026.03.28</td>
+        <td class="status"><span class="status-badge done">답변완료</span></td>
+      </tr>
+      <tr>
+        <td class="num">6</td>
+        <td class="subject"><a href="./mypage_opinion_detail.html"><span class="cat-badge">서비스 개선 의견</span>지역어 검색 결과 정렬 기준 개선 의견</a></td>
+        <td class="attach"></td>
+        <td class="date">2026.03.10</td>
+        <td class="status"><span class="status-badge done">답변완료</span></td>
+      </tr>
+      <tr>
+        <td class="num">5</td>
+        <td class="subject"><a href="./mypage_opinion_detail.html"><span class="cat-badge">장애 신고</span>모바일에서 지도 화면이 깨져 보입니다.</a></td>
+        <td class="attach"><i class="ti ti-paperclip" aria-label="첨부파일 있음"></i></td>
+        <td class="date">2026.02.24</td>
+        <td class="status"><span class="status-badge done">답변완료</span></td>
+      </tr>
+      <tr>
+        <td class="num">4</td>
+        <td class="subject"><a href="./mypage_opinion_detail.html"><span class="cat-badge">사용 문의</span>회원 정보 수정 시 이메일 인증 관련 문의<i class="ti ti-lock lock-icon" aria-label="비밀글"></i></a></td>
+        <td class="attach"></td>
+        <td class="date">2026.02.05</td>
+        <td class="status"><span class="status-badge done">답변완료</span></td>
+      </tr>
+      <tr>
+        <td class="num">3</td>
+        <td class="subject"><a href="./mypage_opinion_detail.html"><span class="cat-badge">기타 의견</span>사진으로 보는 생활어 코너 확대 요청</a></td>
+        <td class="attach"></td>
+        <td class="date">2026.01.19</td>
+        <td class="status"><span class="status-badge done">답변완료</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 글쓰기 -->
+  <div class="board-actions">
+    <a href="./mypage_opinion_write.html" class="btn-write"><i class="ti ti-pencil" aria-hidden="true"></i><span>글쓰기</span></a>
+  </div>
+
+  <!-- 페이지네이션 -->
+  <div class="board-pagination">
+    <a href="#" class="arrow-btn" aria-label="처음 페이지"><i class="ti ti-chevrons-left"></i></a>
+    <a href="#" class="arrow-btn" aria-label="이전 페이지"><i class="ti ti-chevron-left"></i></a>
+    <span class="current">1</span>
+    <a href="#" class="page-num">2</a>
+    <a href="#" class="arrow-btn" aria-label="다음 페이지"><i class="ti ti-chevron-right"></i></a>
+    <a href="#" class="arrow-btn" aria-label="마지막 페이지"><i class="ti ti-chevrons-right"></i></a>
+  </div>
+</div>
+
+<div id="footer-common"></div>
+
+<script src="./share.js" defer></script>
+</body>
+</html>

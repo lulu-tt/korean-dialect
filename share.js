@@ -1,7 +1,7 @@
 // SNS 공유, URL 복사, 인쇄 도구 모음을 동적으로 초기화하고 바인딩하는 공통 모듈
 document.addEventListener('DOMContentLoaded', () => {
   const subVisualWrap = document.querySelector('.sub-visual .wrap');
-  if (!subVisualWrap) return;
+  if (!subVisualWrap || subVisualWrap.querySelector('.sub-visual-tools')) return;
 
   // 1. 도구 HTML 동적 생성 및 삽입
   const toolsDiv = document.createElement('div');

@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <link rel="stylesheet" href="./styles.css">
 <script src="./gnb.js" defer></script>
+<script src="./share.js" defer></script>
 <script src="./footer.js" defer></script>
 <style>
   @font-face {
@@ -28,74 +29,145 @@
   }
 
   .container { width: 100%; max-width: 1100px; margin: 0 auto; padding: 50px 20px 100px; flex: 1; box-sizing: border-box; }
-  
-  .sub-visual { 
-    background: linear-gradient(180deg, #edf4ff 0%, #f8fafc 100%); 
-    border-bottom: 1px solid #e2e8f0; 
-    padding: 55px 0 50px; 
-    text-align: center; 
-    position: relative; 
-    overflow: visible; 
+
+  .sub-visual {
+    background: linear-gradient(180deg, #edf4ff 0%, #f8fafc 100%);
+    border-bottom: 1px solid #e2e8f0;
+    padding: 55px 0 50px;
+    text-align: center;
+    position: relative;
+    overflow: visible;
     display: block !important;
     height: auto !important;
     min-height: 180px;
   }
   .sub-visual::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.03) 0%, transparent 40%); pointer-events: none; }
-  .sv-title { 
-    font-size: 30px; 
-    font-weight: 800; 
-    color: #1e3a8a; 
-    letter-spacing: -0.03em; 
-    margin: 0 0 16px; 
-    position: relative; 
-    z-index: 1; 
+  .sv-title {
+    font-size: 30px;
+    font-weight: 800;
+    color: #1e3a8a;
+    letter-spacing: -0.03em;
+    margin: 0 0 16px;
+    position: relative;
+    z-index: 1;
   }
-  .location-bar { 
-    display: inline-flex; 
-    align-items: center; 
-    gap: 8px; 
-    background: #ffffff; 
-    padding: 6px 20px; 
-    border-radius: 99px; 
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02); 
-    border: 1px solid #cbd5e1; 
-    position: relative; 
-    z-index: 1; 
+  .location-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    padding: 6px 20px;
+    border-radius: 99px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02);
+    border: 1px solid #cbd5e1;
+    position: relative;
+    z-index: 1;
   }
-  .loc-item { 
-    display: flex; 
-    align-items: center; 
-    gap: 6px; 
-    font-size: 13px; 
-    font-weight: 600; 
-    color: #475569; 
+  .loc-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
   }
-  .loc-item.home { 
-    color: #3b82f6; 
-    font-size: 14px; 
+  .loc-item.home {
+    color: #3b82f6;
+    font-size: 14px;
   }
-  .loc-item select { 
-    border: none; 
-    background: transparent; 
-    font-size: 13px; 
-    font-weight: 600; 
-    color: #334155; 
-    padding: 0 16px 0 0; 
-    cursor: pointer; 
-    appearance: none; 
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right center; 
+  .loc-item select {
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    padding: 0 16px 0 0;
+    cursor: pointer;
+    appearance: none;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right center;
     font-family: inherit;
   }
   .loc-item select:focus { outline: none; box-shadow: none; }
   .loc-sep { color: #cbd5e1; font-size: 12px; }
 
+  /* Board Top Bar (count + search) */
+  .board-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .board-count {
+    font-size: 15px;
+    color: #475569;
+  }
+  .board-count strong {
+    font-weight: 800;
+    color: #1e293b;
+  }
+  .board-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .board-search select {
+    height: 44px;
+    padding: 0 36px 0 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 14px center;
+    appearance: none;
+    cursor: pointer;
+    font-family: inherit;
+    box-sizing: border-box;
+  }
+  .board-search input[type="text"] {
+    height: 44px;
+    width: 260px;
+    padding: 0 16px;
+    font-size: 14px;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-family: inherit;
+  }
+  .board-search input[type="text"]::placeholder { color: #94a3b8; }
+  .board-search input[type="text"]:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+  }
+  .board-search .search-btn {
+    height: 44px;
+    padding: 0 22px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s ease;
+  }
+  .board-search .search-btn:hover {
+    background: #1e3a8a;
+    border-color: #1e3a8a;
+    color: #ffffff;
+  }
+
   /* FAQ Accordion Styles */
   .faq-list {
-    margin-top: 30px;
-    border-top: 2px solid #1e293b;
+    border-top: 1px solid #94a3b8;
   }
   .faq-item {
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #eef2f6;
     transition: all 0.2s ease;
   }
   .faq-q {
@@ -118,7 +190,7 @@
   .faq-q-icon {
     font-size: 20px;
     font-weight: 800;
-    color: #e11d48; /* 이미지의 빨간 Q */
+    color: #1e3a8a;
     font-family: 'Pretendard', sans-serif;
   }
   .faq-q-text {
@@ -132,9 +204,12 @@
     color: #94a3b8;
     transition: transform 0.2s ease, color 0.2s ease;
   }
+  .faq-item.open {
+    background-color: #fafbfc;
+  }
   .faq-item.open .faq-toggle-icon {
     transform: rotate(45deg); /* + 기호를 x 기호로 만들기 위함 */
-    color: #1e293b;
+    color: #1e3a8a;
   }
   .faq-a {
     display: none;
@@ -147,7 +222,7 @@
   }
   .faq-a-icon {
     font-weight: 800;
-    color: #2563eb;
+    color: #e11d48;
     margin-right: 8px;
     display: inline-block;
   }
@@ -155,10 +230,52 @@
     display: block;
     animation: fadein 0.2s ease;
   }
-  
+
   @keyframes fadein {
     from { opacity: 0; transform: translateY(-5px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Board Pagination */
+  .board-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-top: 50px;
+  }
+  .board-pagination a, .board-pagination span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748b;
+    text-decoration: none;
+    border-radius: 50%;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+  }
+  .board-pagination a.page-num:hover {
+    background-color: #f1f5f9;
+    color: #1e293b;
+  }
+  .board-pagination span.current {
+    background-color: #1e3a8a;
+    color: #ffffff;
+    font-weight: 700;
+  }
+  .board-pagination .arrow-btn {
+    border: 1px solid #e2e8f0;
+    color: #94a3b8;
+    font-size: 16px;
+  }
+  .board-pagination .arrow-btn:hover {
+    background-color: #f1f5f9;
+    color: #1e293b;
+    border-color: #cbd5e1;
   }
 </style>
 </head>
@@ -182,11 +299,11 @@
       </div>
       <i class="ti ti-chevron-right loc-sep"></i>
       <div class="loc-item">
-        <select>
+        <select onchange="if(this.value) location.href=this.value;">
           <option selected>도움말(FAQ)</option>
           <option value="./notice.html">공지사항</option>
           <option>보도자료</option>
-          <option>자료실</option>
+          <option value="./data_room.html">자료실</option>
         </select>
       </div>
     </div>
@@ -194,6 +311,20 @@
 </div>
 
 <div class="wrap container">
+  <!-- 상단 정보 + 검색 -->
+  <div class="board-topbar">
+    <div class="board-count"><strong>7건</strong>, 현재페이지 1/1</div>
+    <div class="board-search">
+      <select aria-label="검색 구분">
+        <option>전체</option>
+        <option>질문</option>
+        <option>답변</option>
+      </select>
+      <input type="text" placeholder="검색어를 입력해주세요." aria-label="검색어 입력">
+      <button type="button" class="search-btn">검색</button>
+    </div>
+  </div>
+
   <div class="faq-list">
     <!-- FAQ 7 -->
     <div class="faq-item" id="faq7">
@@ -301,10 +432,10 @@
   function toggleFaq(itemId) {
     const item = document.getElementById(itemId);
     const isOpen = item.classList.contains('open');
-    
+
     // 타 FAQ는 닫음 (아코디언 연출)
     document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
-    
+
     if (!isOpen) {
       item.classList.add('open');
     }

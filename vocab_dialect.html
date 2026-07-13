@@ -1,0 +1,3378 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<!-- GNB, 본문 정렬 기준선인 1440px 가로폭 고정 및 페이지 전환 시 흔들림 방지 뷰포트 선언 -->
+<meta name="viewport" content="width=1440">
+<title>어휘조사자료 — 국립국어원</title>
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<!-- OpenLayers -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.9.0/ol.css">
+<script src="https://cdn.jsdelivr.net/npm/ol@v10.9.0/dist/ol.js"></script>
+<link rel="stylesheet" href="./styles.css">
+<script src="./gnb.js" defer></script>
+<script src="./share.js" defer></script>
+<script src="./footer.js" defer></script>
+<style>
+  @font-face {
+    font-family: 'NanumBarunGothicYetHangul';
+    src: url('https://cdn.jsdelivr.net/npm/@kfonts/nanum-barun-gothic-yet-hangul-otf/NanumBarunGothic-YetHangul.woff2') format('woff2'),
+         url('https://cdn.jsdelivr.net/npm/@kfonts/nanum-barun-gothic-yet-hangul-otf/NanumBarunGothic-YetHangul.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  /* 레이아웃 흔들림 방지 상속 */
+  html {
+    scrollbar-gutter: stable;
+  }
+
+  /* 스크린리더만 읽는 숨김 텍스트 */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Use styles.css colors and match index.html aesthetic */
+  body {
+    font-family: 'Pretendard', 'NanumBarunGothicYetHangul', system-ui, -apple-system, sans-serif;
+    font-variant-ligatures: normal;
+    font-feature-settings: "liga" 1, "clig" 1, "ccmp" 1;
+    background: #ffffff;
+  }
+  .container { max-width: 1440px; margin: 0 auto; padding: 40px 20px 80px; }
+  
+
+  /* SUB VISUAL & LOCATION */
+  .sub-visual { background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%); border-bottom: 1px solid var(--line); padding: 50px 0 40px; text-align: center; position: relative; overflow: hidden; }
+  .sub-visual::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.05) 0%, transparent 40%); pointer-events: none; }
+  .sv-title { font-size: 30px; font-weight: 800; color: #1e3a8a; letter-spacing: -0.02em; margin: 0 0 16px; position: relative; z-index: 1; }
+  .location-bar { display: inline-flex; align-items: center; gap: 12px; background: #ffffff; padding: 8px 24px; border-radius: 99px; box-shadow: var(--shadow2); border: 1px solid var(--line); position: relative; z-index: 1; }
+  .loc-item { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #475569; }
+  .loc-item.home { color: var(--blue); font-size: 16px; }
+  .loc-item select { border: none; background: transparent; font-size: 14px; font-weight: 700; color: var(--text); padding: 0 20px 0 0; cursor: pointer; appearance: none; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%2364748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>') no-repeat right center; }
+  .loc-item select:focus { outline: none; box-shadow: none; }
+  .loc-sep { color: #cbd5e1; font-size: 14px; }
+  
+  /* SEARCH PANEL (디자인 고도화) */
+  .search-panel { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 30px; margin-bottom: 32px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04); }
+  .search-mode-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; border-bottom: 1px solid var(--line); padding-bottom: 16px; }
+  .mode-tabs { display: flex; gap: 6px; background: #f1f5f9; padding: 4px; border-radius: 99px; }
+  .mode-tab { padding: 6px 18px; border-radius: 99px; border: none; font-size: 13.5px; font-weight: 700; cursor: pointer; background: transparent; color: #64748b; transition: all 0.2s ease; box-shadow: none; }
+  .mode-tab:hover { color: var(--text); }
+  .mode-tab.on { background: #ffffff; color: var(--blue); box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08); }
+  .note { font-size: 13px; color: var(--muted); font-weight: 500; }
+  .note a { color: var(--blue); text-decoration: none; font-weight: 700; }
+  
+  .simple-row { display: flex; gap: 12px; align-items: center; }
+  .simple-conds { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0; }
+  .simple-cond { display: flex; gap: 10px; align-items: center; min-width: 0; }
+  .simple-actions { display: flex; gap: 8px; align-items: center; }
+  .simple-actions .btn-outline, .simple-actions .btn-primary { height: 39px; }
+  
+  .pm-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--line); background: #ffffff; cursor: pointer; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; color: #475569; font-weight: 600; transition: all 0.2s ease; box-shadow: var(--shadow2); }
+  .pm-btn:hover { background: #f8fafc; color: var(--blue); border-color: #cbd5e1; }
+  
+  select, input[type=text] { font-size: 14.5px; font-weight: 600; padding: 10px 16px; border-radius: 10px; border: 1px solid #cbd5e1; background: #ffffff; color: var(--text); font-family: inherit; transition: all 0.2s ease; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02); }
+  select:focus, input[type=text]:focus { border-color: var(--blue); outline: none; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
+  .search-input { flex: 1; min-width: 0; padding: 12px 24px; border-radius: 12px; border-color: #cbd5e1; }
+  
+  .btn-outline { padding: 10px 20px; border-radius: 10px; border: 1px solid var(--line); background: #ffffff; cursor: pointer; font-size: 14px; font-weight: 700; color: #475569; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; white-space: nowrap; transition: all 0.2s ease; box-shadow: var(--shadow2); }
+  .vocab-list-btn { font-size: 13px; border-radius: 99px; }
+  .btn-outline:hover { background: #f8fafc; color: var(--text); border-color: #cbd5e1; transform: translateY(-1px); }
+  .btn-primary { background: var(--blue); color: #fff; border: none; padding: 12px 28px; border-radius: 10px; cursor: pointer; font-size: 14.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; font-family: inherit; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15); }
+  .btn-primary:hover { background: var(--blue-hover); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25); }
+  
+  .form-grid { display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: center; margin-bottom: 16px; }
+  .form-label { font-size: 13.5px; font-weight: 700; color: #334155; display: flex; align-items: center; gap: 8px; }
+  .form-label::before { content:''; display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--blue); flex-shrink:0; }
+  .form-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .detail-actions { text-align: center; margin-top: 24px; display: flex; gap: 12px; justify-content: center; border-top: 1px solid var(--line); padding-top: 24px; }
+
+  /* OLDKOR */
+  .oldkor-panel { background: #f8fafc; border: 1px solid var(--line); border-radius: 16px; padding: 20px; margin-top: 16px; }
+  .ok-title { font-size: 14px; font-weight: 700; color: var(--blue); margin-bottom: 12px; }
+  .ok-chars { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .ok-char { font-size: 14px; font-weight: 500; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--line); cursor: pointer; background: #ffffff; transition: 0.2s; box-shadow: var(--shadow2); color: #475569; }
+  .ok-char:hover { background: #f1f5f9; color: var(--blue); border-color: #cbd5e1; }
+  .ok-row { display: flex; gap: 10px; }
+  .ok-input { flex: 1; border-radius: 99px; padding: 10px 20px; }
+
+  /* TABS (보기 전환 탭 및 서브 탭 통일) */
+  .tab-bar { display: flex; border-bottom: 2px solid var(--line); margin-bottom: 24px; overflow-x: auto; gap: 4px; padding-bottom: 2px; }
+  .tab { padding: 12px 24px; font-size: 14.5px; font-weight: 600; cursor: pointer; border: 1px solid transparent; border-bottom: none; border-radius: 12px 12px 0 0; color: #64748b; background: none; white-space: nowrap; font-family: inherit; transition: all 0.2s ease; margin-bottom: -2px; }
+  .tab:hover { color: var(--blue); background: #f8fafc; }
+  .tab.on { color: var(--blue); background: #ffffff; border-color: var(--line) var(--line) #ffffff; border-bottom: 2px solid #ffffff; font-weight: 800; box-shadow: 0 -4px 12px rgba(15, 23, 42, 0.03); }
+  .tab-count { font-size: 11px; padding: 2px 8px; border-radius: 99px; margin-left: 6px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .tab.on .tab-count { background: var(--blue-light); color: var(--blue); }
+  .tab:not(.on) .tab-count { background: #f1f5f9; color: #94a3b8; }
+
+	  /* Keyword summary card */
+	  .kw-sum{background:#fff;border:0.5px solid var(--line);border-radius:20px;padding:14px 16px;display:flex;gap:16px;align-items:stretch;justify-content:space-between;margin-bottom:10px;box-shadow:var(--shadow2);}
+	  .kw-left{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;}
+	  .kw-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+	  .kw-word{font-size:20px;font-weight:500;color:var(--blue);letter-spacing:-0.02em;}
+	  .kw-pos{font-size:12px;color:var(--text2, #64748b);font-weight:600;}
+	  .kw-badges{display:flex;flex-wrap:wrap;gap:6px;}
+	  .kw-badge{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid transparent;white-space:nowrap;}
+	  .kw-badge.blue{background:rgba(37,99,235,0.10);border-color:rgba(37,99,235,0.22);color:var(--blue);}
+	  .kw-badge.green{background:rgba(16,185,129,0.10);border-color:rgba(16,185,129,0.22);color:#0f766e;}
+	  .kw-badge.orange{background:rgba(249,115,22,0.10);border-color:rgba(249,115,22,0.22);color:#c2410c;}
+	  .kw-def{font-size:13px;color:var(--text2, #64748b);line-height:1.7;border-left:2px solid rgba(236,72,153,0.55);padding-left:10px;white-space:pre-line;}
+	  .kw-right{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:10px;min-width:170px;}
+	  .kw-stats{display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+	  .kw-stat{display:flex;gap:8px;align-items:baseline;}
+	  .kw-stat .k{font-size:12px;color:var(--text2, #64748b);font-weight:700;}
+	  .kw-stat .v{font-weight:800;letter-spacing:-0.02em;}
+	  .kw-stat .v.main{font-size:24px;color:var(--blue);}
+	  .kw-stat .v.accent{font-size:18px;color:#f97316;}
+	  .kw-actions{display:flex;gap:8px;}
+	  .kw-actions a{height:36px;padding:8px 14px;font-size:12px;font-weight:800;}
+	  @media (max-width: 860px){
+	    .kw-sum{flex-direction:column;align-items:stretch;}
+	    .kw-right{align-items:flex-start;min-width:0;}
+	    .kw-stats{align-items:flex-start;}
+	  }
+
+	  /* FILTERS */
+	  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
+	  .filter-label { font-size: 14px; font-weight: 700; color: var(--muted); margin-right: 4px; }
+	  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 99px; border: 1px solid var(--line); font-size: 13px; font-weight: 600; cursor: pointer; background: #ffffff; color: #475569; transition: 0.2s; box-shadow: var(--shadow2); }
+  .chip.on { background: var(--blue-light); border-color: var(--blue); color: var(--blue); }
+  .chip:hover { background: #f8fafc; border-color: #cbd5e1; color: var(--text); }
+  .chip.on:hover { background: #e0f2fe; }
+
+	  /* 제보자 정보 다중 선택 칩 */
+	  .informant-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+	  .informant-label { font-size: 12.5px; font-weight: 700; color: #64748b; min-width: 42px; }
+	  .chip-multi { display: flex; gap: 6px; flex-wrap: wrap; }
+	  .ms-chip { padding: 7px 14px; border-radius: 99px; border: 1px solid #cbd5e1; background: #ffffff; color: #475569; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: 0.2s; box-shadow: var(--shadow2); }
+	  .ms-chip:hover { border-color: #94a3b8; color: var(--text); }
+	  .ms-chip[aria-pressed="true"] { background: var(--blue-light); border-color: var(--blue); color: var(--blue); }
+	  .ms-chip.ms-all { border-style: dashed; }
+	  .ms-chip.ms-all[aria-pressed="true"] { border-style: solid; }
+
+  /* RESULT HEADER */
+  .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .result-count { font-size: 15px; color: var(--text); font-weight: 500; }
+  .result-count em { color: var(--blue); font-style: normal; font-weight: 800; }
+  .result-actions { display: flex; gap: 10px; align-items: center; }
+  .excel-btn { font-size: 13px; font-weight: 700; padding: 8px 16px; border-radius: 99px; border: 1px solid var(--line); background: #ffffff; cursor: pointer; color: #475569; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; box-shadow: var(--shadow2); transition: 0.2s; }
+  .excel-btn:hover { background: #f8fafc; color: var(--text); border-color: #cbd5e1; }
+
+  /* CARDS */
+  .scard { background: var(--card); border: 1px solid var(--line); border-radius: 20px; margin-bottom: 16px; transition: 0.2s ease; box-shadow: var(--shadow2); overflow: hidden; }
+  .scard:hover { border-color: #cbd5e1; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08); transform: translateY(-2px); }
+  .scard.open { border-color: var(--blue); box-shadow: 0 8px 24px rgba(37, 99, 235, 0.1); transform: translateY(-2px); }
+  .card-head { padding: 20px 24px; cursor: pointer; display: flex; align-items: flex-start; gap: 16px; background: #ffffff; transition: 0.2s; }
+  .card-head:hover { background: #f8fafc; }
+  .card-meta { flex: 1; min-width: 0; }
+  .card-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+  .badge { font-size: 12px; padding: 4px 10px; border-radius: 99px; font-weight: 800; white-space: nowrap; }
+	  .b-vocab { background: var(--blue-light); color: var(--blue); border: 1px solid #bfdbfe; }
+	  .b-oral { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+	  .b-lit { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+	  .b-life { background: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+	  .b-life--blue{background:var(--blue-light);color:var(--blue);border:1px solid #bfdbfe;}
+  .word { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+  .word-std { font-size: 14px; color: var(--muted); font-weight: 600; }
+  .card-sub { font-size: 14px; color: #475569; line-height: 1.6; font-weight: 500; }
+  .chevron { font-size: 20px; color: #94a3b8; flex-shrink: 0; margin-top: 2px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+  .scard.open .chevron { transform: rotate(180deg); color: var(--blue); }
+	  .card-body { display: none; padding: 16px 24px 24px; background: #ffffff; border-top: 1px solid #f1f5f9; }
+	  .card-body.show { display: block; animation: fadein 0.3s ease; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+	  .tag { font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 8px; background: #f1f5f9; color: #475569; display: inline-block; margin: 4px 4px 0 0; border: 1px solid var(--line); }
+
+	  /* Life photo card */
+	  .life-title{font-size:15px;font-weight:800;color:var(--text);letter-spacing:-0.02em;}
+	  .life-sub{font-size:13px;color:#475569;line-height:1.6;font-weight:500;margin-top:6px;white-space:pre-line;}
+	  .life-grid{display:grid;grid-template-columns:220px 1fr;gap:16px;align-items:start;}
+	  .life-photo{position:relative;background:#E8D5C0;border-radius:16px;overflow:hidden;aspect-ratio:4/3;border:1px solid rgba(148,163,184,0.4);}
+	  .life-cap{position:absolute;left:0;right:0;bottom:0;padding:10px 12px;font-size:11px;font-weight:700;color:rgba(15,23,42,0.82);background:linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.88) 60%, rgba(255,255,255,0.92) 100%);}
+	  .life-quote{border:1px solid var(--line);border-radius:16px;padding:14px 16px;background:#fff;box-shadow:var(--shadow2);}
+	  .life-quote q{font-size:14px;font-weight:700;color:var(--text);line-height:1.7;quotes:\"“\"\"”\";}
+	  .life-quote q::before{content:open-quote;}
+	  .life-quote q::after{content:close-quote;}
+	  .life-std{margin-top:8px;font-size:12px;color:#475569;line-height:1.7;border-left:2px solid #cbd5e1;padding-left:10px;}
+	  .life-player{display:flex;align-items:center;gap:10px;background:#f8fafc;border:1px solid var(--line);border-radius:16px;padding:12px 14px;box-shadow:var(--shadow2);}
+	  .life-wave{position:relative;flex:1;height:36px;border-radius:12px;background:#fff;border:1px solid #e2e8f0;display:flex;align-items:center;gap:2px;padding:0 10px;overflow:hidden;}
+	  .life-wb{width:3px;border-radius:2px;opacity:.7;flex-shrink:0;background:var(--blue);height:10px;transition:height .12s;}
+	  .life-prog{position:absolute;left:0;top:0;height:100%;background:rgba(37,99,235,0.08);width:0%;pointer-events:none;}
+	  .life-dur{font-size:12px;color:var(--muted);font-weight:700;white-space:nowrap;}
+	  .life-meta{font-size:11px;color:var(--muted);font-weight:600;margin-top:6px;}
+	  .life-chips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px;}
+	  .life-chip{border-radius:16px;border:1px solid var(--line);background:#fff;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;transition:.2s;box-shadow:var(--shadow2);}
+	  .life-chip:hover{border-color:#cbd5e1;background:#f8fafc;}
+	  .life-chip.on{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+	  .life-chip .t{display:flex;flex-direction:column;gap:2px;min-width:0;}
+	  .life-chip .w{font-size:14px;font-weight:800;letter-spacing:-0.02em;}
+	  .life-chip .r{font-size:10px;color:var(--muted);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;}
+	  .life-chip .ico{flex:0 0 auto;width:28px;height:28px;border-radius:999px;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:center;color:#475569;background:#fff;}
+	  .life-chip.orange .w{color:#c2410c;}
+	  .life-chip.green .w{color:#0f766e;}
+	  .life-chip.blue .w{color:var(--blue);}
+	  .life-chip.gray .w{color:#64748b;}
+	  .life-subphotos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px;}
+	  .life-sp{border-radius:16px;border:1px solid var(--line);overflow:hidden;background:#fff;box-shadow:var(--shadow2);}
+	  .life-sp-ph{height:110px;background:#e2e8f0;}
+	  .life-sp-ph.a{background:#EAD2D2;}
+	  .life-sp-ph.b{background:#D7EAD6;}
+	  .life-sp-ph.c{background:#D7E3F3;}
+	  .life-sp-bd{padding:10px 12px;}
+	  .life-sp-loc{font-size:10px;color:var(--blue);font-weight:800;margin-bottom:4px;}
+	  .life-sp-desc{font-size:12px;color:#475569;line-height:1.5;font-weight:600;}
+	  .life-warn{margin-top:14px;background:#FEF3E8;border:1px solid #EFC090;border-radius:16px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+	  .life-warn .left{display:flex;gap:10px;align-items:flex-start;min-width:0;}
+	  .life-warn i{color:#f97316;font-size:18px;line-height:1;margin-top:1px;}
+	  .life-warn .txt{font-size:12px;color:#7A4010;line-height:1.65;font-weight:700;white-space:pre-line;}
+	  .life-warn .act a{white-space:nowrap;}
+	  @media (max-width: 980px){
+	    .life-grid{grid-template-columns:1fr;}
+	    .life-chips{grid-template-columns:repeat(2,minmax(0,1fr));}
+	    .life-subphotos{grid-template-columns:1fr;}
+	  }
+
+  /* VOICE TABLE */
+  .voice-box { background: #f8fafc; border-radius: 16px; padding: 16px 20px; margin-top: 16px; border: 1px solid var(--line); }
+  .voice-box-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .voice-box-title em { color: var(--blue); font-style: normal; font-weight: 800; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { font-size: 13px; font-weight: 700; color: var(--muted); padding: 10px 12px; border-bottom: 1px solid #cbd5e1; text-align: left; }
+  td { padding: 12px; border-bottom: 1px solid var(--line); vertical-align: middle; color: #334155; font-weight: 500; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #ffffff; }
+  .vol-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; color: var(--blue); cursor: pointer; font-size: 16px; border: 1px solid var(--blue-light); background: #ffffff; padding: 0; transition: 0.2s; box-shadow: var(--shadow2); }
+  .vol-btn:hover { background: var(--blue-light); transform: scale(1.05); }
+  .more-btn { font-size: 13px; font-weight: 600; padding: 10px; width: 100%; text-align: center; border-radius: 12px; border: 1px dashed #cbd5e1; background: #ffffff; cursor: pointer; color: #64748b; font-family: inherit; transition: 0.2s; }
+  .more-btn:hover { background: #f1f5f9; color: var(--text); border-color: #94a3b8; }
+
+
+
+  /* TRANSCRIPT */
+  .transcript-pair { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 12px; box-shadow: var(--shadow2); background: #ffffff; }
+  .tp-row { display: flex; align-items: stretch; border-bottom: 1px solid var(--line); }
+  .tp-row:last-child { border-bottom: none; }
+  .tp-label { font-size: 12px; padding: 12px 14px; background: #f8fafc; color: var(--muted); border-right: 1px solid var(--line); min-width: 90px; display: flex; align-items: center; font-weight: 700; }
+  .tp-text { font-size: 14px; padding: 12px 14px; line-height: 1.7; flex: 1; color: var(--text); }
+  .hl { background: #F4C0D1; border-radius: 4px; padding: 0 4px; color: #8A1F4A; font-weight: 700; }
+  .hl2 { background: rgba(20, 184, 166, 0.18); border-radius: 4px; padding: 0 4px; color: #0F766E; font-weight: 700; }
+  .hl2 { background: #bbf7d0; border-radius: 4px; padding: 0 4px; color: #166534; font-weight: 600; }
+
+  /* AUDIO */
+  .audio-row { display: flex; align-items: center; gap: 12px; margin-top: 16px; background: #f8fafc; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--line); }
+  .play-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--blue); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; transition: 0.2s; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2); }
+  .play-btn:hover { background: var(--blue-hover); transform: scale(1.05); }
+  .wave { flex: 1; height: 36px; background: #e2e8f0; border-radius: 8px; display: flex; align-items: center; gap: 3px; padding: 0 12px; overflow: hidden; }
+  .wb { width: 4px; border-radius: 2px; background: var(--blue); opacity: 0.8; }
+  .dur { font-size: 13px; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  /* Example (예문) */
+  .ex-intro{margin:-6px 0 16px;color:#475569;font-size:13px;font-weight:600;line-height:1.55;}
+  .ex-list{display:flex;flex-direction:column;gap:14px;}
+  .ex-card{
+    background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow2);
+    padding:16px 16px 14px;
+  }
+  .ex-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px;}
+  .ex-loc{display:flex;align-items:center;gap:8px;font-weight:900;color:var(--text);letter-spacing:-0.02em;}
+  .ex-dot{width:8px;height:8px;border-radius:50%;background:#ef4444;flex:0 0 auto;}
+  .ex-dot.blue{background:#2563eb;}
+  .ex-pill{
+    flex:0 0 auto;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:900;
+    border:1px solid #fecaca;background:#fff1f2;color:#ef4444;
+  }
+  .ex-pill.blue{border-color:#bfdbfe;background:var(--blue-light);color:var(--blue);}
+  .ex-meta{color:var(--muted);font-size:12px;font-weight:700;margin-bottom:10px;}
+  .ex-speaker{display:flex;align-items:center;gap:8px;font-weight:900;color:#0f172a;margin:10px 0 8px;}
+  .ex-speaker .sp-icon{margin:0;}
+  .ex-table{
+    width:100%;border-collapse:separate;border-spacing:0;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;
+    box-shadow:0 2px 8px rgba(15,23,42,0.04);
+  }
+  .ex-table td{padding:12px 12px;border-bottom:1px solid #eef2f7;font-size:13px;vertical-align:top;}
+  .ex-table tr:last-child td{border-bottom:0;}
+  .ex-table td:first-child{
+    width:120px;background:#f8fafc;color:#475569;font-weight:900;border-right:1px solid #eef2f7;
+  }
+  .ex-quote{font-weight:900;color:#0f172a;line-height:1.6;}
+  .ex-quote .hl-red{color:#ef4444;}
+  .ex-quote .hl-blue{color:#2563eb;}
+  .ex-audio{margin-top:10px;}
+
+  /* SPEAKER */
+  .speaker-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 13px; font-weight: 700; color: var(--muted); margin-top: 16px; }
+  .sp-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; flex-shrink: 0; box-shadow: var(--shadow2); }
+  .sp-i { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+  .sp-r { background: var(--blue-light); color: var(--blue); border: 1px solid #bfdbfe; }
+
+  /* ORAL HEAD ACTIONS */
+  .oral-head-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+
+  /* LIT QUOTE */
+  .lit-quote { border-left: 4px solid var(--blue); padding: 16px 20px; background: #f8fafc; border-radius: 0 12px 12px 0; font-size: 15px; line-height: 1.8; font-style: italic; margin-bottom: 12px; font-weight: 500; color: var(--text); border-top: 1px solid var(--line); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .hl-amber { background: #fef08a; border-radius: 4px; padding: 0 4px; color: #854d0e; font-weight: 600; font-style: normal; }
+
+  /* CARD ACTION BTNS */
+  .card-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+  /* PAGINATION */
+  .pagination { display: flex; gap: 8px; justify-content: center; margin-top: 40px; }
+  .page-btn { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line); background: #ffffff; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; color: #475569; font-family: inherit; transition: 0.2s; box-shadow: var(--shadow2); }
+  .page-btn:hover { background: #f8fafc; border-color: #cbd5e1; color: var(--text); }
+  .page-btn.on { background: #7C2D12; border-color: #7C2D12; color: #fff; box-shadow: 0 4px 10px rgba(124, 45, 18, 0.2); }
+  .page-ellipsis { align-self: center; color: var(--muted); font-size: 14px; font-weight: 600; }
+
+  /* SEARCH RESULTS TABLE AESTHETICS */
+  .search-results-intro { text-align: center; font-size: 18px; font-weight: 700; color: #1e293b; margin: 36px 0 20px; }
+  .search-results-intro em { color: var(--blue); font-style: normal; font-weight: 800; font-size: 20px; }
+  .search-results-intro em::after { content: ' '; }
+
+  .excel-btn-wrapper { display: flex; justify-content: flex-end; margin-bottom: 16px; }
+  .excel-btn-rect { background: #ffffff; border: 1px solid var(--blue); color: var(--blue); padding: 8px 18px; font-size: 13px; font-weight: 700; cursor: pointer; border-radius: 8px; transition: all 0.2s ease; box-shadow: var(--shadow2); }
+  .excel-btn-rect:hover { background: var(--blue-light); border-color: var(--blue-hover); color: var(--blue-hover); transform: translateY(-1px); }
+
+  .vocab-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow2); background: #ffffff; margin-bottom: 30px; }
+  .vocab-table th { background: #f8fafc; color: #334155; font-weight: 700; padding: 16px 14px; text-align: center; font-size: 13.5px; border-bottom: 1px solid var(--line); }
+  .vocab-table td { padding: 18px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; text-align: left; transition: background 0.15s ease; }
+  .vocab-table tr:last-child td { border-bottom: none; }
+  .vocab-table tr:hover td { background: #f8fafc; }
+  
+  .vocab-table .col-num { width: 70px; text-align: center; color: #64748b; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .vocab-table .col-dialect { width: 170px; font-size: 15px; font-weight: 800; color: #1e293b; text-align: center; }
+  .vocab-table .col-regions { color: #475569; line-height: 1.6; font-size: 13.5px; font-weight: 500; }
+  .vocab-table .col-std { width: 130px; font-size: 15px; font-weight: 800; color: var(--blue); text-align: center; }
+  .vocab-table .col-more { width: 100px; text-align: center; }
+
+  /* SEARCH RESULT BADGES */
+  .dialect-col-wrapper { display: flex; flex-direction: column; align-items: center; gap: 6px; justify-content: center; }
+  .match-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 700; white-space: nowrap; border: 1px solid transparent; }
+  .match-badge::before { font-size: 9px; line-height: 1; }
+  /* 지역어 == 표준어 (동일) */
+  .match-badge.same { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+  .match-badge.same::before { content: '●'; color: #22c55e; margin-right: 2px; }
+  /* 지역어 != 표준어 (다름) */
+  .match-badge.diff { background: #fff5f5; border-color: #fed7d7; color: #9b2c2c; }
+  .match-badge.diff::before { content: '▲'; color: #e53e3e; margin-right: 2px; }
+
+  .row-more-btn { background: #ffffff; border: 1px solid var(--line); color: #64748b; cursor: pointer; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; transition: all 0.2s ease; box-shadow: var(--shadow2); }
+  .row-more-btn:hover { background: #f1f5f9; color: #0f172a; border-color: #cbd5e1; transform: scale(1.05); }
+  .row-more-btn i { transition: transform 0.25s ease; }
+  tr.open .row-more-btn i { transform: rotate(180deg); color: var(--blue); }
+  tr.open td { background: #f8fafc; }
+
+  /* Inner Details Accordion Row */
+  .details-row { display: none; background: #ffffff; }
+  .details-row.show { display: table-row; }
+  .details-row td { padding: 0 !important; border-bottom: 1px solid var(--line); }
+  .details-container { padding: 24px 30px; background: #fafbfc; border-top: 1px dashed var(--line); }
+
+  .details-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+  .details-title { font-size: 14px; font-weight: 800; color: var(--blue); display: flex; align-items: center; gap: 6px; }
+  .details-title::before { content: ''; display: inline-block; width: 4px; height: 12px; background: var(--blue); border-radius: 2px; }
+
+  /* 상세 정렬 셀렉트 박스 소형화 정돈 */
+  .details-sort-control { display: flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 700; color: #475569; }
+  .details-sort-select { padding: 4px 28px 4px 10px !important; font-size: 13px !important; height: 32px !important; border-radius: 6px !important; font-weight: 700 !important; }
+
+  .details-table-wrapper {
+    max-height: 340px;
+    overflow-y: auto;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);
+  }
+  .details-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; table-layout: fixed; }
+  .details-table th { background: #f8fafc; color: #475569; font-weight: 700; padding: 14px 20px; border-bottom: 1px solid var(--line); font-size: 13px; text-align: center; }
+  .details-table td { padding: 18px 20px; border-bottom: 1px solid #f1f5f9; color: #334155; font-weight: 500; transition: background 0.15s; text-align: center; }
+  .details-table td.audio-cell { padding: 12px 20px; }
+  .details-table tr:last-child td { border-bottom: none; }
+  .details-table tr:hover td { background: #f8fafc; }
+  
+  .audio-play-inline { background: #ffffff; border: 1px solid #cbd5e1; color: var(--blue); width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; font-size: 13px; box-shadow: var(--shadow2); padding: 0; margin: 0 auto; vertical-align: middle; }
+  .audio-play-inline:hover { background: var(--blue-light); border-color: var(--blue); color: var(--blue-hover); transform: scale(1.08); }
+
+  .btn-search-main { background: #581c2f !important; }
+  .btn-search-main:hover { background: #401020 !important; }
+
+  /* MODAL OVERLAY */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 100; padding: 40px 20px; overflow-y: auto; }
+  .modal-overlay.show { display: flex; align-items: flex-start; justify-content: center; animation: fadein 0.2s; }
+  /* 검색 가능한 표준어 어휘 팝업은 화면 중앙에 배치 */
+  #vocabModalOverlay.show { align-items: center; }
+  #vocabModalOverlay .modal { margin: auto; }
+  .modal { background: #ffffff; border-radius: 24px; border: 1px solid var(--line); width: 100%; max-width: 720px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden; }
+  .modal-head { display: flex; justify-content: space-between; align-items: flex-start; padding: 24px 30px; border-bottom: 1px solid var(--line); background: #f8fafc; }
+  .modal-head-title { font-size: 18px; font-weight: 800; margin-bottom: 6px; color: var(--text); letter-spacing: -0.01em; }
+  .modal-head-sub { font-size: 13px; color: var(--muted); font-weight: 500; }
+  .close-btn { width: 36px; height: 36px; border-radius: 12px; border: 1px solid var(--line); background: #ffffff; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #475569; flex-shrink: 0; transition: 0.2s; box-shadow: var(--shadow2); }
+  .close-btn:hover { background: #f1f5f9; color: var(--text); }
+  .modal-body { padding: 24px 30px; max-height: 60vh; overflow-y: auto; }
+  .modal-toggle { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; margin-bottom: 20px; cursor: pointer; color: #475569; }
+  .modal-foot { padding: 20px 30px; border-top: 1px solid var(--line); text-align: center; background: #f8fafc; }
+  .modal-close-btn { background: var(--blue); color: #fff; border: none; padding: 12px 48px; border-radius: 99px; cursor: pointer; font-size: 15px; font-weight: 700; font-family: inherit; transition: 0.2s; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+  .modal-close-btn:hover { background: var(--blue-hover); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3); }
+
+  /* 상세 헤더 액션 (지도보기 버튼 + 정렬) */
+  .details-header-actions { display: flex; align-items: center; gap: 10px; }
+  .details-map-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 32px; padding: 6px 14px; border-radius: 6px;
+    border: 1px solid var(--blue); background: #ffffff; color: var(--blue);
+    font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer;
+    white-space: nowrap; box-shadow: var(--shadow2); transition: 0.2s;
+  }
+  .details-map-btn:hover { background: var(--blue-light); border-color: var(--blue-hover); color: var(--blue-hover); transform: translateY(-1px); }
+  .details-map-btn i { font-size: 15px; }
+
+  /* 지도 보기 모달 */
+  .map-modal { max-width: 1200px; width: calc(100vw - 80px); }
+  /* 세로/가로 중앙 정렬 (내용이 길면 자동 스크롤) */
+  #mapModalOverlay.show { align-items: flex-start; }
+  #mapModalOverlay .map-modal { margin: auto; }
+  .map-modal .modal-body { padding: 0; max-height: none; overflow: visible; }
+  /* 지도와 우측 상세 패널을 나란히 배치 (겹치지 않도록) */
+  .map-modal .map-with-panel { flex-direction: row; align-items: stretch; border-radius: 0; }
+  .map-modal .vocab-map { flex: 1 1 auto; min-width: 0; height: 540px; border: none; border-top: 1px solid var(--line); border-radius: 0; }
+  .map-modal .map-legend { border-radius: var(--radius); }
+  .map-modal #regionDetailPanelModal {
+    position: static;
+    flex: 0 0 340px;
+    width: 340px;
+    height: 540px;
+    max-height: 540px;
+    border-radius: 0;
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+    box-shadow: none;
+  }
+  .map-modal #regionDetailPanelModal.active { display: flex; }
+
+  @media (max-width: 700px) {
+    .gnb-menu { display: none; }
+    .form-grid { grid-template-columns: 1fr; gap: 8px; }
+  }
+
+  /* 어휘 관계 배너 (Tag Net Banner) 스타일 */
+  .tag-net-banner { 
+    background: #ffffff; 
+    border: 1px solid var(--line); 
+    border-radius: var(--radius);
+    padding: 24px 24px 20px; 
+    margin-bottom: 20px; 
+    box-shadow: var(--shadow2);
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 내부 요소 수직 스택 및 중앙 정렬 */
+    text-align: center;
+  }
+  .tnb-flow { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; /* 자식 요소 가로 중앙 정렬 */
+    gap: 10px; 
+    margin-bottom: 12px; 
+    flex-wrap: wrap; 
+  }
+  .tnb-from { 
+    font-size: 16px; 
+    font-weight: 800; 
+    color: #9f1239; /* 방언 '북감제' 와인색 강조 */
+    background: #fff1f2;
+    padding: 3px 10px;
+    border-radius: 6px;
+    border: 1px solid #ffe4e6;
+  }
+  .tnb-sep { 
+    font-size: 13px; 
+    color: #64748b; 
+    display: flex; 
+    align-items: center; 
+  }
+  .tnb-std { 
+    font-size: 16px; 
+    font-weight: 800; 
+    color: #1d4ed8; /* 표준어 '감자' 블루 강조 */
+    background: #eff6ff;
+    padding: 3px 10px;
+    border-radius: 6px;
+    border: 1px solid #dbeafe;
+  }
+  .tnb-suffix { 
+    font-size: 15px; 
+    color: #334155; 
+    font-weight: 700; /* 전체 문구 두께 및 가독성 강조 */
+  }
+  .tnb-guide { 
+    font-size: 13.5px; 
+    color: #475569; 
+    background: #f8fafc; /* 부드러운 팁 스타일 박스 */
+    border: 1px solid #e2e8f0;
+    padding: 8px 20px;
+    border-radius: 99px;
+    margin-bottom: 20px; 
+    font-weight: 700; /* 가이드 문구 강력 강조 */
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  }
+  .tnb-chips { 
+    display: flex; 
+    gap: 10px; 
+    flex-wrap: wrap; 
+    align-items: center; 
+    justify-content: center; /* 칩 리스트 중앙 정렬 */
+    margin-bottom: 16px;
+    width: 100%;
+  }
+  .tnb-chip { 
+    display: inline-flex; 
+    align-items: center; 
+    gap: 8px; 
+    padding: 8px 18px; 
+    border-radius: 99px; 
+    border: 1px solid #cbd5e1; 
+    font-size: 13.5px; 
+    font-weight: 500; 
+    cursor: pointer; 
+    background: #ffffff; 
+    color: #64748b; 
+    transition: 0.2s ease; 
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .tnb-chip strong {
+    font-weight: 700;
+    color: #334155;
+  }
+  .tnb-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .tnb-dot.orange { background: #f97316; }
+  .tnb-dot.green { background: #10b981; }
+  .tnb-dot.blue { background: #3b82f6; }
+  .tnb-dot.gray { background: #94a3b8; }
+  .tnb-dot.purple { background: #8b5cf6; }
+
+  .tnb-chip:hover { 
+    background: #f8fafc; 
+    border-color: #94a3b8; 
+  }
+  .tnb-chip.on { 
+    background: #fff1f2; 
+    border-color: #fda4af; 
+    color: #9f1239; 
+  }
+  .tnb-chip.on strong {
+    color: #881337;
+  }
+  .tnb-chip.all {
+    border-style: dashed;
+    border-color: #cbd5e1;
+    color: #475569;
+    font-weight: 600;
+  }
+  .tnb-chip.all:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+  }
+  .tnb-divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 16px 0 12px;
+    width: 100%; /* 구분선 넓이 100% */
+  }
+  .tnb-footer {
+    font-size: 15.5px; /* 기존 13px에서 15.5px로 폰트 크기 전격 확대 */
+    color: #334155; /* 더 어두운 회색으로 명암 대비 조절 */
+    font-weight: 700; /* 전체 문구 진하게 유지 */
+    text-align: center;
+    width: 100%;
+  }
+  .tnb-footer .highlight-num {
+    color: #1d4ed8; /* 파란색 강조 컬러 유지 */
+    font-weight: 800; /* 초강조 두께 유지 */
+    font-size: 17.5px; /* 숫자를 더 크게 확대하여 강력한 visual anchor 형성 */
+  }
+
+  /* SEARCH TARGET SEGMENT BUTTONS */
+  .search-target-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+  }
+  .search-target-button {
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: inherit;
+    box-shadow: var(--shadow2);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .search-target-button:hover {
+    border-color: #94a3b8;
+    color: var(--text);
+  }
+  .search-target-button[aria-checked="true"] {
+    background: var(--blue);
+    color: #ffffff;
+    border-color: var(--blue);
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15);
+  }
+  .search-target-guide {
+    display: none;
+  }
+
+  /* VOCAB MODAL */
+  .vocab-initial-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .vocab-initial-btn {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .vocab-initial-btn:hover {
+    border-color: #94a3b8;
+    color: var(--text);
+  }
+  .vocab-initial-btn.active {
+    background: var(--blue);
+    color: #ffffff;
+    border-color: var(--blue);
+  }
+  .vocab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+  }
+  .vocab-item {
+    padding: 10px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    text-align: center;
+    cursor: pointer;
+    font-family: inherit;
+    transition: 0.15s ease;
+  }
+  .vocab-item:hover {
+    background: var(--blue-light);
+    border-color: var(--blue);
+    color: var(--blue);
+    transform: translateY(-1px);
+  }
+  .vocab-item mark {
+    background: transparent;
+    color: var(--blue);
+    font-weight: 800;
+  }
+
+  /* 표준어 실시간 검색 입력 */
+  .vocab-search-box {
+    position: relative;
+    margin-bottom: 16px;
+  }
+  .vocab-search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 18px;
+    pointer-events: none;
+  }
+  .vocab-search-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 16px 12px 44px;
+    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--text);
+    font-family: inherit;
+    background: #ffffff;
+    transition: 0.2s ease;
+  }
+  .vocab-search-input:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  }
+
+  /* 결과 개수 바 */
+  .vocab-result-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #64748b;
+  }
+  .vocab-result-bar em {
+    font-style: normal;
+    color: var(--blue);
+    font-weight: 800;
+  }
+
+  /* 스크롤 목록 영역 */
+  .vocab-grid-scroll {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 2px;
+    margin: 0 -2px;
+  }
+  .vocab-empty {
+    text-align: center;
+    padding: 40px 0;
+    color: #94a3b8;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  /* EMPTY STATE GUIDE */
+  .empty-state-guide {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 40px 30px;
+    text-align: center;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow);
+  }
+  .empty-state-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 24px;
+  }
+  .empty-state-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+  .example-chip {
+    padding: 10px 18px;
+    border-radius: 99px;
+    border: 1px solid var(--blue);
+    background: #ffffff;
+    color: var(--blue);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: inherit;
+    box-shadow: var(--shadow2);
+  }
+  .example-chip:hover {
+    background: var(--blue-light);
+    border-color: var(--blue);
+  }
+  .example-chip:active {
+    background: var(--blue);
+    color: #ffffff;
+    transform: scale(0.98);
+  }
+
+  /* UTILITY */
+  .hidden {
+    display: none !important;
+  }
+
+  /* DIALECT NOTATION TOOLTIP */
+  .dialect-tooltip-trigger {
+    cursor: help;
+    color: #64748b;
+    font-weight: 700;
+    font-size: 16px;
+    margin-left: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    transition: 0.2s;
+    position: relative;
+  }
+  .dialect-tooltip-trigger:hover {
+    color: var(--blue);
+    background: rgba(37, 99, 235, 0.08);
+  }
+  .dialect-tooltip-trigger.active {
+    color: var(--blue);
+    background: rgba(37, 99, 235, 0.12);
+  }
+
+  .dialect-tooltip {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 12px;
+    white-space: normal;
+    width: max-content;
+    max-width: 280px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s, visibility 0.2s;
+    z-index: 1000;
+    margin-top: 8px;
+  }
+  .dialect-tooltip-trigger:hover ~ .dialect-tooltip,
+  .dialect-tooltip-trigger.active ~ .dialect-tooltip {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+  .tooltip-title {
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .tooltip-item {
+    color: #475569;
+    line-height: 1.6;
+    margin-bottom: 6px;
+  }
+  .tooltip-item:last-child {
+    margin-bottom: 0;
+  }
+
+  /* DETAILS TABLE SORT CONTROL */
+  .details-sort-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+  }
+  .details-sort-select {
+    padding: 6px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    background: #ffffff;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .details-sort-select:hover {
+    border-color: #94a3b8;
+    color: var(--text);
+  }
+  .details-sort-select:focus {
+    outline: 2px solid var(--blue);
+    outline-offset: 0;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+  }
+
+  /* DETAILS TABLE GROUP STYLES */
+  .details-table tbody tr.group-header td {
+    background: #f1f5f9;
+    font-weight: 700;
+    color: var(--text);
+    padding: 10px 12px;
+  }
+  .details-table tbody tr.group-item td {
+    padding-left: 36px;
+    background: #ffffff;
+  }
+  .details-table tbody tr.group-item:hover td {
+    background: #f8fafc;
+  }
+
+  /* EXPAND BUTTON */
+  .details-expand-btn {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    text-align: center;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .details-expand-btn:hover {
+    border-color: #94a3b8;
+    color: var(--text);
+    background: #f1f5f9;
+  }
+
+  /* MAP HEADER */
+  .map-header {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+  }
+  .map-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0 0 6px;
+    letter-spacing: -0.02em;
+  }
+  .map-title strong {
+    color: var(--blue);
+  }
+  .map-subtitle {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 500;
+    margin: 0;
+  }
+
+  /* MAP CONTAINER */
+  .map-with-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+  }
+
+  .vocab-map {
+    width: 100%;
+    height: 500px;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-top: none;
+    position: relative;
+  }
+
+  /* OpenLayers overrides */
+  .vocab-map .ol-viewport {
+    background: #f0f4f8;
+  }
+
+  .map-legend {
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+    width: 280px;
+    max-height: 300px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: var(--shadow2);
+    overflow-y: auto;
+    z-index: 50;
+  }
+
+  .map-legend-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 12px 0;
+  }
+
+  .map-legend-text {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0;
+  }
+
+  .legend-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #475569;
+  }
+
+  .legend-color {
+    flex-shrink: 0;
+  }
+
+  .legend-label {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* 지역 상세 정보 패널 */
+  .region-detail-panel {
+    display: none;
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    width: 320px;
+    height: 468px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow2);
+    flex-direction: column;
+    z-index: 100;
+  }
+
+  .region-detail-panel.active {
+    display: flex;
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--line);
+    flex-shrink: 0;
+  }
+
+  .panel-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+  }
+
+  .close-panel-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #64748b;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+  }
+
+  .close-panel-btn:hover {
+    background: #f1f5f9;
+    color: var(--text);
+  }
+
+  .panel-content {
+    padding: 16px 24px;
+    overflow-y: auto;
+  }
+
+  .region-dialect-item {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .region-dialect-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .dialect-form-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--blue);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .dialect-audio-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .dialect-audio-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    background: #f8fafc;
+    font-size: 12px;
+  }
+
+  .dialect-audio-item:hover {
+    background: #f1f5f9;
+  }
+
+  .dialect-audio-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: #ffffff;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--blue);
+    flex-shrink: 0;
+    transition: 0.2s;
+  }
+
+  .dialect-audio-btn:hover {
+    background: var(--blue);
+    color: #ffffff;
+    border-color: var(--blue);
+  }
+
+  .dialect-audio-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .dialect-location {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .dialect-speaker {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 2px;
+  }
+
+  /* 데스크톱 반응형 - 패널은 오버레이로 유지 */
+  @media (min-width: 1024px) {
+    .map-with-panel {
+      position: relative;
+      height: auto;
+    }
+
+    .vocab-map {
+      height: 500px;
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+
+    .map-legend {
+      border-radius: 0 0 var(--radius) var(--radius);
+      border-top: none;
+    }
+
+    .region-detail-panel {
+      width: 340px;
+      right: 20px;
+      top: 20px;
+      max-height: calc(100% - 40px);
+    }
+  }
+
+  /* 선택된 시도 스타일 */
+  .region-marker-selected {
+    stroke: #1e40af !important;
+    stroke-width: 3 !important;
+  }
+  .map-legend-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 8px;
+  }
+  .map-legend-text {
+    font-size: 12px;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* ===== 모바일 반응형 (375px 기준) ===== */
+  @media (max-width: 768px) {
+    body { overflow-x: hidden; }
+    .container {
+      padding: 20px 12px 60px;
+      max-width: 100vw;
+      box-sizing: border-box;
+    }
+
+    /* 검색 패널 */
+    .search-panel { padding: 16px; margin-bottom: 24px; }
+    .search-mode-row { flex-direction: column; gap: 12px; align-items: stretch; }
+    .mode-tabs { flex-direction: column; gap: 6px; }
+    .mode-tab { padding: 12px 16px; font-size: 13px; min-height: 44px; }
+    .simple-row { flex-direction: column; }
+    .simple-conds { flex-direction: column; }
+    .simple-cond { flex-direction: column; align-items: stretch; }
+    .simple-cond select,
+    .simple-cond input { min-height: 44px; }
+    .simple-actions { flex-direction: column; width: 100%; }
+    .simple-actions .btn-outline,
+    .simple-actions .btn-primary { width: 100%; min-height: 44px; }
+    .search-input { min-height: 44px; }
+
+    /* 테이블 → 카드 레이아웃 */
+    .vocab-table { display: none; }
+    .vocab-table-card { display: block; }
+    .vocab-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow2);
+    }
+    .vocab-card-dialect {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .vocab-card-badges {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .vocab-card-regions {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 12px;
+    }
+    .vocab-card-regions-toggle {
+      cursor: pointer;
+      color: var(--blue);
+      font-weight: 600;
+    }
+    .vocab-card-regions-full {
+      display: none;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+      font-size: 12px;
+    }
+    .vocab-card-regions-full.show { display: block; }
+    .vocab-card-std {
+      font-size: 13px;
+      color: #475569;
+      margin-bottom: 12px;
+    }
+    .vocab-card-more {
+      text-align: center;
+    }
+    .vocab-card-more button {
+      width: 100%;
+      min-height: 44px;
+    }
+
+    /* 상세 보기 */
+    .details-row {
+      display: none;
+    }
+    .details-row.show {
+      display: table-row;
+    }
+    .details-container {
+      padding: 12px;
+    }
+    .details-header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+    }
+    .details-title {
+      font-size: 16px;
+      margin-bottom: 0;
+    }
+    .details-sort-control {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .details-sort-control label {
+      margin-bottom: 6px;
+    }
+    .details-sort-control select {
+      width: 100%;
+      min-height: 44px;
+    }
+    .details-table {
+      width: 100%;
+    }
+    .details-table thead {
+      display: none;
+    }
+    .details-table tbody tr {
+      display: block;
+      border-bottom: 1px solid var(--line);
+      padding: 12px 0;
+    }
+    .details-table tbody tr:last-child {
+      border-bottom: none;
+    }
+    .details-table td {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 13px;
+    }
+    .details-table td::before {
+      content: '';
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--blue);
+      min-width: 70px;
+      flex-shrink: 0;
+    }
+    .details-table td:nth-child(1)::before { content: "지역"; }
+    .details-table td:nth-child(2)::before { content: "시군"; }
+    .details-table td:nth-child(3)::before { content: "조사시기"; }
+    .details-table td:nth-child(4)::before { content: "제보자"; }
+    .details-table td:nth-child(5)::before { content: "음성"; }
+    .details-table td:nth-child(5) {
+      justify-content: center;
+    }
+    .details-table .audio-play-inline {
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+    }
+
+    /* 지도 보기 */
+    .map-with-panel {
+      flex-direction: column;
+      gap: 0;
+    }
+    .vocab-map {
+      height: 300px;
+      width: 100%;
+    }
+    .map-legend {
+      position: fixed;
+      left: 12px;
+      bottom: 60px;
+      width: calc(100% - 24px);
+      max-height: 200px;
+      z-index: 40;
+    }
+    .region-detail-panel {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      max-height: calc(100vh - 44px);
+      border-radius: var(--radius) var(--radius) 0 0;
+      border: 1px solid var(--line);
+      border-bottom: none;
+      z-index: 101;
+      animation: slideUp 0.3s ease-out;
+    }
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%);
+      }
+      to {
+        transform: translateY(0);
+      }
+    }
+    .panel-content {
+      max-height: calc(100vh - 120px);
+      overflow-y: auto;
+    }
+
+    /* 기타 */
+    .empty-state-guide {
+      padding: 24px 12px;
+    }
+    .excel-btn-wrapper {
+      margin-bottom: 16px;
+    }
+  }
+
+</style>
+</head>
+<body>
+
+  <!-- 공통 GNB 헤더 영역 (gnb.js에 의해 동적으로 로드 및 렌더링됩니다) -->
+  <div id="gnb-common"></div>
+
+  <div class="sub-visual">
+    <div class="wrap">
+      <h1 class="sv-title">어휘조사자료</h1>
+      <div class="location-bar">
+        <div class="loc-item home"><i class="ti ti-home" aria-hidden="true"></i></div>
+        <i class="ti ti-chevron-right loc-sep"></i>
+        <div class="loc-item">
+          <select onchange="if(this.value) location.href=this.value;">
+            <option value="./dialect_search_prototype.html" selected>조사 자료 검색</option>
+            <option value="./index.html">누리집 안내</option>
+            <option value="./dialect_map.html">지역어 지도</option>
+            <option value="#">문학 속 지역어</option>
+            <option value="#">사진으로 보는 생활어</option>
+          </select>
+        </div>
+        <i class="ti ti-chevron-right loc-sep"></i>
+        <div class="loc-item">
+          <select onchange="if(this.value) location.href=this.value;">
+            <option value="./vocab_dialect.html" selected>어휘조사자료</option>
+            <option value="./dialect_search_prototype.html">통합자료검색</option>
+            <option value="#">구술발화조사자료</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="wrap container">
+  <!-- Search panel -->
+  <div class="search-panel">
+    <div class="search-mode-row">
+      <div class="mode-tabs">
+        <button class="mode-tab on" onclick="setMode(this,'simple')">간단히 검색</button>
+        <button class="mode-tab" onclick="setMode(this,'detail')">자세히 검색</button>
+      </div>
+      <button type="button" class="btn-outline vocab-list-btn" onclick="showVocabModal()">검색 가능한 표준어 어휘</button>
+    </div>
+
+	    <div id="simplePanel">
+	      <!-- 1단: 검색 대상 라디오 탭 (전체 / 지역어 / 표준어) -->
+	      <div class="search-target-row" style="margin-bottom: 16px; display: flex; gap: 8px;">
+	        <div class="search-target-group" role="radiogroup" aria-label="검색 대상">
+	          <button type="button" class="search-target-button" role="radio" aria-checked="true" data-value="all" onclick="setSearchTarget(this)">전체</button>
+	          <button type="button" class="search-target-button" role="radio" aria-checked="false" data-value="dialect" onclick="setSearchTarget(this)">지역어로 찾기</button>
+	          <button type="button" class="search-target-button" role="radio" aria-checked="false" data-value="standard" onclick="setSearchTarget(this)">표준어로 찾기</button>
+	          <input type="hidden" id="searchTargetInput" name="search_target" value="all" />
+	        </div>
+	      </div>
+	      
+	      <!-- 2단: 검색 입력 영역 및 실행 액션 통합 줄 -->
+	      <div class="simple-row" style="display: flex; gap: 12px; align-items: flex-start;">
+	        <div class="simple-conds" id="simpleConds" aria-label="간단히 검색 조건" style="flex: 1; min-width: 0;">
+	          <div class="simple-cond" style="display: flex; flex-direction: column; align-items: stretch; gap: 6px;">
+	            <input type="text" class="search-input" value="감자" placeholder="예: 감자, 옥수수, 부추" style="height: 39px; box-sizing: border-box;" />
+	            <!-- 추천 검색어 정렬 보정 -->
+	            <div class="search-recommend-chips" style="display: flex; gap: 8px; align-items: center; margin-top: 6px; padding-left: 8px; flex-wrap: wrap;">
+	              <span style="font-size: 11.5px; font-weight: 700; color: #64748b;">추천 검색어:</span>
+	              <button type="button" class="rec-chip" onclick="searchWithChip('감자')" style="font-size: 11px; font-weight: 700; color: var(--blue); background: var(--blue-light); border: 1px solid #bfdbfe; padding: 2px 10px; border-radius: 6px; cursor: pointer; transition: 0.15s ease;">감자</button>
+	              <button type="button" class="rec-chip" onclick="searchWithChip('옥수수')" style="font-size: 11px; font-weight: 700; color: var(--blue); background: var(--blue-light); border: 1px solid #bfdbfe; padding: 2px 10px; border-radius: 6px; cursor: pointer; transition: 0.15s ease;">옥수수</button>
+	              <button type="button" class="rec-chip" onclick="searchWithChip('부추')" style="font-size: 11px; font-weight: 700; color: var(--blue); background: var(--blue-light); border: 1px solid #bfdbfe; padding: 2px 10px; border-radius: 6px; cursor: pointer; transition: 0.15s ease;">부추</button>
+	              <button type="button" class="rec-chip" onclick="searchWithChip('잠자리')" style="font-size: 11px; font-weight: 700; color: var(--blue); background: var(--blue-light); border: 1px solid #bfdbfe; padding: 2px 10px; border-radius: 6px; cursor: pointer; transition: 0.15s ease;">잠자리</button>
+	              <button type="button" class="rec-chip" onclick="searchWithChip('할아버지')" style="font-size: 11px; font-weight: 700; color: var(--blue); background: var(--blue-light); border: 1px solid #bfdbfe; padding: 2px 10px; border-radius: 6px; cursor: pointer; transition: 0.15s ease;">할아버지</button>
+	            </div>
+	          </div>
+	        </div>
+	        <div class="simple-actions" style="display: flex; gap: 8px;">
+	          <button class="btn-outline" onclick="toggleOldKor()" style="height: 39px; box-sizing: border-box;">옛 한글</button>
+	          <button class="btn-primary" onclick="doSearch()" style="height: 39px; box-sizing: border-box;"><i class="ti ti-search" aria-hidden="true"></i> 검색</button>
+	        </div>
+	      </div>
+	    </div>
+
+    <div id="detailPanel" style="display:none;">
+      <div class="form-grid">
+        <span class="form-label">조사 지역</span>
+        <div class="form-controls" style="display: flex; flex-direction: column; gap: 8px; align-items: stretch;">
+          <div class="region-row" style="display: flex; gap: 8px; align-items: center; width: 100%;">
+            <button type="button" class="pm-btn" onclick="addRegionRow()">+</button>
+            <button type="button" class="pm-btn" onclick="removeRegionRow()">−</button>
+            <select class="region-select-1" style="flex:1;min-width:100px;">
+              <option value="">전체</option>
+              <option value="42"> 강원도 </option>
+              <option value="41"> 경기도 </option>
+              <option value="48"> 경상남도 </option>
+              <option value="47"> 경상북도 </option>
+              <option value="29"> 광주광역시 </option>
+              <option value="27"> 대구광역시 </option>
+              <option value="30"> 대전광역시 </option>
+              <option value="26"> 부산광역시 </option>
+              <option value="11"> 서울특별시 </option>
+              <option value="31"> 울산광역시 </option>
+              <option value="28"> 인천광역시 </option>
+              <option value="46"> 전라남도 </option>
+              <option value="45"> 전라북도 </option>
+              <option value="50"> 제주특별자치도 </option>
+              <option value="44"> 충청남도 </option>
+              <option value="43"> 충청북도 </option>
+            </select>
+            <select class="region-select-2" style="flex:1;min-width:80px;">
+              <option value="">전체</option>
+              <option class="42" value="강릉시">강릉시</option>
+              <option class="42" value="고성군">고성군</option>
+              <option class="42" value="동해시">동해시</option>
+              <option class="42" value="삼척시">삼척시</option>
+              <option class="42" value="속초시">속초시</option>
+              <option class="42" value="양구군">양구군</option>
+              <option class="42" value="양양군">양양군</option>
+              <option class="42" value="영월군">영월군</option>
+              <option class="42" value="원주시">원주시</option>
+              <option class="42" value="인제군">인제군</option>
+              <option class="42" value="정선군">정선군</option>
+              <option class="42" value="철원군">철원군</option>
+              <option class="42" value="춘천시">춘천시</option>
+              <option class="42" value="태백시">태백시</option>
+              <option class="42" value="평창군">평창군</option>
+              <option class="42" value="홍천군">홍천군</option>
+              <option class="42" value="화천군">화천군</option>
+              <option class="42" value="횡성군">횡성군</option>
+            </select>
+          </div>
+          <div id="additionalRegions" style="display: flex; flex-direction: column; gap: 8px; width: 100%;"></div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <span class="form-label">조사 차수</span>
+        <div class="form-controls">
+          <div class="informant-group" data-group="round">
+            <div class="chip-multi" role="group" aria-label="조사 차수 (다중 선택 가능)">
+              <button type="button" class="ms-chip ms-all" data-all="1" aria-pressed="false" onclick="toggleMultiChip(this)">전체</button>
+              <button type="button" class="ms-chip" data-value="1" aria-pressed="false" onclick="toggleMultiChip(this)">1차 조사 자료(2004~2020)</button>
+              <button type="button" class="ms-chip" data-value="2" aria-pressed="false" onclick="toggleMultiChip(this)">2차 조사 자료(2022~)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <span class="form-label">조사 연도</span>
+        <div class="form-controls">
+          <select style="flex:1;">
+            <option value="">전체</option>
+            <option class="1" value="2004">2004년</option>
+            <option class="1" value="2005">2005년</option>
+            <option class="1" value="2006">2006년</option>
+            <option class="1" value="2007">2007년</option>
+            <option class="1" value="2008">2008년</option>
+            <option class="1" value="2009">2009년</option>
+            <option class="1" value="2010">2010년</option>
+            <option class="1" value="2011">2011년</option>
+            <option class="1" value="2015">2015년</option>
+            <option class="1" value="2016">2016년</option>
+            <option class="1" value="2017">2017년</option>
+            <option class="1" value="2018">2018년</option>
+            <option class="1" value="2019">2019년</option>
+            <option class="1" value="2020">2020년</option>
+            <option class="2" value="2022">2022년</option>
+            <option class="2" value="2023">2023년</option>
+          </select>
+          <span style="color:var(--text2);">~</span>
+          <select style="flex:1;">
+            <option value="">전체</option>
+            <option class="1" value="2004">2004년</option>
+            <option class="1" value="2005">2005년</option>
+            <option class="1" value="2006">2006년</option>
+            <option class="1" value="2007">2007년</option>
+            <option class="1" value="2008">2008년</option>
+            <option class="1" value="2009">2009년</option>
+            <option class="1" value="2010">2010년</option>
+            <option class="1" value="2011">2011년</option>
+            <option class="1" value="2015">2015년</option>
+            <option class="1" value="2016">2016년</option>
+            <option class="1" value="2017">2017년</option>
+            <option class="1" value="2018">2018년</option>
+            <option class="1" value="2019">2019년</option>
+            <option class="1" value="2020">2020년</option>
+            <option class="2" value="2022">2022년</option>
+            <option class="2" value="2023">2023년</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <span class="form-label">제보자 정보</span>
+        <div class="form-controls" style="align-items: center; gap: 40px; row-gap: 12px;">
+          <div class="informant-group" data-group="age">
+            <span class="informant-label">세대별</span>
+            <div class="chip-multi" role="group" aria-label="제보자 세대별 (다중 선택 가능)">
+              <button type="button" class="ms-chip ms-all" data-all="1" aria-pressed="false" onclick="toggleMultiChip(this)">전체</button>
+              <button type="button" class="ms-chip" data-value="20" aria-pressed="false" onclick="toggleMultiChip(this)">20대</button>
+              <button type="button" class="ms-chip" data-value="50" aria-pressed="false" onclick="toggleMultiChip(this)">50대</button>
+              <button type="button" class="ms-chip" data-value="60" aria-pressed="false" onclick="toggleMultiChip(this)">60대</button>
+              <button type="button" class="ms-chip" data-value="70" aria-pressed="false" onclick="toggleMultiChip(this)">70대</button>
+              <button type="button" class="ms-chip" data-value="80" aria-pressed="false" onclick="toggleMultiChip(this)">80대</button>
+              <button type="button" class="ms-chip" data-value="90" aria-pressed="false" onclick="toggleMultiChip(this)">90대</button>
+            </div>
+          </div>
+          <div class="informant-group" data-group="sex" style="padding-left: 40px; border-left: 1px solid var(--line);">
+            <span class="informant-label">성별</span>
+            <div class="chip-multi" role="group" aria-label="제보자 성별 (다중 선택 가능)">
+              <button type="button" class="ms-chip ms-all" data-all="1" aria-pressed="false" onclick="toggleMultiChip(this)">전체</button>
+              <button type="button" class="ms-chip" data-value="1" aria-pressed="false" onclick="toggleMultiChip(this)">남성</button>
+              <button type="button" class="ms-chip" data-value="0" aria-pressed="false" onclick="toggleMultiChip(this)">여성</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <span class="form-label">검색 대상<span style="color:#ef4444;margin-left:2px;">*</span></span>
+        <div class="form-controls" style="display: flex; flex-direction: column; gap: 8px; align-items: stretch;">
+          <div class="search-target-row" style="display: flex; gap: 8px; align-items: center; width: 100%;">
+            <button type="button" class="pm-btn" onclick="addSearchTargetRow()">+</button>
+            <button type="button" class="pm-btn" onclick="removeSearchTargetRow()">−</button>
+            <select class="search-target-select-1" style="width:80px;">
+              <option value="all">전체</option>
+              <option value="dlt">지역어</option>
+              <option value="std">표준어</option>
+            </select>
+            <select class="search-target-select-2" style="width:90px;">
+              <option value="contains">포함</option>
+              <option value="match">일치</option>
+              <option value="startsWith">시작 문자</option>
+              <option value="endsWith">끝 문자</option>
+            </select>
+            <input type="text" class="search-target-input-field" placeholder="검색어를 입력하세요." style="flex:1;min-width:100px;" />
+            <button type="button" class="btn-outline" onclick="toggleOldKor()">옛 한글</button>
+          </div>
+          <div id="additionalSearchTargets" style="display: flex; flex-direction: column; gap: 8px; width: 100%;"></div>
+        </div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn-primary" onclick="doSearch()">검색</button>
+        <button class="btn-outline" onclick="setMode(document.querySelectorAll('.mode-tab')[0],'simple')">간단히 검색 <i class="ti ti-chevron-right" style="font-size:12px;" aria-hidden="true"></i></button>
+      </div>
+    </div>
+
+    <div id="oldkorPanel" style="display:none;margin-top:10px;">
+      <div class="oldkor-panel">
+        <div class="ok-title">옛 한글 입력기 — 입력 구간 선택</div>
+        <div class="ok-chars">
+          <span class="ok-char">각~꼬</span><span class="ok-char">낙~넝</span><span class="ok-char">닥~뒤</span><span class="ok-char">랄~뢰</span><span class="ok-char">맑~링</span><span class="ok-char">발~빌</span><span class="ok-char">빠~삣</span><span class="ok-char">빠~뼁</span><span class="ok-char">삭~싯</span><span class="ok-char">싸~씽</span><span class="ok-char">사~싯</span><span class="ok-char">앗~을</span><span class="ok-char">ᄫ~ᄯ</span><span class="ok-char">아~왁</span>
+        </div>
+        <div class="ok-row">
+          <input type="text" class="ok-input" placeholder="선택한 글자가 여기에 입력됩니다." />
+          <button class="btn-primary" onclick="closeOldKor()">입력</button>
+          <button class="btn-outline" onclick="closeOldKor()">닫기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- 검색 결과 건수 안내 문구 (요청 이미지와 동일 매칭) -->
+  <div class="search-results-intro hidden">
+    선택 조건으로 총 <em>41</em>건이 검색되었습니다.
+  </div>
+
+  <div class="excel-btn-wrapper">
+    <button class="excel-btn-rect" type="button">엑셀 내려받기</button>
+  </div>
+
+  <!-- 목록 보기 -->
+  <div id="listView">
+    <!-- 결과 테이블 (Table 형식 목록) -->
+    <table class="vocab-table" role="table">
+    <caption class="sr-only">어휘 검색 결과 목록. 지역어, 해당 지역, 표준어 정보 표시</caption>
+    <thead>
+      <tr>
+        <th class="col-num" scope="col">번호</th>
+        <th style="width: 120px; text-align: center; position: relative;" scope="col">
+          지역어
+          <span class="dialect-tooltip-trigger" role="button" tabindex="0" aria-label="지역어 표기 안내" onclick="toggleDialectTooltip(event)" onkeypress="if(event.key==='Enter') toggleDialectTooltip(event)">ⓘ</span>
+          <div class="dialect-tooltip">
+            <div class="tooltip-title">표기 안내</div>
+            <div class="tooltip-item"><strong>:</strong> — 길게 소리 나는 부분(장음)입니다. 예: 감:자</div>
+            <div class="tooltip-item"><strong>'</strong> — 높은 소리(성조·악센트)를 나타냅니다. 예: 감'자</div>
+          </div>
+        </th>
+        <th scope="col">지역</th>
+        <th class="col-std" scope="col">표준어</th>
+        <th class="col-more" scope="col">상세 보기</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- 번호 1 -->
+      <tr id="row-1">
+        <td class="col-num">1</td>
+        <td class="col-dialect">감자</td>
+        <td class="col-regions">강원도, 경기도, 경상남도, 경상북도, 광주광역시, 대전광역시, 서울특별시, 울산광역시, 인천광역시, 전라남도, 전라북도, 제주특별자치도, 충청남도, 충청북도</td>
+        <td class="col-std">감자</td>
+        <td class="col-more">
+          <button class="row-more-btn" onclick="toggleDetails('1')"><i class="ti ti-chevron-down"></i></button>
+        </td>
+      </tr>
+      <!-- 번호 1 상세 내용 (아코디언 테이블) -->
+      <tr id="details-1" class="details-row">
+        <td colspan="5">
+          <div class="details-container">
+            <div class="details-header">
+              <div class="details-title">감자의 지역별 음성 듣기</div>
+              <div class="details-header-actions">
+                <button type="button" class="details-map-btn" onclick="openMapModal('감자')">
+                  <i class="ti ti-map-2" aria-hidden="true"></i> 지도로 보기
+                </button>
+
+              </div>
+            </div>
+            <div class="details-table-wrapper">
+              <table class="details-table" role="table">
+              <caption class="sr-only">지역별 음성 자료 목록. 지역, 시군, 조사시기, 제보자, 음성 정보 표시</caption>
+                <thead>
+                  <tr>
+                    <th style="width: 20%;" scope="col">지역</th>
+                    <th style="width: 20%;" scope="col">시·군</th>
+                    <th style="width: 15%;" scope="col">조사시기</th>
+                    <th style="width: 30%;" scope="col">제보자</th>
+                    <th style="width: 15%;" scope="col">음성</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>강원도</td>
+                    <td>고성군</td>
+                    <td>2016년</td>
+                    <td>82세, 남성</td>
+                    <td class="audio-cell center"><button class="audio-play-inline"><i class="ti ti-volume"></i></button></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>속초시</td>
+                    <td>2020년</td>
+                    <td>72세, 남성</td>
+                    <td class="audio-cell center"><button class="audio-play-inline"><i class="ti ti-volume"></i></button></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>양양군</td>
+                    <td>2006년</td>
+                    <td>83세, 남성</td>
+                    <td class="audio-cell center"><button class="audio-play-inline"><i class="ti ti-volume"></i></button></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>원주시</td>
+                    <td>2005년</td>
+                    <td>86세, 여성</td>
+                    <td class="audio-cell center"><button class="audio-play-inline"><i class="ti ti-volume"></i></button></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>원주시</td>
+                    <td>2023년</td>
+                    <td>20대, 남성</td>
+                    <td class="audio-cell center"><button class="audio-play-inline"><i class="ti ti-volume"></i></button></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>원주시</td>
+                    <td>2023년</td>
+                    <td>20대, 여성</td>
+                    <td class="audio-cell center"><button class="audio-play-inline"><i class="ti ti-volume"></i></button></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>원주시</td>
+                    <td>2023년</td>
+                    <td>50대, 남성</td>
+                    <td class="audio-cell center"><button class="audio-play-inline"><i class="ti ti-volume"></i></button></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>원주시</td>
+                    <td>2023년</td>
+                    <td>50대, 여성</td>
+                    <td class="audio-cell center"><button class="audio-play-inline"><i class="ti ti-volume"></i></button></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>원주시</td>
+                    <td>2023년</td>
+                    <td>70대, 남성</td>
+                    <td class="audio-cell center"><button class="audio-play-inline"><i class="ti ti-volume"></i></button></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>원주시</td>
+                    <td>2023년</td>
+                    <td>70대, 여성</td>
+                    <td class="audio-cell center"><button class="audio-play-inline"><i class="ti ti-volume"></i></button></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>인제군</td>
+                    <td>2009년</td>
+                    <td>82세, 남성</td>
+                    <td class="audio-cell center"><button class="audio-play-inline"><i class="ti ti-volume"></i></button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </td>
+      </tr>
+
+      <!-- 번호 2 -->
+      <tr id="row-2">
+        <td class="col-num">2</td>
+        <td class="col-dialect">감자</td>
+        <td class="col-regions">전라남도, 전라북도, 제주특별자치도, 충청남도</td>
+        <td class="col-std">고구마</td>
+        <td class="col-more">
+          <button class="row-more-btn" onclick="toggleDetails('2')"><i class="ti ti-chevron-down"></i></button>
+        </td>
+      </tr>
+      <tr id="details-2" class="details-row">
+        <td colspan="5">
+          <div class="details-container">
+            <div class="details-title">감자의 지역별 음성 듣기</div>
+            <div class="details-table-wrapper">
+              <table class="details-table">
+                <thead>
+                  <tr>
+                    <th>지역</th>
+                    <th>조사시기</th>
+                    <th>제보자</th>
+                    <th class="center" style="width: 80px;">음성</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>제주특별자치도 제주시</td>
+                    <td>2018년</td>
+                    <td>78세, 여성</td>
+                    <td class="audio-cell center"><button class="audio-play-inline"><i class="ti ti-volume"></i></button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </td>
+      </tr>
+
+      <!-- 번호 3 -->
+      <tr id="row-3">
+        <td class="col-num">3</td>
+        <td class="col-dialect">감자</td>
+        <td class="col-regions">전라남도</td>
+        <td class="col-std">고구마</td>
+        <td class="col-more">
+          <button class="row-more-btn" onclick="toggleDetails('3')"><i class="ti ti-chevron-down"></i></button>
+        </td>
+      </tr>
+      <tr id="details-3" class="details-row">
+        <td colspan="5"><div class="details-container"><div class="details-title">음성 자료가 없습니다.</div></div></td>
+      </tr>
+
+      <!-- 번호 4 -->
+      <tr id="row-4">
+        <td class="col-num">4</td>
+        <td class="col-dialect">감자(=감'자)</td>
+        <td class="col-regions">경상남도, 대구광역시</td>
+        <td class="col-std">감자</td>
+        <td class="col-more">
+          <button class="row-more-btn" onclick="toggleDetails('4')"><i class="ti ti-chevron-down"></i></button>
+        </td>
+      </tr>
+      <tr id="details-4" class="details-row">
+        <td colspan="5"><div class="details-container"><div class="details-title">음성 자료가 없습니다.</div></div></td>
+      </tr>
+
+      <!-- 번호 5 -->
+      <tr id="row-5">
+        <td class="col-num">5</td>
+        <td class="col-dialect">감자(=감:자)</td>
+        <td class="col-regions">강원도, 경기도</td>
+        <td class="col-std">감자</td>
+        <td class="col-more">
+          <button class="row-more-btn" onclick="toggleDetails('5')"><i class="ti ti-chevron-down"></i></button>
+        </td>
+      </tr>
+      <tr id="details-5" class="details-row">
+        <td colspan="5"><div class="details-container"><div class="details-title">음성 자료가 없습니다.</div></div></td>
+      </tr>
+
+      <!-- 번호 6 -->
+      <tr id="row-6">
+        <td class="col-num">6</td>
+        <td class="col-dialect">감자(=감자')</td>
+        <td class="col-regions">강원도, 경상남도, 경상북도, 부산광역시</td>
+        <td class="col-std">감자</td>
+        <td class="col-more">
+          <button class="row-more-btn" onclick="toggleDetails('6')"><i class="ti ti-chevron-down"></i></button>
+        </td>
+      </tr>
+      <tr id="details-6" class="details-row">
+        <td colspan="5"><div class="details-container"><div class="details-title">음성 자료가 없습니다.</div></div></td>
+      </tr>
+
+      <!-- 번호 7 -->
+      <tr id="row-7">
+        <td class="col-num">7</td>
+        <td class="col-dialect">감자(=감:자)</td>
+        <td class="col-regions">전라남도</td>
+        <td class="col-std">고구마</td>
+        <td class="col-more">
+          <button class="row-more-btn" onclick="toggleDetails('7')"><i class="ti ti-chevron-down"></i></button>
+        </td>
+      </tr>
+      <tr id="details-7" class="details-row">
+        <td colspan="5"><div class="details-container"><div class="details-title">음성 자료가 없습니다.</div></div></td>
+      </tr>
+
+      <!-- 번호 8 -->
+      <tr id="row-8">
+        <td class="col-num">8</td>
+        <td class="col-dialect">감자발콩</td>
+        <td class="col-regions">충청북도</td>
+        <td class="col-std">강낭콩</td>
+        <td class="col-more">
+          <button class="row-more-btn" onclick="toggleDetails('8')"><i class="ti ti-chevron-down"></i></button>
+        </td>
+      </tr>
+      <tr id="details-8" class="details-row">
+        <td colspan="5"><div class="details-container"><div class="details-title">음성 자료가 없습니다.</div></div></td>
+      </tr>
+
+      <!-- 번호 9 -->
+      <tr id="row-9">
+        <td class="col-num">9</td>
+        <td class="col-dialect">감자발콩(=감:자발콩)</td>
+        <td class="col-regions">강원도</td>
+        <td class="col-std">강낭콩</td>
+        <td class="col-more">
+          <button class="row-more-btn" onclick="toggleDetails('9')"><i class="ti ti-chevron-down"></i></button>
+        </td>
+      </tr>
+      <tr id="details-9" class="details-row">
+        <td colspan="5"><div class="details-container"><div class="details-title">음성 자료가 없습니다.</div></div></td>
+      </tr>
+
+      <!-- 번호 10 -->
+      <tr id="row-10">
+        <td class="col-num">10</td>
+        <td class="col-dialect">감자콩</td>
+        <td class="col-regions">충청북도</td>
+        <td class="col-std">강낭콩</td>
+        <td class="col-more">
+          <button class="row-more-btn" onclick="toggleDetails('10')"><i class="ti ti-chevron-down"></i></button>
+        </td>
+      </tr>
+      <tr id="details-10" class="details-row">
+        <td colspan="5"><div class="details-container"><div class="details-title">음성 자료가 없습니다.</div></div></td>
+      </tr>
+    </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <button type="button" class="page-btn" aria-label="이전 페이지"><i class="ti ti-chevron-left" aria-hidden="true"></i></button>
+      <button type="button" class="page-btn on">1</button>
+      <button type="button" class="page-btn">2</button>
+      <button type="button" class="page-btn">3</button>
+      <span class="page-ellipsis">...</span>
+      <button type="button" class="page-btn">8</button>
+      <button type="button" class="page-btn" aria-label="다음 페이지"><i class="ti ti-chevron-right" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
+</div>
+
+
+
+  <!-- 검색 가능한 표준어 어휘 모달 -->
+  <div class="modal-overlay" id="vocabModalOverlay" onclick="handleVocabOverlayClick(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-head">
+        <div>
+          <div class="modal-head-title">검색 가능한 표준어 어휘</div>
+          <div class="modal-head-sub">검색어를 입력하거나 초성을 선택해 표준어를 찾은 뒤, 어휘를 클릭하면 바로 검색됩니다.</div>
+        </div>
+        <button type="button" class="close-btn" onclick="closeVocabModal()" aria-label="닫기"><i class="ti ti-x" aria-hidden="true"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="vocab-search-box">
+          <i class="ti ti-search vocab-search-icon" aria-hidden="true"></i>
+          <input type="text" id="vocabSearchInput" class="vocab-search-input" placeholder="표준어를 입력해 바로 찾기 (예: 감자)" oninput="renderVocabList()" autocomplete="off" aria-label="표준어 검색" />
+        </div>
+        <div class="vocab-initial-buttons" id="vocabInitialButtons"></div>
+        <div class="vocab-result-bar">
+          <span>검색 결과 <em id="vocabCount">0</em>개</span>
+        </div>
+        <div class="vocab-grid-scroll">
+          <div class="vocab-grid" id="vocabGridContainer"></div>
+          <div class="vocab-empty" id="vocabEmpty" style="display:none;">일치하는 표준어가 없습니다.</div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="modal-close-btn" onclick="closeVocabModal()">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 지역 분포 지도 보기 모달 (레이어 팝업) -->
+  <div class="modal-overlay" id="mapModalOverlay" onclick="handleMapOverlayClick(event)">
+    <div class="modal map-modal" onclick="event.stopPropagation()">
+      <div class="modal-head">
+        <div>
+          <div class="modal-head-title">'<span id="mapModalWord">감자</span>'의 지역분포 지도</div>
+          <div class="modal-head-sub">지역어 조사 및 보완 조사 사업(2004–2018) · 국립국어원</div>
+        </div>
+        <button type="button" class="close-btn" onclick="closeMapModal()" aria-label="닫기"><i class="ti ti-x" aria-hidden="true"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="map-with-panel">
+          <!-- 지도 -->
+          <div id="vocabMapModal" class="vocab-map" role="region" aria-label="지역어 분포 지도"></div>
+
+          <!-- 범례 -->
+          <div class="map-legend">
+            <h4 class="map-legend-title">지도 범례</h4>
+            <p class="map-legend-text">지역별 분포를 지도에서 확인할 수 있습니다.</p>
+          </div>
+
+          <!-- 시도 상세 정보 패널 -->
+          <div id="regionDetailPanelModal" class="region-detail-panel">
+            <div class="panel-header">
+              <h3 id="regionPanelTitleModal" class="panel-title"></h3>
+              <button type="button" class="close-panel-btn" onclick="closeRegionPanel(modalMapCtx)" aria-label="패널 닫기">
+                <i class="ti ti-x"></i>
+              </button>
+            </div>
+            <div class="panel-content">
+              <div id="regionDialectsContainerModal"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 공통 Footer 영역 (footer.js에 의해 동적으로 로드 및 렌더링됩니다) -->
+  <div id="footer-common"></div>
+
+<script>
+function setMode(el, mode) {
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('simplePanel').style.display = mode === 'simple' ? 'block' : 'none';
+  document.getElementById('detailPanel').style.display = mode === 'detail' ? 'block' : 'none';
+}
+function setTab(el) {
+  document.querySelectorAll('.tab-bar .tab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+}
+function toggleDetails(num) {
+  const row = document.getElementById('row-' + num);
+  const details = document.getElementById('details-' + num);
+  const btn = row ? row.querySelector('.row-more-btn') : null;
+  if (!details) return;
+
+  const isOpen = details.classList.contains('show');
+
+  // 모든 상세 행 닫기 및 버튼 원복
+  document.querySelectorAll('.details-row').forEach(r => r.classList.remove('show'));
+  document.querySelectorAll('.vocab-table tr').forEach(tr => tr.classList.remove('open'));
+  document.querySelectorAll('.row-more-btn').forEach(b => {
+    b.setAttribute('aria-expanded', 'false');
+  });
+
+  if (!isOpen) {
+    details.classList.add('show');
+    row.classList.add('open');
+    if (btn) btn.setAttribute('aria-expanded', 'true');
+  } else if (btn) {
+    btn.setAttribute('aria-expanded', 'false');
+  }
+}
+
+// 버튼 초기화 및 키보드 이벤트
+document.addEventListener('DOMContentLoaded', () => {
+  // 상세 보기 버튼 초기화
+  document.querySelectorAll('.row-more-btn').forEach((btn, index) => {
+    const num = btn.getAttribute('onclick')?.match(/\d+/)?.[0] || index + 1;
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-controls', `details-${num}`);
+    btn.setAttribute('type', 'button');
+    btn.setAttribute('aria-label', `번호 ${num} 상세 보기`);
+
+    // 키보드 이벤트: Space/Enter로 토글
+    btn.addEventListener('keydown', (e) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        toggleDetails(num);
+      }
+    });
+  });
+
+  // 음성 버튼 aria-label 추가 및 포커스 스타일
+  document.querySelectorAll('.details-row').forEach(detailsRow => {
+    const rowNum = detailsRow.id.match(/\d+/)?.[0];
+    if (!rowNum) return;
+
+    const mainRow = document.getElementById(`row-${rowNum}`);
+    if (!mainRow) return;
+
+    const dialect = mainRow.querySelector('.col-dialect')?.textContent.trim() || '발음';
+    const detailsTable = detailsRow.querySelector('.details-table tbody');
+    if (!detailsTable) return;
+
+    detailsTable.querySelectorAll('tr').forEach((tr, idx) => {
+      const locationCell = tr.querySelector('td:nth-child(1)'); // 지역
+      const districtCell = tr.querySelector('td:nth-child(2)'); // 시군
+      const audioBtn = tr.querySelector('.audio-play-inline');
+
+      if (audioBtn && locationCell && districtCell) {
+        const location = locationCell.textContent.trim();
+        const district = districtCell.textContent.trim();
+        const label = `${location} ${district} ${dialect} 발음 듣기`;
+        audioBtn.setAttribute('aria-label', label);
+        audioBtn.setAttribute('type', 'button');
+        audioBtn.style.outline = '2px solid transparent';
+        audioBtn.style.outlineOffset = '2px';
+        audioBtn.addEventListener('focus', () => {
+          audioBtn.style.outline = '2px solid #2563eb';
+        });
+        audioBtn.addEventListener('blur', () => {
+          audioBtn.style.outline = '2px solid transparent';
+        });
+      }
+    });
+  });
+
+  // 윈도우 리사이즈 시 카드 레이아웃 업데이트
+  window.addEventListener('resize', () => {
+    createMobileCards();
+  });
+}, { once: true });
+
+function toggleOldKor() {
+  const p = document.getElementById('oldkorPanel');
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+function closeOldKor() { document.getElementById('oldkorPanel').style.display = 'none'; }
+function doSearch() {
+  document.querySelector('.result-count em').textContent = '89건';
+  updateSearchBadges();
+  hideEmptyState();
+}
+
+function searchWithChip(keyword) {
+  const searchInput = document.querySelector('.search-input');
+  searchInput.value = keyword;
+  doSearch();
+}
+
+// 제보자 정보(세대별·성별) 다중 선택 토글
+function toggleMultiChip(btn) {
+  const group = btn.closest('.informant-group');
+  const next = btn.getAttribute('aria-pressed') !== 'true';
+
+  if (btn.dataset.all === '1') {
+    // '전체' 토글 → 그룹 내 모든 칩을 같은 상태로 동기화
+    group.querySelectorAll('.ms-chip').forEach(c => c.setAttribute('aria-pressed', String(next)));
+  } else {
+    btn.setAttribute('aria-pressed', String(next));
+    syncAllChip(group);
+  }
+}
+
+// 개별 칩이 모두 선택되면 '전체' 칩도 자동 선택 상태로 동기화
+function syncAllChip(group) {
+  const allChip = group.querySelector('.ms-chip[data-all="1"]');
+  const items = group.querySelectorAll('.ms-chip:not([data-all])');
+  const everyOn = Array.from(items).every(c => c.getAttribute('aria-pressed') === 'true');
+  if (allChip) allChip.setAttribute('aria-pressed', String(everyOn));
+}
+
+// 선택된 제보자 조건 값 배열 반환 ('전체' 칩 제외, 미선택 시 빈 배열 = 전체)
+function getInformantSelection(group) {
+  return Array.from(
+    document.querySelectorAll('.informant-group[data-group="' + group + '"] .ms-chip[aria-pressed="true"]:not([data-all])')
+  ).map(b => b.dataset.value);
+}
+
+function hideEmptyState() {
+  const emptyState = document.getElementById('emptyStateGuide');
+  const searchResultsIntro = document.querySelector('.search-results-intro');
+  if (emptyState) emptyState.classList.add('hidden');
+  if (searchResultsIntro) searchResultsIntro.classList.remove('hidden');
+
+  // 모바일 카드 생성
+  setTimeout(() => {
+    createMobileCards();
+  }, 50);
+
+  // 지도 데이터 업데이트
+  updateMapWithSearchResults();
+}
+
+// 모바일 카드 레이아웃 생성
+function createMobileCards() {
+  const isMobile = window.innerWidth <= 768;
+  const container = document.querySelector('.search-results-intro')?.parentElement;
+  if (!container) return;
+
+  // 기존 카드 컨테이너 제거
+  document.querySelectorAll('.vocab-table-card').forEach(c => c.remove());
+
+  if (!isMobile) return;
+
+  // 테이블 데이터를 카드로 변환
+  const rows = document.querySelectorAll('.vocab-table tbody tr:not(.details-row)');
+  const cardContainer = document.createElement('div');
+  cardContainer.className = 'vocab-table-card';
+
+  rows.forEach((row, idx) => {
+    const num = row.id.replace('row-', '');
+    const dialect = row.querySelector('.col-dialect')?.textContent.trim() || '';
+    const regions = row.querySelector('.col-regions')?.textContent.trim() || '';
+    const standard = row.querySelector('.col-std')?.textContent.trim() || '';
+
+    // 지역 축약
+    const regionList = regions.split(',').map(r => r.trim()).filter(Boolean);
+    const regionsDisplay = regionList.length > 1
+      ? `${regionList[0]} 외 ${regionList.length - 1}개 지역`
+      : regionList[0] || '';
+
+    const card = document.createElement('div');
+    card.className = 'vocab-card';
+    card.id = `card-${num}`;
+
+    let badgeHtml = '';
+    const badges = row.querySelectorAll('.match-badge');
+    if (badges.length > 0) {
+      badgeHtml = '<div class="vocab-card-badges">';
+      badges.forEach(badge => {
+        const isSame = badge.classList.contains('same');
+        const bg = isSame ? '#dcfce7' : '#fce4ec';
+        const fg = isSame ? '#15803d' : '#7B2D43';
+        const symbol = isSame ? '= ' : '≠ ';
+        badgeHtml += `<span style="background: ${bg}; color: ${fg}; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">${symbol}${badge.textContent}</span>`;
+      });
+      badgeHtml += '</div>';
+    }
+
+    card.innerHTML = `
+      <div class="vocab-card-dialect">${dialect}</div>
+      ${badgeHtml}
+      <div class="vocab-card-regions">
+        <span class="vocab-card-regions-toggle" onclick="toggleRegions(this, ${num})">${regionsDisplay}</span>
+        <div class="vocab-card-regions-full" id="regions-${num}">
+          ${regionList.join(', ')}
+        </div>
+      </div>
+      <div class="vocab-card-std"><strong>표준어:</strong> ${standard}</div>
+      <div class="vocab-card-more">
+        <button type="button" onclick="toggleDetails('${num}')" style="min-height: 44px; width: 100%; padding: 12px; border: 1px solid var(--line); background: var(--card); border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--blue);">상세 보기 ▼</button>
+      </div>
+    `;
+
+    cardContainer.appendChild(card);
+  });
+
+  // 카드 컨테이너를 검색 결과 소개 뒤에 삽입
+  const introElement = document.querySelector('.search-results-intro');
+  if (introElement) {
+    introElement.insertAdjacentElement('afterend', cardContainer);
+  }
+}
+
+function toggleRegions(element, num) {
+  const fullRegions = document.getElementById(`regions-${num}`);
+  if (fullRegions) {
+    fullRegions.classList.toggle('show');
+    element.textContent = fullRegions.classList.contains('show') ? '지역 숨기기 ▲' : (element.textContent.split(' ')[0] + ' 외 ...');
+  }
+}
+
+// 검색 결과를 지도에 반영
+function updateMapWithSearchResults() {
+  const rows = document.querySelectorAll('.vocab-table tbody tr:not(.details-row)');
+
+  // 시도별 표준어 수집
+  const regionData = {}; // { '강원도': { '감자': count, '고구마': count, ... }, ... }
+
+  rows.forEach(row => {
+    const regionsCell = row.querySelector('.col-regions');
+    const standardCell = row.querySelector('.col-std');
+
+    if (!regionsCell || !standardCell) return;
+
+    const regions = regionsCell.textContent.split(',').map(r => r.trim()).filter(Boolean);
+    const standard = standardCell.textContent.split('(')[0].trim(); // 괄호 제거
+
+    regions.forEach(region => {
+      if (!regionData[region]) {
+        regionData[region] = {};
+      }
+      regionData[region][standard] = (regionData[region][standard] || 0) + 1;
+    });
+  });
+
+  // 데이터 저장 (지도 초기화 시 사용)
+  lastRegionData = regionData;
+
+  // 표준어별 색상 할당 (최대 5개)
+  const standardCounts = {};
+
+  Object.values(regionData).forEach(regionStandards => {
+    Object.keys(regionStandards).forEach(std => {
+      if (!standardCounts[std]) {
+        standardCounts[std] = 0;
+      }
+      standardCounts[std]++;
+    });
+  });
+
+  // 표준어 목록 생성 및 빈도순 정렬
+  const standards = Object.keys(standardCounts).sort((a, b) => standardCounts[b] - standardCounts[a]);
+  const topStandards = standards.slice(0, 4);
+  const colorMap = {};
+  topStandards.forEach((std, idx) => {
+    colorMap[std] = colorPalette[idx];
+  });
+  if (standards.length > 4) {
+    colorMap['기타'] = colorPalette[4]; // 기타 색상
+  }
+
+  // 색상 정보 저장 (지도 모달 초기화 시 재사용)
+  lastColorMap = colorMap;
+  lastTopStandards = topStandards;
+
+  // 이미 초기화된 지도 모달이 있으면 즉시 반영
+  if (modalMapCtx.map) {
+    updateMapLegend(modalMapCtx, regionData, colorMap, topStandards);
+    drawRegionMarkers(modalMapCtx, regionData, colorMap, topStandards);
+  }
+}
+
+function updateMapLegend(ctx, regionData, colorMap, topStandards) {
+  const legendContent = document.querySelector(ctx.legendTextSel);
+  if (!legendContent) return;
+
+  let html = '<div class="legend-items">';
+
+  topStandards.forEach(std => {
+    const count = Object.values(regionData).filter(r => std in r).length;
+    const color = colorMap[std];
+    html += `
+      <div class="legend-item">
+        <span class="legend-color" style="background-color: ${color}; width: 16px; height: 16px; border-radius: 50%; display: inline-block; margin-right: 8px;"></span>
+        <span class="legend-label">${std} (${count}개 시도)</span>
+      </div>
+    `;
+  });
+
+  // 기타 항목
+  const otherCount = Object.values(regionData).filter(r => {
+    const hasTop = topStandards.some(std => std in r);
+    const hasOther = Object.keys(r).some(std => !topStandards.includes(std));
+    return hasOther && !hasTop;
+  }).length;
+
+  if (otherCount > 0) {
+    html += `
+      <div class="legend-item">
+        <span class="legend-color" style="background-color: ${colorMap['기타']}; width: 16px; height: 16px; border-radius: 50%; display: inline-block; margin-right: 8px;"></span>
+        <span class="legend-label">기타 (${otherCount}개 시도)</span>
+      </div>
+    `;
+  }
+
+  html += '</div>';
+  legendContent.innerHTML = html;
+}
+
+function drawRegionMarkers(ctx, regionData, colorMap, topStandards) {
+  // 기존 마커 레이어 제거
+  if (ctx.markerLayer && ctx.map) {
+    ctx.map.removeLayer(ctx.markerLayer);
+  }
+
+  // 새 마커 레이어 생성
+  const features = [];
+
+  Object.entries(regionData).forEach(([region, standards]) => {
+    const coord = provinceCoords[region];
+    if (!coord) return;
+
+    // 시도의 표준어 목록에서 상위 4개 확인
+    const regionTopStandards = topStandards.filter(std => std in standards);
+    const hasOther = Object.keys(standards).some(std => !topStandards.includes(std));
+
+    // 색상 결정: 하나만 있으면 그 색, 여러 개면 혼재색
+    let color;
+    if (regionTopStandards.length === 1 && !hasOther) {
+      color = colorMap[regionTopStandards[0]];
+    } else if (regionTopStandards.length > 1 || (regionTopStandards.length === 1 && hasOther)) {
+      // 혼재색: 중간톤 회색
+      color = '#9ca3af';
+    } else if (hasOther) {
+      color = colorMap['기타'] || '#d1d5db';
+    }
+
+    // 마커 생성
+    const feature = new ol.Feature({
+      geometry: new ol.geom.Circle(ol.proj.fromLonLat(coord), 45000),
+      region: region,
+      standards: standards,
+      color: color
+    });
+
+    features.push(feature);
+  });
+
+  // 벡터 레이어 생성
+  ctx.markerLayer = new ol.layer.Vector({
+    source: new ol.source.Vector({ features: features }),
+    style: function(feature) {
+      const isSelected = feature.get('region') === ctx.selectedRegion;
+      return new ol.style.Style({
+        fill: new ol.style.Fill({
+          color: feature.get('color')
+        }),
+        stroke: new ol.style.Stroke({
+          color: isSelected ? '#1e40af' : '#ffffff',
+          width: isSelected ? 4 : 2
+        })
+      });
+    }
+  });
+
+  // 지도에 추가
+  if (!ctx.map) return;
+  ctx.map.addLayer(ctx.markerLayer);
+
+  // 클릭/마우스오버 이벤트는 지도당 1회만 바인딩 (마커 레이어는 ctx에서 참조)
+  if (!ctx.handlersBound) {
+    ctx.map.on('click', function(evt) {
+      const feature = ctx.map.forEachFeatureAtPixel(evt.pixel, function(f) {
+        return f;
+      }, { layerFilter: l => l === ctx.markerLayer });
+
+      if (feature) {
+        selectRegion(ctx, feature.get('region'), feature.get('standards'));
+      } else {
+        closeRegionPanel(ctx);
+      }
+    });
+
+    ctx.map.on('pointermove', function(evt) {
+      const feature = ctx.map.forEachFeatureAtPixel(evt.pixel, function(f) {
+        return f;
+      }, { layerFilter: l => l === ctx.markerLayer });
+
+      if (feature) {
+        showRegionTooltip(evt, feature);
+        ctx.map.getTargetElement().style.cursor = 'pointer';
+      } else {
+        hideRegionTooltip();
+        ctx.map.getTargetElement().style.cursor = 'auto';
+      }
+    });
+
+    ctx.handlersBound = true;
+  }
+}
+
+function showRegionTooltip(evt, feature) {
+  const region = feature.get('region');
+  const standards = feature.get('standards');
+
+  let html = `<strong>${region}</strong><br/>`;
+  Object.entries(standards).forEach(([std, count]) => {
+    html += `${std}<br/>`;
+  });
+
+  // 툴팁 표시 (CSS로 처리)
+  let tooltip = document.getElementById('regionTooltip');
+  if (!tooltip) {
+    tooltip = document.createElement('div');
+    tooltip.id = 'regionTooltip';
+    tooltip.style.cssText = `
+      position: fixed;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      pointer-events: none;
+      z-index: 1000;
+      max-width: 200px;
+      word-wrap: break-word;
+    `;
+    document.body.appendChild(tooltip);
+  }
+
+  tooltip.innerHTML = html;
+  const oe = evt.originalEvent || {};
+  tooltip.style.left = ((oe.clientX || 0) + 12) + 'px';
+  tooltip.style.top = ((oe.clientY || 0) + 12) + 'px';
+  tooltip.style.display = 'block';
+}
+
+function hideRegionTooltip() {
+  const tooltip = document.getElementById('regionTooltip');
+  if (tooltip) {
+    tooltip.style.display = 'none';
+  }
+}
+
+// 시도 선택 및 패널 표시
+function selectRegion(ctx, regionName, standards) {
+  ctx.selectedRegion = regionName;
+
+  // 스타일 업데이트 (선택된 마커 강조)
+  if (ctx.markerLayer) {
+    ctx.markerLayer.changed();
+  }
+
+  // 패널 표시
+  const panel = document.getElementById(ctx.panelId);
+  const title = document.getElementById(ctx.titleId);
+  const container = document.getElementById(ctx.containerId);
+  if (!panel || !title || !container) return;
+
+  title.textContent = regionName;
+  container.innerHTML = '';
+
+  // 해당 지역의 지역어 데이터 수집
+  const rows = document.querySelectorAll('.vocab-table tbody tr:not(.details-row)');
+  const regionDialects = {};
+
+  rows.forEach(row => {
+    const regionsCell = row.querySelector('.col-regions');
+    const standardCell = row.querySelector('.col-std');
+
+    if (!regionsCell || !standardCell) return;
+
+    const regions = regionsCell.textContent.split(',').map(r => r.trim()).filter(Boolean);
+    const standard = standardCell.textContent.split('(')[0].trim();
+
+    if (regions.includes(regionName)) {
+      if (!regionDialects[standard]) {
+        regionDialects[standard] = [];
+      }
+
+      // 상세 테이블에서 음성 데이터 찾기
+      const detailsId = row.id.replace('row-', '');
+      const detailsRow = document.getElementById(`details-${detailsId}`);
+      if (detailsRow) {
+        const detailsTable = detailsRow.querySelector('.details-table tbody');
+        if (detailsTable) {
+          const audioRows = detailsTable.querySelectorAll('tr');
+          audioRows.forEach(audioRow => {
+            const location = audioRow.querySelector('td:nth-child(2)'); // 시군
+            const speaker = audioRow.querySelector('td:nth-child(4)'); // 제보자
+            const audioBtn = audioRow.querySelector('.audio-play-inline');
+
+            if (location && audioBtn) {
+              regionDialects[standard].push({
+                location: location.textContent.trim(),
+                speaker: speaker ? speaker.textContent.trim() : '',
+                audioBtn: audioBtn.cloneNode(true)
+              });
+            }
+          });
+        }
+      }
+    }
+  });
+
+  // 패널에 데이터 표시
+  if (Object.keys(regionDialects).length > 0) {
+    Object.entries(regionDialects).forEach(([standard, audios]) => {
+      const dialectItem = document.createElement('div');
+      dialectItem.className = 'region-dialect-item';
+
+      const label = document.createElement('div');
+      label.className = 'dialect-form-label';
+      label.textContent = standard;
+      dialectItem.appendChild(label);
+
+      const audioList = document.createElement('div');
+      audioList.className = 'dialect-audio-list';
+
+      audios.forEach(audio => {
+        const audioItem = document.createElement('div');
+        audioItem.className = 'dialect-audio-item';
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'dialect-audio-btn';
+        btn.innerHTML = '<i class="ti ti-volume"></i>';
+        btn.setAttribute('aria-label', `${standard} 음성 재생`);
+
+        const info = document.createElement('div');
+        info.className = 'dialect-audio-info';
+
+        const location = document.createElement('div');
+        location.className = 'dialect-location';
+        location.textContent = audio.location;
+
+        const speaker = document.createElement('div');
+        speaker.className = 'dialect-speaker';
+        speaker.textContent = audio.speaker;
+
+        info.appendChild(location);
+        info.appendChild(speaker);
+
+        audioItem.appendChild(btn);
+        audioItem.appendChild(info);
+
+        audioList.appendChild(audioItem);
+      });
+
+      dialectItem.appendChild(audioList);
+      container.appendChild(dialectItem);
+    });
+  } else {
+    container.innerHTML = '<p style="color: #64748b; font-size: 13px;">해당 지역의 데이터가 없습니다.</p>';
+  }
+
+  // 패널 표시
+  panel.classList.add('active');
+
+  // 패널이 지도 옆에 나란히 배치되는 경우(모달) 지도 크기 재계산
+  if (ctx.map) {
+    setTimeout(() => { ctx.map.updateSize(); ctx.map.renderSync(); }, 60);
+  }
+}
+
+// 패널 닫기
+function closeRegionPanel(ctx) {
+  if (!ctx) return;
+  const panel = document.getElementById(ctx.panelId);
+  if (panel) panel.classList.remove('active');
+  ctx.selectedRegion = null;
+
+  // 마커 스타일 업데이트
+  if (ctx.markerLayer) {
+    ctx.markerLayer.changed();
+  }
+
+  // 패널이 닫히며 지도 폭이 넓어지는 경우(모달) 지도 크기 재계산
+  if (ctx.map) {
+    setTimeout(() => { ctx.map.updateSize(); ctx.map.renderSync(); }, 60);
+  }
+}
+
+
+function toggleDialectTooltip(event) {
+  event.stopPropagation();
+  const trigger = event.currentTarget;
+  trigger.classList.toggle('active');
+}
+
+document.addEventListener('click', (event) => {
+  const trigger = document.querySelector('.dialect-tooltip-trigger');
+  if (trigger && !event.target.closest('.dialect-tooltip-trigger') && !event.target.closest('.dialect-tooltip')) {
+    trigger.classList.remove('active');
+  }
+});
+
+// 마지막 검색 결과 및 색상 정보 (지도 모달 초기화 시 재사용)
+let lastRegionData = null;
+let lastColorMap = null;
+let lastTopStandards = null;
+
+// 지도 모달 컨트롤러 — 독립된 OpenLayers 인스턴스를 보유
+const modalMapCtx = {
+  map: null, markerLayer: null, selectedRegion: null, handlersBound: false,
+  mapId: 'vocabMapModal',
+  panelId: 'regionDetailPanelModal', titleId: 'regionPanelTitleModal', containerId: 'regionDialectsContainerModal',
+  legendTextSel: '#mapModalOverlay .map-legend-text'
+};
+
+// 시도별 좌표 (위도, 경도)
+const provinceCoords = {
+  '강원도': [128.50, 37.50],
+  '경기도': [127.00, 37.30],
+  '경상남도': [128.50, 35.30],
+  '경상북도': [129.00, 36.50],
+  '광주광역시': [126.85, 35.15],
+  '대전광역시': [127.42, 36.35],
+  '대구광역시': [128.60, 35.87],
+  '부산광역시': [129.07, 35.18],
+  '서울특별시': [126.98, 37.57],
+  '울산광역시': [129.31, 35.54],
+  '인천광역시': [126.70, 37.45],
+  '전라남도': [126.50, 34.80],
+  '전라북도': [127.10, 35.75],
+  '제주특별자치도': [126.50, 33.50],
+  '충청남도': [127.10, 36.80],
+  '충청북도': [127.40, 36.80],
+  '세종특별자치시': [127.30, 36.48]
+};
+
+// 색상 팔레트
+const colorPalette = [
+  '#ef4444', // 빨강
+  '#3b82f6', // 파랑
+  '#22c55e', // 초록
+  '#f59e0b', // 주황
+  '#8b5cf6'  // 보라
+];
+
+// 저장된 검색 결과를 해당 지도(ctx)에 그린다
+function renderCtxMapData(ctx) {
+  if (!ctx.map || !lastRegionData || !lastColorMap || !lastTopStandards) return;
+  drawRegionMarkers(ctx, lastRegionData, lastColorMap, lastTopStandards);
+  updateMapLegend(ctx, lastRegionData, lastColorMap, lastTopStandards);
+}
+
+// 지도 초기화 함수 (인라인/모달 공용)
+function initVocabMap(ctx) {
+  // 이미 초기화됨
+  if (ctx.map) return;
+
+  // OpenLayers가 로드되지 않았으면 대기
+  if (!window.ol || !window.ol.Map) {
+    setTimeout(() => {
+      initVocabMap(ctx);
+    }, 100);
+    return;
+  }
+
+  // 지도 div 확인
+  const mapElement = document.getElementById(ctx.mapId);
+  if (!mapElement) {
+    console.error(ctx.mapId + ' element not found');
+    return;
+  }
+
+  try {
+    ctx.map = new ol.Map({
+      target: ctx.mapId,
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        })
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([127.0, 37.5]),
+        zoom: 7
+      })
+    });
+
+    // 지도 렌더링 완료 후 크기 조정 및 데이터 표시
+    setTimeout(() => {
+      if (ctx.map) {
+        ctx.map.updateSize();
+        ctx.map.renderSync(); // 강제 렌더링
+        renderCtxMapData(ctx);
+      }
+    }, 150);
+  } catch (err) {
+    console.error('Map initialization error:', err);
+    ctx.map = null;
+  }
+}
+
+// 지도 보기 모달 (레이어 팝업) 열기/닫기
+function openMapModal(word) {
+  const overlay = document.getElementById('mapModalOverlay');
+  if (!overlay) return;
+
+  const wordEl = document.getElementById('mapModalWord');
+  if (wordEl && word) wordEl.textContent = word;
+
+  overlay.classList.add('show');
+
+  // 검색 결과 데이터가 아직 없으면 집계
+  if (!lastRegionData) updateMapWithSearchResults();
+
+  initVocabMap(modalMapCtx);
+
+  // 모달이 표시된 뒤 크기 재계산 및 데이터 렌더링
+  setTimeout(() => {
+    if (modalMapCtx.map) {
+      modalMapCtx.map.updateSize();
+      modalMapCtx.map.renderSync();
+      renderCtxMapData(modalMapCtx);
+    }
+  }, 250);
+}
+
+function closeMapModal() {
+  const overlay = document.getElementById('mapModalOverlay');
+  if (overlay) overlay.classList.remove('show');
+  closeRegionPanel(modalMapCtx);
+}
+
+function handleMapOverlayClick(e) {
+  if (e.target === document.getElementById('mapModalOverlay')) closeMapModal();
+}
+
+// 연령대 포맷팅 함수
+function formatAge(ageStr) {
+  if (!ageStr) return ageStr;
+
+  // 이미 연령대 형식이면 그대로 반환
+  if (/\d+대/.test(ageStr)) {
+    return ageStr;
+  }
+
+  // "82세, 남성" 형식을 "80대, 남성"으로 변환
+  const match = ageStr.match(/(\d+)세(.*)/);
+  if (match) {
+    const age = parseInt(match[1]);
+    const decade = Math.floor(age / 10) * 10;
+    return decade + '대' + match[2];
+  }
+
+  return ageStr;
+}
+
+// 상세 테이블 데이터 추출
+function extractDetailsTableData() {
+  const tbody = document.querySelector('.details-table tbody');
+  if (!tbody) return [];
+
+  const data = [];
+  const rows = tbody.querySelectorAll('tr');
+
+  let currentRegion = '';
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('td');
+    if (cells.length >= 4) {
+      const region = cells[0].textContent.trim() || currentRegion;
+      if (cells[0].textContent.trim()) {
+        currentRegion = region;
+      }
+
+      data.push({
+        region: region,
+        city: cells[1].textContent.trim(),
+        year: cells[2].textContent.trim(),
+        agent: cells[3].textContent.trim(),
+        hasAudio: cells[4] ? cells[4].innerHTML : ''
+      });
+    }
+  });
+
+  return data;
+}
+
+// 정렬 및 그룹화하여 테이블 재구성
+function resortDetailsTable(selectElement) {
+  const sortType = selectElement.value;
+  const tbody = document.querySelector('.details-table tbody');
+  if (!tbody) return;
+
+  const data = extractDetailsTableData();
+
+  // 정렬
+  if (sortType === 'survey') {
+    data.sort((a, b) => a.year.localeCompare(b.year));
+  } else if (sortType === 'age') {
+    data.sort((a, b) => {
+      const getAgeValue = (ageStr) => {
+        const match = ageStr.match(/(\d+)/);
+        return match ? parseInt(match[1]) : 0;
+      };
+      return getAgeValue(a.agent) - getAgeValue(b.agent);
+    });
+  } else {
+    // region: 원래 순서대로 (지역순)
+    data.sort((a, b) => a.region.localeCompare(b.region) || a.city.localeCompare(b.city) || a.year.localeCompare(b.year));
+  }
+
+  // 테이블 재구성
+  const newTbody = document.createElement('tbody');
+  let lastCity = null;
+  let itemCount = 0;
+  const maxVisible = 10;
+  let showAllMode = false;
+
+  data.forEach((item, index) => {
+    // 시·군 그룹 헤더
+    if (item.city !== lastCity) {
+      if (lastCity !== null && !showAllMode && itemCount >= maxVisible) {
+        // "전체 보기" 버튼
+        const expandRow = document.createElement('tr');
+        expandRow.innerHTML = `<td colspan="5" style="padding: 8px;"><button class="details-expand-btn" onclick="this.parentElement.parentElement.parentElement.parentElement.dataset.showAll='true'; location.reload();">전체 보기</button></td>`;
+        newTbody.appendChild(expandRow);
+        return;
+      }
+
+      const headerRow = document.createElement('tr');
+      headerRow.className = 'group-header';
+      headerRow.innerHTML = `<td colspan="5">${item.region} • ${item.city}</td>`;
+      newTbody.appendChild(headerRow);
+
+      lastCity = item.city;
+      itemCount = 0;
+    }
+
+    // 데이터 행
+    if (itemCount < maxVisible || showAllMode) {
+      const dataRow = document.createElement('tr');
+      dataRow.className = 'group-item';
+      dataRow.innerHTML = `
+        <td></td>
+        <td></td>
+        <td>${item.year}</td>
+        <td>${formatAge(item.agent)}</td>
+        <td class="audio-cell center">${item.hasAudio}</td>
+      `;
+      newTbody.appendChild(dataRow);
+      itemCount++;
+    }
+  });
+
+  // 기존 tbody 교체
+  tbody.parentElement.replaceChild(newTbody, tbody);
+}
+
+// 지역어 텍스트에서 비교용 순수 형태 추출 (괄호 주석·장음/성조 기호 제거)
+function normalizeForm(text) {
+  if (!text) return '';
+  return text
+    .replace(/\(.*?\)/g, '')  // "감자(=감'자)" → "감자"
+    .replace(/[:'`ˈ]/g, '')   // 장음(:)·성조(') 기호 제거
+    .trim();
+}
+
+function updateSearchBadges() {
+  // 테이블의 모든 행 처리 — 지역어와 표준어가 동일/다른지 배지로 표시
+  const rows = document.querySelectorAll('.vocab-table tbody tr:not(.details-row)');
+
+  rows.forEach((row) => {
+    const dialectCell = row.querySelector('.col-dialect');
+    const standardCell = row.querySelector('.col-std');
+    if (!dialectCell || !standardCell) return;
+
+    // 배지 컨테이너가 없으면 최초 1회 생성 (원본 지역어 표기는 유지)
+    let badgeContainer = row.querySelector('.badge-container');
+    if (!badgeContainer) {
+      const originalDialect = dialectCell.textContent.trim();
+
+      const wrapper = document.createElement('span');
+      wrapper.className = 'dialect-col-wrapper';
+
+      const dialectSpan = document.createElement('span');
+      dialectSpan.className = 'dialect-form-text';
+      dialectSpan.textContent = originalDialect;
+
+      badgeContainer = document.createElement('span');
+      badgeContainer.className = 'badge-container';
+
+      wrapper.appendChild(dialectSpan);
+      wrapper.appendChild(badgeContainer);
+
+      dialectCell.textContent = '';
+      dialectCell.appendChild(wrapper);
+    }
+
+    // 기존 배지 제거
+    badgeContainer.innerHTML = '';
+
+    // 지역어 ↔ 표준어 비교 (괄호/기호 정규화 후)
+    const dialectForm = normalizeForm(
+      dialectCell.querySelector('.dialect-form-text')?.textContent || dialectCell.textContent
+    );
+    const standardForm = normalizeForm(standardCell.textContent);
+
+    const isSame = dialectForm && standardForm && dialectForm === standardForm;
+
+    const badge = document.createElement('span');
+    badge.className = 'match-badge ' + (isSame ? 'same' : 'diff');
+    badge.textContent = isSame ? '표준어와 동일' : '표준어와 다름';
+    badge.setAttribute('title', isSame
+      ? '지역어 형태가 표준어와 같습니다.'
+      : `지역어 형태가 표준어(${standardForm})와 다릅니다.`);
+    badgeContainer.appendChild(badge);
+  });
+}
+function showModal() { document.getElementById('modalOverlay').classList.add('show'); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+function handleOverlayClick(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+
+function initSimpleConditions() {
+  // 간단한 검색 초기화 (현재 기본 구성만 사용)
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initSimpleConditions();
+  initSearchTargetButtons();
+
+  // 지도 모달: ESC 키로 닫기
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeMapModal();
+    }
+  });
+
+  // 프로토타입이므로 페이지 로드 후 자동으로 배지 생성 및 지도 데이터 로드
+  setTimeout(() => {
+    // 프로토타입: 검색 UI 없이 첫 번째 항목(감자) 데이터로 검색어 먼저 설정
+    const firstRow = document.querySelector('.vocab-table tbody tr:not(.details-row)');
+    if (firstRow) {
+      const searchInput = document.querySelector('.search-input');
+      const dialectCell = firstRow.querySelector('.col-dialect');
+      if (searchInput && dialectCell) {
+        searchInput.value = dialectCell.textContent.trim().replace(/\(.*?\)/g, '').trim();
+      }
+    }
+    // 검색어 설정 후 배지 생성
+    updateSearchBadges();
+    // 모바일 카드 생성 (배지 반영 후)
+    createMobileCards();
+    // 지도 데이터 로드 (팝업용 사전 데이터 구축)
+    updateMapWithSearchResults();
+  }, 100);
+});
+
+let lifePlaying = false;
+let lifeTimer = null;
+let lifeWaveTimer = null;
+let lifeProgress = 0;
+
+function tickLifeProgress() {
+  lifeProgress = Math.min(100, lifeProgress + 2.0);
+  const prog = document.getElementById('lifeProg');
+  if (prog) prog.style.width = lifeProgress + '%';
+  const dur = document.getElementById('lifeDur');
+  if (dur) {
+    const s = Math.round(lifeProgress * 0.03);
+    dur.textContent = '0:' + String(s).padStart(2, '0');
+  }
+  if (lifeProgress >= 100) {
+    stopLifeAudio();
+  }
+}
+
+function animLifeWave(on) {
+  clearInterval(lifeWaveTimer);
+  if (!on) return;
+  const bars = document.querySelectorAll('#c0 .life-wb');
+  lifeWaveTimer = setInterval(() => {
+    bars.forEach(b => {
+      const h = 8 + Math.random() * 26;
+      b.style.height = h + 'px';
+      b.style.opacity = 0.55 + Math.random() * 0.35;
+    });
+  }, 120);
+}
+
+function startLifeAudio() {
+  lifePlaying = true;
+  const btn = document.getElementById('lifePlayBtn');
+  if (btn) btn.innerHTML = '<i class=\"ti ti-player-pause\" style=\"font-size:13px;\" aria-hidden=\"true\"></i>';
+  clearInterval(lifeTimer);
+  lifeTimer = setInterval(tickLifeProgress, 60);
+  animLifeWave(true);
+}
+
+function stopLifeAudio() {
+  lifePlaying = false;
+  clearInterval(lifeTimer);
+  clearInterval(lifeWaveTimer);
+  const btn = document.getElementById('lifePlayBtn');
+  if (btn) btn.innerHTML = '<i class=\"ti ti-player-play\" style=\"font-size:13px;\" aria-hidden=\"true\"></i>';
+  lifeProgress = 0;
+  const prog = document.getElementById('lifeProg');
+  if (prog) prog.style.width = '0%';
+  const dur = document.getElementById('lifeDur');
+  if (dur) dur.textContent = '0:03';
+  document.querySelectorAll('#c0 .life-wb').forEach(b => { b.style.height = '10px'; b.style.opacity = '.7'; });
+}
+
+function toggleLifeAudio() {
+  if (lifePlaying) stopLifeAudio();
+  else startLifeAudio();
+}
+
+function setSearchTarget(el) {
+  const group = el.parentElement;
+  const buttons = group.querySelectorAll('[role="radio"]');
+  const targetInput = document.getElementById('searchTargetInput');
+  const guideText = document.getElementById('searchTargetGuide');
+  const value = el.getAttribute('data-value');
+
+  buttons.forEach(btn => btn.setAttribute('aria-checked', 'false'));
+  el.setAttribute('aria-checked', 'true');
+
+  if (targetInput) targetInput.value = value;
+
+  const guides = {
+    'all': '지역어와 표준어 모두에서 검색합니다.',
+    'dialect': '입력한 말이 어느 지역에서 쓰이고 무슨 뜻인지 찾습니다.',
+    'standard': '입력한 표준어를 각 지역에서 뭐라고 부르는지 찾습니다.'
+  };
+
+  if (guideText) guideText.textContent = guides[value] || '';
+
+  // 검색 대상 변경 시 배지 업데이트
+  updateSearchBadges();
+}
+
+function initSearchTargetButtons() {
+  const group = document.querySelector('[role="radiogroup"]');
+  if (!group) return;
+
+  const buttons = group.querySelectorAll('[role="radio"]');
+
+  group.addEventListener('keydown', (e) => {
+    const currentButton = document.activeElement;
+    if (!currentButton || !currentButton.hasAttribute('role')) return;
+
+    let nextButton = null;
+    const buttonArray = Array.from(buttons);
+    const currentIndex = buttonArray.indexOf(currentButton);
+
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      nextButton = buttonArray[(currentIndex + 1) % buttonArray.length];
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      nextButton = buttonArray[(currentIndex - 1 + buttonArray.length) % buttonArray.length];
+    }
+
+    if (nextButton) {
+      nextButton.focus();
+      setSearchTarget(nextButton);
+    }
+  });
+}
+
+/* ── 검색 가능한 표준어 어휘 목록 ──
+   대량 데이터도 검색·초성 필터가 가능하도록 단일 배열로 관리한다.
+   초성은 아래 getInitial()이 유니코드로 자동 계산하므로,
+   목록을 늘릴 때는 이 배열에만 항목을 추가하면 된다. */
+const VOCAB_ALL = [
+  '가위','가마솥','가을','감자','개구리','거미','거울','고구마','고드름','고양이','곰팡이','구름','국자','그네','기와','김치','까치','깨','꼬리','꽃','꿩',
+  '나무','나물','나비','나팔','냄비','냉이','노을','누룽지',
+  '다리미','달걀','닭','당근','도끼','도라지','도토리','돼지','두꺼비','등불','딸기',
+  '라디오',
+  '마늘','마루','말','매미','머리','메뚜기','며느리','모기','모자','무지개','미꾸라지','민들레',
+  '바가지','바구니','바늘','박쥐','발톱','밤','배추','벼','보리','복숭아','부엌','부지깽이','부추','빗자루',
+  '사과','사마귀','삽','상추','새우','서리','소금','솔개','송아지','수수','시금치','시래기','쐐기',
+  '아궁이','아욱','앵두','어머니','엉겅퀴','여우','옥수수','올챙이','우렁이','우박','우엉','은행','이슬','잉어',
+  '자두','잠자리','재봉틀','저녁','제비','조개','조리','종아리','지렁이','지팡이','진달래','질경이',
+  '참깨','참외','처마','천둥','초승달','추녀',
+  '콩','콩나물',
+  '토끼','토란','톱',
+  '파리','팥','포대기','표주박',
+  '하늘','할머니','할아버지','허수아비','호미','호박','홍시','회오리','흙'
+];
+
+const HANGUL_CHO = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+
+// 단어 첫 글자의 초성을 반환 (한글이 아니면 '#')
+function getInitial(word) {
+  const code = word.charCodeAt(0);
+  if (code >= 0xAC00 && code <= 0xD7A3) {
+    return HANGUL_CHO[Math.floor((code - 0xAC00) / 588)];
+  }
+  return '#';
+}
+
+let vocabActiveInitial = 'all';
+
+function showVocabModal() {
+  document.getElementById('vocabModalOverlay').classList.add('show');
+  buildVocabInitialButtons();
+  vocabActiveInitial = 'all';
+  const searchInput = document.getElementById('vocabSearchInput');
+  if (searchInput) searchInput.value = '';
+  renderVocabList();
+  if (searchInput) searchInput.focus();
+}
+
+function closeVocabModal() {
+  document.getElementById('vocabModalOverlay').classList.remove('show');
+}
+
+function handleVocabOverlayClick(e) {
+  if (e.target === document.getElementById('vocabModalOverlay')) closeVocabModal();
+}
+
+// 데이터에 존재하는 초성만 '전체'와 함께 버튼으로 생성
+function buildVocabInitialButtons() {
+  const box = document.getElementById('vocabInitialButtons');
+  if (!box || box.dataset.built) return;
+  const present = new Set(VOCAB_ALL.map(getInitial));
+  const initials = HANGUL_CHO.filter(c => present.has(c));
+
+  let html = '<button type="button" class="vocab-initial-btn active" onclick="filterVocabByInitial(this, \'all\')">전체</button>';
+  html += initials.map(c =>
+    `<button type="button" class="vocab-initial-btn" onclick="filterVocabByInitial(this, '${c}')">${c}</button>`
+  ).join('');
+  box.innerHTML = html;
+  box.dataset.built = '1';
+}
+
+function filterVocabByInitial(btn, initial) {
+  document.querySelectorAll('.vocab-initial-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  vocabActiveInitial = initial;
+  renderVocabList();
+}
+
+// 검색어 + 초성 필터를 함께 적용해 목록을 그린다
+function renderVocabList() {
+  const keyword = (document.getElementById('vocabSearchInput').value || '').trim();
+  const container = document.getElementById('vocabGridContainer');
+  const emptyEl = document.getElementById('vocabEmpty');
+  const countEl = document.getElementById('vocabCount');
+
+  let list = VOCAB_ALL.slice().sort((a, b) => a.localeCompare(b, 'ko'));
+  if (vocabActiveInitial !== 'all') {
+    list = list.filter(w => getInitial(w) === vocabActiveInitial);
+  }
+  if (keyword) {
+    list = list.filter(w => w.includes(keyword));
+  }
+
+  countEl.textContent = list.length;
+  container.innerHTML = '';
+
+  if (list.length === 0) {
+    emptyEl.style.display = 'block';
+    return;
+  }
+  emptyEl.style.display = 'none';
+
+  list.forEach(word => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'vocab-item';
+    if (keyword && word.includes(keyword)) {
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      btn.innerHTML = esc(word).split(esc(keyword)).join('<mark>' + esc(keyword) + '</mark>');
+    } else {
+      btn.textContent = word;
+    }
+    btn.onclick = () => selectVocab(word);
+    container.appendChild(btn);
+  });
+}
+
+// 어휘 클릭 시 메인 검색창에 입력하고 검색 실행
+function selectVocab(word) {
+  closeVocabModal();
+  searchWithChip(word);
+}
+
+function playLifeAudio(el, word, region) {
+  document.querySelectorAll('#c0 .life-chip').forEach(c => c.classList.remove('on'));
+  if (el) el.classList.add('on');
+  const meta = document.getElementById('lifeMeta');
+  if (meta) meta.textContent = '제보자: 70대 여성 · ' + region + ' · 1978년 · ' + word;
+  stopLifeAudio();
+  startLifeAudio();
+}
+
+function addRegionRow() {
+  const container = document.getElementById('additionalRegions');
+  const firstRow = document.querySelector('.region-row');
+  if (!container || !firstRow) return;
+  
+  const newRow = document.createElement('div');
+  newRow.className = 'region-row additional';
+  newRow.style.cssText = 'display: flex; gap: 8px; align-items: center; width: 100%; padding-left: 80px;';
+  
+  const select1 = firstRow.querySelector('.region-select-1').cloneNode(true);
+  select1.value = "";
+  
+  const select2 = firstRow.querySelector('.region-select-2').cloneNode(true);
+  select2.value = "";
+  
+  newRow.appendChild(select1);
+  newRow.appendChild(select2);
+  container.appendChild(newRow);
+}
+
+function removeRegionRow() {
+  const container = document.getElementById('additionalRegions');
+  if (!container || !container.lastChild) return;
+  container.removeChild(container.lastChild);
+}
+
+function addSearchTargetRow() {
+  const container = document.getElementById('additionalSearchTargets');
+  if (!container) return;
+  
+  const newRow = document.createElement('div');
+  newRow.className = 'search-target-row additional';
+  newRow.style.cssText = 'display: flex; gap: 8px; align-items: center; width: 100%;';
+  
+  newRow.innerHTML = `
+    <select style="width: 80px; box-sizing: border-box;">
+      <option value="and">그리고</option>
+      <option value="or">또는</option>
+    </select>
+    <select style="width:80px; box-sizing: border-box;">
+      <option value="all">전체</option>
+      <option value="dlt">지역어</option>
+      <option value="std">표준어</option>
+    </select>
+    <select style="width:90px; box-sizing: border-box;">
+      <option value="contains">포함</option>
+      <option value="match">일치</option>
+      <option value="startsWith">시작 문자</option>
+      <option value="endsWith">끝 문자</option>
+    </select>
+    <input type="text" placeholder="검색어를 입력하세요." style="flex:1;min-width:100px;" />
+    <button type="button" class="btn-outline" onclick="toggleOldKor()">옛 한글</button>
+  `;
+  container.appendChild(newRow);
+}
+
+function removeSearchTargetRow() {
+  const container = document.getElementById('additionalSearchTargets');
+  if (!container || !container.lastChild) return;
+  container.removeChild(container.lastChild);
+}
+</script>
+</body>
+</html>

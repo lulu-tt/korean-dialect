@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=1440">
-<title>지역어종합정보 — 공지사항</title>
+<title>지역어종합정보 — 자료실</title>
 <link rel="shortcut icon" href="./favicon.ico">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <link rel="stylesheet" href="./styles.css">
@@ -221,6 +221,23 @@
   .board-list tr.notice-row td.subject a {
     font-weight: 700;
   }
+  .board-list td.dept {
+    color: #475569;
+    width: 130px;
+  }
+  .board-list td.file {
+    width: 90px;
+  }
+  .board-list td.file a {
+    display: inline-flex;
+    color: #475569;
+    font-size: 19px;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .board-list td.file a:hover {
+    color: #1e3a8a;
+  }
   .board-list td.date {
     color: #64748b;
     font-size: 14px;
@@ -283,13 +300,13 @@
 
 <div class="sub-visual">
   <div class="wrap">
-    <h1 class="sv-title">공지사항</h1>
+    <h1 class="sv-title">자료실</h1>
     <div class="location-bar">
       <div class="loc-item home" onclick="location.href='./index.html'" style="cursor:pointer;" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
       <i class="ti ti-chevron-right loc-sep"></i>
       <div class="loc-item">
         <select onchange="if(this.value) location.href=this.value;">
-          <option value="./notice.html" selected>알림마당</option>
+          <option value="./data_room.html" selected>알림마당</option>
           <option value="./dialect_search_prototype.html">조사 자료 검색</option>
           <option value="./index.html">누리집 안내</option>
           <option value="./dialect_map.html">지역어 지도</option>
@@ -298,9 +315,9 @@
       <i class="ti ti-chevron-right loc-sep"></i>
       <div class="loc-item">
         <select onchange="if(this.value) location.href=this.value;">
-          <option selected>공지사항</option>
+          <option value="./notice.html">공지사항</option>
           <option>보도자료</option>
-          <option value="./data_room.html">자료실</option>
+          <option value="./data_room.html" selected>자료실</option>
         </select>
       </div>
     </div>
@@ -310,7 +327,7 @@
 <div class="wrap container">
   <!-- 상단 정보 + 검색 -->
   <div class="board-topbar">
-    <div class="board-count"><strong>16건</strong>, 현재페이지 1/2</div>
+    <div class="board-count"><strong>31건</strong>, 현재페이지 1/4</div>
     <div class="board-search">
       <select aria-label="검색 구분">
         <option>전체</option>
@@ -327,73 +344,98 @@
       <tr>
         <th style="width: 80px;">번호</th>
         <th>제목</th>
+        <th style="width: 90px;">첨부파일</th>
         <th style="width: 130px;">등록일시</th>
         <th style="width: 90px;">조회수</th>
       </tr>
     </thead>
     <tbody>
-      <!-- 공지사항 (상단 고정) -->
+      <!-- 상단 고정글 -->
       <tr class="notice-row">
         <td class="num"><span class="notice-badge">공지</span></td>
-        <td class="subject"><a href="./notice_detail.html">지역어 종합 정보 누리집 서비스 일시 중단 안내(2026. 7. 9.)</a></td>
-        <td class="date">2026.06.29</td>
-        <td class="hits">16</td>
+        <td class="subject"><a href="./data_room_detail.html">지역어 지도 작성법 – 미조사 지역의 면색 지정 방법</a></td>
+        <td class="file"><a href="#" aria-label="첨부 파일 내려받기"><i class="ti ti-file"></i></a></td>
+        <td class="date">2021.07.28</td>
+        <td class="hits">1,460</td>
       </tr>
       <tr class="notice-row">
         <td class="num"><span class="notice-badge">공지</span></td>
-        <td class="subject"><a href="./notice_detail.html">지역어 종합 정보 누리집 점검 안내(2025. 3. 4.)</a></td>
-        <td class="date">2025.03.04</td>
-        <td class="hits">925</td>
-      </tr>
-      <tr class="notice-row">
-        <td class="num"><span class="notice-badge">공지</span></td>
-        <td class="subject"><a href="./notice_detail.html">지역어 종합 정보 누리집 점검 안내(2025. 02. 11.)</a></td>
-        <td class="date">2025.02.24</td>
-        <td class="hits">733</td>
+        <td class="subject"><a href="./data_room_detail.html">지역어 지도 작성법</a></td>
+        <td class="file"><a href="#" aria-label="첨부 파일 내려받기"><i class="ti ti-file"></i></a></td>
+        <td class="date">2020.01.31</td>
+        <td class="hits">1,671</td>
       </tr>
 
       <!-- 일반 게시글 -->
       <tr>
-        <td class="num">13</td>
-        <td class="subject"><a href="./notice_detail.html">지역어 종합 정보 누리집 점검 안내(2024. 11. 28.)</a></td>
-        <td class="date">2024.11.28</td>
-        <td class="hits">1,012</td>
+        <td class="num">31</td>
+        <td class="subject"><a href="./data_room_detail.html">2025년 세대별·성별 지역어 변이 조사 결과 보고서</a></td>
+        <td class="file"><a href="#" aria-label="첨부 파일 내려받기"><i class="ti ti-file"></i></a></td>
+        <td class="date">2026.01.27</td>
+        <td class="hits">662</td>
       </tr>
       <tr>
-        <td class="num">12</td>
-        <td class="subject"><a href="./notice_detail.html">지역어 종합 정보 누리집 점검 안내(2024. 03. 21.)</a></td>
+        <td class="num">30</td>
+        <td class="subject"><a href="./data_room_detail.html">2024년 세대별·성별 지역어 변이 조사 결과 보고서</a></td>
+        <td class="file"><a href="#" aria-label="첨부 파일 내려받기"><i class="ti ti-file"></i></a></td>
+        <td class="date">2025.04.18</td>
+        <td class="hits">810</td>
+      </tr>
+      <tr>
+        <td class="num">29</td>
+        <td class="subject"><a href="./data_room_detail.html">2023년 세대별·성별 지역어 변이 조사 결과 보고서</a></td>
+        <td class="file"><a href="#" aria-label="첨부 파일 내려받기"><i class="ti ti-file"></i></a></td>
         <td class="date">2024.03.15</td>
-        <td class="hits">611</td>
+        <td class="hits">1,569</td>
       </tr>
       <tr>
-        <td class="num">11</td>
-        <td class="subject"><a href="./notice_detail.html">지역어 종합 정보 누리집 점검 안내</a></td>
-        <td class="date">2023.12.22</td>
-        <td class="hits">582</td>
+        <td class="num">28</td>
+        <td class="subject"><a href="./data_room_detail.html">2022년 세대별·성별 지역어 변이 조사 결과 보고서</a></td>
+        <td class="file"><a href="#" aria-label="첨부 파일 내려받기"><i class="ti ti-file"></i></a></td>
+        <td class="date">2024.01.12</td>
+        <td class="hits">939</td>
       </tr>
       <tr>
-        <td class="num">10</td>
-        <td class="subject"><a href="./notice_detail.html">지역어 종합 정보 서비스 누리집 일시 중단 안내</a></td>
-        <td class="date">2023.12.20</td>
-        <td class="hits">508</td>
+        <td class="num">27</td>
+        <td class="subject"><a href="./data_room_detail.html">2021년 세대별·지역별 언어 다양성 조사 결과 보고서</a></td>
+        <td class="file"><a href="#" aria-label="첨부 파일 내려받기"><i class="ti ti-file"></i></a></td>
+        <td class="date">2024.01.12</td>
+        <td class="hits">1,258</td>
       </tr>
       <tr>
-        <td class="num">9</td>
-        <td class="subject"><a href="./notice_detail.html">지역어 종합 정보 서비스 누리집 일시 중단 안내</a></td>
-        <td class="date">2023.12.06</td>
-        <td class="hits">485</td>
+        <td class="num">26</td>
+        <td class="subject"><a href="./data_room_detail.html">지역어 지도 작성법 – 미조사 지역의 면색 지정 방법</a></td>
+        <td class="file"><a href="#" aria-label="첨부 파일 내려받기"><i class="ti ti-file"></i></a></td>
+        <td class="date">2021.07.28</td>
+        <td class="hits">1,460</td>
       </tr>
       <tr>
-        <td class="num">8</td>
-        <td class="subject"><a href="./notice_detail.html">로그인 기능 일시중단 안내(2023.3.2. 오전)</a></td>
-        <td class="date">2023.03.02</td>
-        <td class="hits">640</td>
+        <td class="num">25</td>
+        <td class="subject"><a href="./data_room_detail.html">2020년 지역어 보완 조사 결과 보고서</a></td>
+        <td class="file"><a href="#" aria-label="첨부 파일 내려받기"><i class="ti ti-file"></i></a></td>
+        <td class="date">2021.07.28</td>
+        <td class="hits">1,987</td>
       </tr>
       <tr>
-        <td class="num">7</td>
-        <td class="subject"><a href="./notice_detail.html">지역어 누리집 회원 개인정보 수집 변경 안내(2023.3.2부터 시행)</a></td>
-        <td class="date">2023.01.16</td>
-        <td class="hits">768</td>
+        <td class="num">24</td>
+        <td class="subject"><a href="./data_room_detail.html">2019년 지역어 보완 조사 결과 보고서</a></td>
+        <td class="file"><a href="#" aria-label="첨부 파일 내려받기"><i class="ti ti-file"></i></a></td>
+        <td class="date">2020.03.13</td>
+        <td class="hits">2,088</td>
+      </tr>
+      <tr>
+        <td class="num">23</td>
+        <td class="subject"><a href="./data_room_detail.html">2018년 지역어 보완 조사 결과 보고서</a></td>
+        <td class="file"><a href="#" aria-label="첨부 파일 내려받기"><i class="ti ti-file"></i></a></td>
+        <td class="date">2020.02.03</td>
+        <td class="hits">1,514</td>
+      </tr>
+      <tr>
+        <td class="num">22</td>
+        <td class="subject"><a href="./data_room_detail.html">2017년 지역어 보완 조사 결과 보고서</a></td>
+        <td class="file"><a href="#" aria-label="첨부 파일 내려받기"><i class="ti ti-file"></i></a></td>
+        <td class="date">2020.02.03</td>
+        <td class="hits">1,397</td>
       </tr>
     </tbody>
   </table>
@@ -404,6 +446,8 @@
     <a href="#" class="arrow-btn" aria-label="이전 페이지"><i class="ti ti-chevron-left"></i></a>
     <span class="current">1</span>
     <a href="#" class="page-num">2</a>
+    <a href="#" class="page-num">3</a>
+    <a href="#" class="page-num">4</a>
     <a href="#" class="arrow-btn" aria-label="다음 페이지"><i class="ti ti-chevron-right"></i></a>
     <a href="#" class="arrow-btn" aria-label="마지막 페이지"><i class="ti ti-chevrons-right"></i></a>
   </div>

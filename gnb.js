@@ -55,6 +55,16 @@ document.addEventListener('DOMContentLoaded', () => {
         <a href="./login.html" class="util-link">들어가기</a>
         <span class="util-divider">|</span>
         <a href="./register.html" class="util-link">회원가입</a>
+        <span class="util-divider">|</span>
+        <div class="util-mypage">
+          <a href="#" class="util-link util-mypage__trigger" aria-haspopup="true" onclick="return false;">내정보 <i class="ti ti-chevron-down util-mypage__arrow" aria-hidden="true"></i></a>
+          <div class="util-mypage__pop" role="menu" aria-label="내 정보 메뉴">
+            <a href="./mypage_edit.html" class="util-mypage__link" role="menuitem" onclick="return openPwModal(event);">나의 정보 수정</a>
+            <a href="./mypage_opinion.html" class="util-mypage__link" role="menuitem">나의 의견 제시</a>
+            <a href="./mypage_map.html" class="util-mypage__link" role="menuitem">나의 지도</a>
+            <a href="./mypage_withdraw.html" class="util-mypage__link" role="menuitem">회원탈퇴</a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -65,8 +75,8 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="mega-menu__title">지역어 검색</div>
       <div class="mega-menu__grid">
         <div class="mega-menu__item"><a href="./dialect_search_prototype.html" class="mega-menu__link">통합자료검색</a></div>
-        <div class="mega-menu__item"><a href="#" class="mega-menu__link">어휘조사자료</a></div>
-        <div class="mega-menu__item"><a href="#" class="mega-menu__link">구술발화조사자료</a></div>
+        <div class="mega-menu__item"><a href="./vocab_dialect.html" class="mega-menu__link">어휘조사자료</a></div>
+        <div class="mega-menu__item"><a href="./oral_dialect.html" class="mega-menu__link">구술발화조사자료</a></div>
       </div>
     </div>
   </div>
@@ -91,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="mega-menu__grid">
         <div class="mega-menu__item"><a href="./literature_dialect.html" class="mega-menu__link">문학 속 지역어</a></div>
         <div class="mega-menu__item"><a href="./region_culture.html" class="mega-menu__link">사진으로 보는 생활어</a></div>
-        <div class="mega-menu__item"><a href="#" class="mega-menu__link">자료실</a></div>
+        <div class="mega-menu__item"><a href="./data_room.html" class="mega-menu__link">자료실</a></div>
         <div class="mega-menu__item"><a href="#" class="mega-menu__link">Open API</a></div>
       </div>
     </div>
@@ -104,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="mega-menu__grid">
         <div class="mega-menu__item"><a href="./notice.html" class="mega-menu__link">공지사항</a></div>
         <div class="mega-menu__item"><a href="./faq.html" class="mega-menu__link">도움말(FAQ)</a></div>
-        <div class="mega-menu__item"><a href="#" class="mega-menu__link">의견제시</a></div>
+        <div class="mega-menu__item"><a href="./mypage_opinion_write.html" class="mega-menu__link">의견제시</a></div>
       </div>
     </div>
   </div>
@@ -120,17 +130,42 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
   </div>
 </header>
+
+<!-- 나의 정보 수정: 비밀번호 확인 레이어 팝업 (전 페이지 공통) -->
+<div class="pw-modal-overlay" id="pwModal" hidden onclick="if(event.target===this) closePwModal();">
+  <div class="pw-modal" role="dialog" aria-modal="true" aria-labelledby="pwModalTitle">
+    <div class="pw-modal__header">
+      <h2 class="pw-modal__title" id="pwModalTitle">비밀번호 확인</h2>
+      <button type="button" class="pw-modal__close" aria-label="닫기" onclick="closePwModal()"><i class="ti ti-x" aria-hidden="true"></i></button>
+    </div>
+    <div class="pw-modal__body">
+      <p class="pw-modal__desc">회원님의 정보를 안전하게 보호하기 위해 비밀번호를 다시 한 번 확인합니다.</p>
+      <div class="pw-field">
+        <span class="pw-field__label">아이디</span>
+        <div class="pw-field__id">hanguk_user</div>
+      </div>
+      <div class="pw-field">
+        <label class="pw-field__label" for="pwCheck">비밀번호</label>
+        <input type="password" class="pw-field__input" id="pwCheck" placeholder="비밀번호를 입력해주세요" onkeydown="if(event.key==='Enter'){confirmPw();}">
+      </div>
+    </div>
+    <div class="pw-modal__footer">
+      <button type="button" class="pw-modal__btn pw-modal__btn--cancel" onclick="closePwModal()">취소</button>
+      <button type="button" class="pw-modal__btn pw-modal__btn--confirm" onclick="confirmPw()">확인</button>
+    </div>
+  </div>
+</div>
   `;
 
   // 2. 현재 페이지 경로를 검사하여 특정 탭 활성화 처리
   const currentPath = window.location.pathname;
   let activeMenuId = "";
 
-  if (currentPath.includes('dialect_search_prototype.html')) {
+  if (currentPath.includes('dialect_search_prototype.html') || currentPath.includes('vocab_dialect.html') || currentPath.includes('oral_dialect.html')) {
     activeMenuId = "menu-search";
   } else if (currentPath.includes('dialect_map.html') || currentPath.includes('dialect_map_compare.html') || currentPath.includes('dialect_awareness.html')) {
     activeMenuId = "menu-map";
-  } else if (currentPath.includes('region_culture.html') || currentPath.includes('literature_dialect.html')) {
+  } else if (currentPath.includes('region_culture.html') || currentPath.includes('literature_dialect.html') || currentPath.includes('data_room.html') || currentPath.includes('data_room_detail.html')) {
     activeMenuId = "menu-archive";
   } else if (currentPath.includes('notice.html') || currentPath.includes('faq.html')) {
     activeMenuId = "menu-board";
@@ -158,6 +193,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+// ── 나의 정보 수정: 비밀번호 확인 레이어 팝업 (전역 노출) ──
+// 메뉴 클릭 시 페이지를 이동하지 않고 현재 페이지에서 팝업을 띄운다.
+window.openPwModal = function (event) {
+  if (event) event.preventDefault();
+  const modal = document.getElementById('pwModal');
+  if (!modal) return true; // 팝업이 없으면 기본 링크 동작 허용
+  modal.removeAttribute('hidden');
+  const pw = document.getElementById('pwCheck');
+  if (pw) { pw.value = ''; setTimeout(() => pw.focus(), 50); }
+  return false;
+};
+
+// 확인 버튼: 정보 수정 페이지로 이동
+window.confirmPw = function () {
+  window.location.href = './mypage_edit.html';
+};
+
+// 취소/닫기 버튼: 팝업만 닫고 현재 페이지 유지
+window.closePwModal = function () {
+  const modal = document.getElementById('pwModal');
+  if (modal) modal.setAttribute('hidden', '');
+};
 
 // GNB 메가메뉴 토글 제어 함수 (전역 노출 - 마우스 호버 대신 클릭 토글 방식으로 변경)
 window.toggleMegaMenu = function(btnEl, menuId) {
