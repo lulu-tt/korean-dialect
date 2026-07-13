@@ -59,7 +59,7 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
   margin: 0;
   position: relative;
   overflow: hidden;
-  height: 560px;
+  height: 644px; /* 기존 560px에서 15% 늘린 644px로 확장 */
   background: #0f172a;
 }
 .hero-slider {
@@ -97,7 +97,7 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
 .hero-slide-content {
   max-width: 720px;
   z-index: 3;
-  margin-bottom: 70px; /* 검색창 및 인디케이터와의 겹침 방지를 위해 텍스트 박스 위치를 위로 이동 */
+  margin-bottom: 100px; /* 늘어난 공간에 맞춰 아래 겹침 방지 여백을 100px로 상향 */
 }
 .hero-slide-badge {
   display: inline-flex;
@@ -186,7 +186,7 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
 
 .hero-slider-controls {
   position: absolute;
-  bottom: 65px; /* 기존 110px에서 45px(3배 깊이) 추가 하향 조정 */
+  bottom: 85px; /* 늘어난 슬라이더 높이에 맞춰 20px 상향 조정 */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
