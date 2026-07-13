@@ -97,7 +97,7 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
 .hero-slide-content {
   max-width: 720px;
   z-index: 3;
-  margin-bottom: 40px; /* 검색창이 겹치므로 콘텐츠를 약간 위로 올림 */
+  margin-bottom: 70px; /* 검색창 및 인디케이터와의 겹침 방지를 위해 텍스트 박스 위치를 위로 이동 */
 }
 .hero-slide-badge {
   display: inline-flex;
@@ -186,7 +186,7 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
 
 .hero-slider-controls {
   position: absolute;
-  bottom: 100px; /* 검색바 위쪽으로 컨트롤러 배치 */
+  bottom: 150px; /* 검색바와 슬라이드 버튼 모두와 겹치지 않도록 위로 더 배치 */
   left: calc((100% - 1200px) / 2);
   display: flex;
   align-items: center;
@@ -278,13 +278,13 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
   border-radius: 16px;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
   max-width: 960px;
-  margin: -30px auto -90px; /* 기존 -60px에서 검색 박스를 30px 더 아래로 내림 */
+  margin: -10px auto -110px; /* 기존 -30px에서 20px 추가 하향 조정 */
   position: relative;
   z-index: 10;
 }
 @media (max-width: 1000px) {
   .search-panel {
-    margin: -30px 20px -90px;
+    margin: -10px 20px -110px;
   }
 }
 .search-panel__top {
@@ -404,7 +404,7 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
 /* ── TODAY SECTION (POSWEL NOW STYLE) ── */
 .today-section { 
   background: #F3C043; /* 오렌지옐로우 배경을 전체 섹션에 적용 */
-  padding: 170px 0 100px; 
+  padding: 190px 0 100px; 
   overflow: hidden; /* 좌우로 넘친 카드가 스크롤바를 만들지 않도록 숨김 */
   position: relative;
 }
