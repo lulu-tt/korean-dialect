@@ -278,13 +278,13 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
   border-radius: 16px;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
   max-width: 960px;
-  margin: -60px auto -60px; /* 아래 섹션(오늘의 지역어) 위로 걸치도록 하단 마진 음수 적용 */
+  margin: -30px auto -90px; /* 기존 -60px에서 검색 박스를 30px 더 아래로 내림 */
   position: relative;
   z-index: 10;
 }
 @media (max-width: 1000px) {
   .search-panel {
-    margin: -60px 20px -60px;
+    margin: -30px 20px -90px;
   }
 }
 .search-panel__top {
@@ -404,7 +404,7 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
 /* ── TODAY SECTION (POSWEL NOW STYLE) ── */
 .today-section { 
   background: #F3C043; /* 오렌지옐로우 배경을 전체 섹션에 적용 */
-  padding: 140px 0 100px; 
+  padding: 170px 0 100px; 
   overflow: hidden; /* 좌우로 넘친 카드가 스크롤바를 만들지 않도록 숨김 */
   position: relative;
 }
