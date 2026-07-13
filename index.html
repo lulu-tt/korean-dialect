@@ -49,18 +49,18 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
 
 /* ── HERO SLIDER ── */
 .hero-section {
-  padding: 80px 40px 100px;
+  padding: 0;
   position: relative;
   overflow: visible;
+  background: var(--bg-warm);
 }
 .hero-slider-container {
-  max-width: 1440px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
   position: relative;
-  border-radius: 32px;
   overflow: hidden;
   height: 560px;
-  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.12);
   background: #0f172a;
 }
 .hero-slider {
@@ -82,8 +82,13 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
   background-repeat: no-repeat;
   display: flex;
   align-items: center;
-  padding: 0 80px;
+  padding: 0 calc((100% - 1200px) / 2);
   z-index: 1;
+}
+@media (max-width: 1280px) {
+  .hero-slide {
+    padding: 0 40px;
+  }
 }
 .hero-slide.active {
   opacity: 1;
@@ -178,15 +183,19 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
   fill: currentColor;
 }
 
-/* Hero Slider Controls */
 .hero-slider-controls {
   position: absolute;
-  bottom: 40px;
-  left: 80px;
+  bottom: 60px;
+  left: calc((100% - 1200px) / 2);
   display: flex;
   align-items: center;
   gap: 16px;
   z-index: 10;
+}
+@media (max-width: 1280px) {
+  .hero-slider-controls {
+    left: 40px;
+  }
 }
 .hero-slider-btn {
   width: 32px;
@@ -258,8 +267,7 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
 
 /* 걸쳐 있는 통합 검색 판넬 */
 .search-panel-wrap {
-  max-width: 1440px;
-  margin: 0 auto;
+  width: 100%;
   position: relative;
   z-index: 10;
 }
@@ -269,9 +277,14 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
   border-radius: 16px;
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
   max-width: 960px;
-  margin: -40px auto 0;
+  margin: -50px auto 0;
   position: relative;
   z-index: 10;
+}
+@media (max-width: 1000px) {
+  .search-panel {
+    margin: -50px 20px 0;
+  }
 }
 .search-panel__top {
   display: flex;
