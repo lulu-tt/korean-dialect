@@ -84,16 +84,30 @@ body {
 /* 1페이지: 정면 배치 */
 .section-search {
   background-color: #ffffff;
+  /* 한글 자모 패턴 배경 이미지 */
+  background-image: url('./image/hangul-jamo-bg.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
   transform: rotateY(0deg) translateZ(50vw);
 }
+/* 콘텐츠가 배경 위에 오도록 레이어 순서 지정 */
+.section-search > * { position: relative; z-index: 1; }
 
 /* 2페이지: 우측면 배치 */
 .section-grid {
   background-color: #f8fafc;
+  /* 한지 전통 문양 배경 이미지 */
+  background-image: url('./image/hanji-pattern-bg.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
   justify-content: flex-start;
   padding-top: 80px;
   transform: rotateY(90deg) translateZ(50vw);
 }
+/* 콘텐츠가 배경 위에 오도록 레이어 순서 지정 */
+.section-grid > * { position: relative; z-index: 1; }
 
 /* 상단 라벨(eyebrow) */
 .simple-eyebrow {
