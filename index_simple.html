@@ -1180,9 +1180,6 @@ body {
             <h2>3초 방언 퀴즈</h2>
             <p class="quiz-header-sub">방언 뜻을 맞히고 오늘의 랭킹에 도전해보세요</p>
           </div>
-          <div class="quiz-header-right">
-            <span class="quiz-score" id="quizScore">SCORE 0/4</span>
-          </div>
         </div>
 
         <div class="quiz-body">
@@ -1205,8 +1202,8 @@ body {
               <button type="button" class="quiz-opt" data-i="3">D. 달밤 <i class="ti ti-arrow-right"></i></button>
             </div>
             <div class="quiz-card-bottom">
-              <button type="button" class="quiz-skip" id="quizSkip">← 넘기기</button>
-              <button type="button" class="quiz-hint" id="quizHintBtn">힌트 보기 •••</button>
+              <button type="button" class="quiz-hint" id="quizHintBtn">••• 힌트 보기</button>
+              <button type="button" class="quiz-skip" id="quizSkip">넘기기 →</button>
             </div>
           </div>
 
@@ -1214,17 +1211,17 @@ body {
           <div class="quiz-panel">
             <div class="quiz-panel-head">
               <h3>이번 주 랭킹</h3>
-              <span class="quiz-live">실시간</span>
             </div>
             <ul class="rank-list" id="rankList">
               <li class="rank-item"><span class="rank-no">#1</span><span class="rank-emoji">🍊</span><span class="rank-name">제주굴러버</span><span class="rank-pt">1,280 pt</span></li>
               <li class="rank-item"><span class="rank-no">#2</span><span class="rank-emoji">🌊</span><span class="rank-name">부산갈매기</span><span class="rank-pt">1,120 pt</span></li>
               <li class="rank-item"><span class="rank-no">#3</span><span class="rank-emoji">🍚</span><span class="rank-name">전주비빔밥</span><span class="rank-pt">980 pt</span></li>
-              <li class="rank-item me"><span class="rank-no">#4</span><span class="rank-emoji">⭐</span><span class="rank-name">나</span><span class="rank-pt">0 pt</span></li>
+              <li class="rank-item"><span class="rank-no">#4</span><span class="rank-emoji">🏔️</span><span class="rank-name">광주무등산</span><span class="rank-pt">860 pt</span></li>
+              <li class="rank-item me"><span class="rank-no">#5</span><span class="rank-emoji">⭐</span><span class="rank-name">나</span><span class="rank-pt">0 pt</span></li>
             </ul>
             <div class="quiz-tip">
               <p class="quiz-tip-title">퀴즈 팁</p>
-              <p class="quiz-tip-desc">틀려도 괜찮아요! 방언은 자주 들을수록 입에 붙어요. 오늘 3문제만 풀면 말모이 뱃지를 드려요.</p>
+              <p class="quiz-tip-desc">틀려도 괜찮아요! 방언은 자주 들을수록 입에 붙어요.</p>
               <div class="quiz-tip-actions">
                 <button type="button" class="quiz-retry" id="quizRetry">다시 하기</button>
                 <button type="button" class="quiz-next" id="quizNext">다음 문제 →</button>
@@ -1773,6 +1770,7 @@ const players = [
   { name: '제주굴러버', emoji: '🍊', pt: 1280 },
   { name: '부산갈매기', emoji: '🌊', pt: 1120 },
   { name: '전주비빔밥', emoji: '🍚', pt: 980 },
+  { name: '광주무등산', emoji: '🏔️', pt: 860 },
   { name: '나', emoji: '⭐', pt: 0, me: true },
 ];
 const POINT_PER_Q = 320;
@@ -1801,6 +1799,7 @@ function renderRanking() {
 }
 
 function updateQuizScore() {
+  if (!quizScore) return;
   quizScore.textContent = `SCORE ${score}/${quizData.length}`;
 }
 
