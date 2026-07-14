@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>지역어 종합 정보 — 심플 메인</title>
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="./styles.css" />
+<script src="./gnb.js" defer></script>
+<script src="./footer.js" defer></script>
+<style>
+/* 심플 메인 전용 프리미엄 스타일 설정 */
+html {
+  overflow: hidden; /* 원페이지 스크롤을 위해 기본 스크롤바 숨김 */
+  /* styles.css의 html{scrollbar-gutter:stable}을 덮어씀 — 스크롤바가 없으므로 우측 예약 폭이
+     검은 여백으로 노출되는 것을 방지 */
+  scrollbar-gutter: auto;
+}
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background-color: #0f172a; /* 3D 회전 시 뒷배경이 어둡고 무게감 있게 설정 */
+  color: #0f172a;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* GNB 영역은 고정 */
+#gnb-common {
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+/* 3D 큐브 회전용 뷰포트 */
+.simple-main-viewport {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  perspective: 2000px; /* 3D 입체 원근감 부여 */
+  perspective-origin: 50% 50%;
+}
+
+/* 3D 회전체 컨테이너 */
+.simple-main-container {
+  /* 뷰포트를 정확히 채우도록 절대배치(inset:0). in-flow + height:100%로 두면 3D 변형 컨테이너
+     내부 절대배치 면(main-section)이 세로로 밀려 GNB 하단에 다크 여백이 생김 */
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 1s cubic-bezier(0.65, 0, 0.35, 1);
+  will-change: transform;
+  /* 큐브를 절반 너비(50vw)만큼 뒤로 물린 뒤 Y축으로 회전시켜 제자리에서 돌게 함 */
+  transform: translateZ(-50vw) rotateY(0deg);
+}
+
+/* 개별 섹션 스타일 */
+.main-section {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  backface-visibility: hidden; /* 뒷면은 보이지 않게 처리해 렌더링 깔끔하게 */
+}
+
+/* 1페이지: 정면 배치 */
+.section-search {
+  background-color: #ffffff;
+  transform: rotateY(0deg) translateZ(50vw);
+}
+
+/* 2페이지: 우측면 배치 */
+.section-grid {
+  background-color: #f8fafc;
+  justify-content: flex-start;
+  padding-top: 80px;
+  transform: rotateY(90deg) translateZ(50vw);
+}
+
+/* 상단 라벨(eyebrow) */
+.simple-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 18px 0;
+  padding: 7px 16px;
+  background-color: #eff6ff;
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 99px;
+  letter-spacing: -0.01em;
+}
+
+/* 대타이틀 */
+.simple-title {
+  font-size: 36px;
+  line-height: 1.45;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 34px 0;
+  letter-spacing: -0.03em;
+  text-align: center;
+  max-width: 900px;
+}
+.simple-title em {
+  font-style: normal;
+  color: #2563eb;
+  background: linear-gradient(to top, rgba(37, 99, 235, 0.12) 42%, transparent 42%);
+  padding: 0 2px;
+}
+
+/* 실시간 카운팅 통계 */
+.simple-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+}
+.stat-item {
+  text-align: center;
+  min-width: 130px;
+}
+.stat-num {
+  font-size: 40px;
+  font-weight: 800;
+  color: #1e293b;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums; /* 카운팅 중 자릿수 흔들림 방지 */
+}
+.stat-label {
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+.stat-label i {
+  font-size: 17px;
+  color: #2563eb;
+}
+.stat-divider {
+  width: 1px;
+  height: 44px;
+  background-color: #e2e8f0;
+}
+
+/* 검색 폼 */
+.simple-search-box {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 580px;
+  margin: 0 auto 24px auto;
+  border: 2px solid #1e293b;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+  background-color: #ffffff;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+.simple-search-box:focus-within {
+  border-color: #2563eb;
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.15);
+}
+
+.simple-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 18px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #0f172a;
+}
+.simple-search-input::placeholder {
+  color: #94a3b8;
+}
+
+.simple-search-btn {
+  background-color: #1e293b;
+  border: none;
+  color: #ffffff;
+  padding: 0 24px;
+  height: 56px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+.simple-search-btn:hover {
+  background-color: #2563eb;
+}
+.simple-search-btn i {
+  font-size: 22px;
+}
+
+/* 추천 해시태그 칩 */
+.simple-chips {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+.simple-chip {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 99px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+.simple-chip:hover {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+/* 하단 가로형 카드 그리드 */
+.simple-grid-section {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.simple-grid-title {
+  font-size: 30px;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 30px;
+  text-align: center;
+  letter-spacing: -0.03em;
+}
+
+.simple-grid-container {
+  display: flex;
+  width: 100%;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.simple-card {
+  position: relative;
+  flex: 1;
+  height: 380px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.simple-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* 카드 좌측 상단 칩 */
+.simple-card-tag {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 2;
+}
+
+/* 카드 하단 명칭 바 */
+.simple-card-title-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(4px);
+  color: #ffffff;
+  padding: 14px 20px;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: right;
+  z-index: 2;
+  box-sizing: border-box;
+}
+
+/* 마우스 오버 시 중앙의 자세히 보기 오버레이 */
+.simple-card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(37, 99, 235, 0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 3;
+}
+.simple-card-overlay i {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+.simple-card-overlay span {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.simple-card:hover .simple-card-overlay,
+.simple-card.active .simple-card-overlay {
+  opacity: 1;
+}
+
+/* ── 2페이지: 지역어 카드 캐러셀 (3D Coverflow 스타일) ── */
+.section-grid {
+  justify-content: center;
+  padding: 40px 0;
+  overflow: hidden;
+}
+.carousel-wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.simple-grid-title span {
+  color: #2563eb;
+}
+.carousel-sub {
+  margin: -18px 0 24px 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  z-index: 10;
+}
+.carousel-sub i {
+  color: #2563eb;
+  font-size: 18px;
+}
+
+/* 3D 스테이지 */
+.stage-3d {
+  position: relative;
+  width: 100%;
+  height: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1200px;
+  cursor: grab;
+  z-index: 5;
+}
+.stage-3d.dragging {
+  cursor: grabbing;
+}
+.scene-3d {
+  position: relative;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.25s ease-out;
+}
+
+/* 단어 3D 카드 */
+.word-card-3d {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 290px;
+  height: 380px;
+  margin-left: -145px;
+  margin-top: -190px;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+  pointer-events: auto;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 카드 플레이트 */
+.word-plate-3d {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-top: 5px solid var(--accent, #2563eb);
+  border-radius: 20px;
+  padding: 28px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+  transition: filter 0.5s ease, background 0.5s ease, border-color 0.5s ease;
+  filter: grayscale(0.8) contrast(0.95) brightness(0.9);
+  overflow: hidden;
+}
+
+/* 카드 백그라운드 글리프 타이포그래피 */
+.word-plate-3d .glyph-bg {
+  position: absolute;
+  bottom: 10px;
+  right: -10px;
+  font-size: 150px;
+  font-weight: 800;
+  color: var(--accent, #2563eb);
+  opacity: 0.05;
+  pointer-events: none;
+  font-family: inherit;
+  line-height: 1;
+}
+
+/* 센터 카드 강조 스타일 */
+.word-card-3d.center .word-plate-3d {
+  filter: grayscale(0) contrast(1.05) brightness(1);
+  background: #ffffff;
+  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.12);
+}
+
+.word-card-3d-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+  z-index: 2;
+}
+.word-region-3d {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  background-color: var(--accent, #2563eb);
+  padding: 6px 14px;
+  border-radius: 99px;
+}
+.word-region-3d i {
+  font-size: 14px;
+}
+
+/* 음성 재생 버튼 */
+.word-play-3d {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background-color: #f1f5f9;
+  color: var(--accent, #2563eb);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.25s, transform 0.15s, color 0.25s;
+  flex-shrink: 0;
+  z-index: 5;
+}
+.word-play-3d i {
+  font-size: 22px;
+}
+.word-play-3d:hover {
+  background-color: var(--accent, #2563eb);
+  color: #ffffff;
+}
+.word-play-3d.playing {
+  background-color: var(--accent, #2563eb);
+  color: #ffffff;
+  animation: playPulse3d 1s ease-in-out infinite;
+}
+@keyframes playPulse3d {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.35); }
+  50% { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
+}
+
+.word-term-3d {
+  font-size: 36px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 12px 0;
+  letter-spacing: -0.03em;
+  z-index: 2;
+}
+.word-mean-3d {
+  font-size: 16px;
+  font-weight: 600;
+  color: #475569;
+  margin: 0 0 auto 0;
+  z-index: 2;
+}
+.word-ex-3d {
+  font-size: 15px;
+  font-weight: 500;
+  color: #64748b;
+  margin: 18px 0 0 0;
+  padding-top: 18px;
+  border-top: 1px dashed #e2e8f0;
+  line-height: 1.6;
+  z-index: 2;
+}
+
+/* 더 보기 카드 특화 플레이트 */
+.word-plate-3d.more-plate {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #ffffff;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 16px;
+}
+.word-card-3d.center .word-plate-3d.more-plate {
+  background: #0f172a;
+}
+.word-plate-3d.more-plate i {
+  font-size: 36px;
+  color: #3b82f6;
+  transition: transform 0.3s;
+}
+.word-plate-3d.more-plate:hover i {
+  transform: translateX(6px);
+}
+.word-plate-3d.more-plate span {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+/* 스크롤 진행 바 */
+.carousel-progress {
+  width: 260px;
+  height: 5px;
+  background-color: #e2e8f0;
+  border-radius: 99px;
+  margin-top: 24px;
+  overflow: hidden;
+  z-index: 10;
+}
+.carousel-progress-bar {
+  width: 0%;
+  height: 100%;
+  background-color: #2563eb;
+  border-radius: 99px;
+  transition: width 0.1s linear;
+}
+
+/* ── 3페이지: 방언 퀴즈 ── */
+/* 큐브 3번째 면(뒷면) 배치 */
+.section-quiz {
+  background-color: #f6edcf;
+  background-image: radial-gradient(#e7daac 1.3px, transparent 1.3px);
+  background-size: 26px 26px;
+  transform: rotateY(180deg) translateZ(50vw);
+  padding: 28px 20px;
+}
+.quiz-wrap {
+  width: 100%;
+  max-width: 1180px;
+}
+.quiz-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.quiz-header h2 {
+  font-size: 30px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0 0 8px;
+  letter-spacing: -0.03em;
+}
+/* 퀴즈 섹션 설명(서브타이틀) — 크림 테마에 맞춘 웜 그레이 */
+.quiz-header-sub {
+  font-size: 15px;
+  font-weight: 500;
+  color: #9a9070;
+  margin: 0;
+}
+.quiz-header-right { display: flex; align-items: center; gap: 12px; }
+.quiz-score {
+  background: #1a1a1a; color: #fff;
+  font-size: 14px; font-weight: 800; letter-spacing: 0.02em;
+  padding: 9px 16px; border-radius: 99px;
+}
+
+.quiz-body {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+/* 왼쪽 퀴즈 카드 */
+.quiz-card {
+  background: #fdf7e4;
+  border: 5px solid #1a1a1a;
+  border-radius: 28px;
+  padding: 24px 26px 18px;
+  display: flex;
+  flex-direction: column;
+}
+.quiz-card-top { display: flex; align-items: center; justify-content: space-between; }
+.quiz-qnum { font-size: 15px; font-weight: 700; color: #9a9070; }
+.quiz-region { background: #3c3a33; color: #fff; font-size: 13px; font-weight: 700; padding: 6px 13px; border-radius: 99px; }
+.quiz-card-mid { text-align: center; padding: 12px 0 16px; }
+.quiz-ask { display: inline-block; background: #fff; color: #4b463a; font-size: 14px; font-weight: 700; padding: 6px 16px; border-radius: 99px; }
+.quiz-word { font-size: 54px; font-weight: 800; color: #1a1a1a; margin: 14px 0 8px; letter-spacing: -0.03em; }
+.quiz-sub { font-size: 15px; color: #9a9070; font-weight: 600; margin: 0; }
+.quiz-hint-text { margin: 8px 0 0; font-size: 14px; font-weight: 600; color: #c2410c; min-height: 20px; }
+.quiz-options { display: flex; flex-direction: column; gap: 11px; }
+.quiz-opt {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #fff; border: 2px solid #efe9d5; border-radius: 14px;
+  padding: 15px 20px; font-size: 16px; font-weight: 700; color: #1a1a1a;
+  cursor: pointer; text-align: left;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+.quiz-opt:hover:not(:disabled) { border-color: #1a1a1a; transform: translateY(-1px); }
+.quiz-opt i { color: #c2bba2; font-size: 18px; }
+.quiz-opt.correct { background: #dcfce7; border-color: #16a34a; color: #166534; }
+.quiz-opt.correct i { color: #16a34a; }
+.quiz-opt.wrong { background: #fee2e2; border-color: #dc2626; color: #991b1b; }
+.quiz-opt.wrong i { color: #dc2626; }
+.quiz-opt:disabled { cursor: default; }
+.quiz-card-bottom {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 16px; padding-top: 14px; border-top: 1px solid #ece5cf;
+}
+.quiz-skip, .quiz-hint { background: none; border: none; font-size: 14px; font-weight: 700; color: #9a9070; cursor: pointer; }
+.quiz-skip:hover, .quiz-hint:hover { color: #1a1a1a; }
+
+/* 오른쪽 랭킹 패널 */
+.quiz-panel {
+  background: #fff;
+  border-radius: 24px;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(90, 78, 34, 0.07);
+}
+.quiz-panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.quiz-panel-head h3 { font-size: 22px; font-weight: 800; color: #1a1a1a; margin: 0; }
+.quiz-live { background: #f6edcf; color: #8a7a3d; font-size: 13px; font-weight: 700; padding: 5px 12px; border-radius: 99px; }
+.rank-list { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+.rank-item { display: flex; align-items: center; gap: 14px; background: #faf5e6; border-radius: 16px; padding: 13px 20px; transition: background 0.3s; }
+.rank-no { font-size: 15px; font-weight: 800; color: #b0a577; width: 28px; }
+.rank-emoji { width: 34px; height: 34px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); flex-shrink: 0; }
+.rank-name { font-size: 16px; font-weight: 800; color: #1a1a1a; flex: 1; }
+.rank-pt { font-size: 15px; font-weight: 700; color: #4b463a; }
+.rank-item.me { background: #1a1a1a; }
+.rank-item.me .rank-no,
+.rank-item.me .rank-name,
+.rank-item.me .rank-pt { color: #fff; }
+.quiz-tip { background: #faf5e6; border-radius: 18px; padding: 17px 22px; }
+.quiz-tip-title { font-size: 15px; font-weight: 800; color: #1a1a1a; margin: 0 0 8px; }
+.quiz-tip-desc { font-size: 14px; font-weight: 500; color: #6b6449; line-height: 1.55; margin: 0 0 15px; }
+.quiz-tip-actions { display: flex; gap: 10px; }
+.quiz-retry { background: #fff; border: 1.5px solid #1a1a1a; color: #1a1a1a; font-size: 14px; font-weight: 700; padding: 10px 20px; border-radius: 99px; cursor: pointer; transition: background 0.15s; }
+.quiz-next { background: #1a1a1a; border: none; color: #fff; font-size: 14px; font-weight: 800; padding: 10px 22px; border-radius: 99px; cursor: pointer; transition: background 0.15s; }
+.quiz-retry:hover { background: #f3eddb; }
+.quiz-next:hover { background: #000; }
+
+/* ── 4페이지: 생활 속 사물 방언 ── */
+/* 큐브 4번째 면(좌측면) 배치 */
+.section-things {
+  background-color: #ffffff;
+  transform: rotateY(270deg) translateZ(50vw);
+  padding: 36px 20px;
+}
+.things-wrap {
+  width: 100%;
+  max-width: 1320px;
+}
+.things-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+.things-title {
+  font-size: 30px;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 8px;
+  letter-spacing: -0.03em;
+}
+.things-sub {
+  font-size: 15px;
+  font-weight: 500;
+  color: #64748b;
+  margin: 0;
+}
+.things-all {
+  font-size: 15px;
+  font-weight: 700;
+  color: #2563eb;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  padding-top: 6px;
+}
+.things-all:hover { text-decoration: underline; }
+
+.things-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+.thing-card {
+  border-radius: 12px;
+  background: #ffffff;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: box-shadow 0.25s, transform 0.25s, border-color 0.25s;
+}
+.thing-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.12);
+  border-color: #dbeafe;
+}
+.thing-img {
+  width: 100%;
+  height: 320px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 12px;
+  background-color: #f1f5f9;
+}
+.thing-body { padding: 18px 8px 8px; }
+.thing-name {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+}
+.thing-meta {
+  font-size: 13px;
+  font-weight: 600;
+  color: #94a3b8;
+  margin: 0 0 12px;
+}
+.thing-desc {
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0 0 16px;
+  min-height: 44px;
+}
+.thing-more {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.thing-card:hover .thing-more { color: #2563eb; }
+
+/* ── 4페이지: 스크롤 전개형 스캐터 콜라주 ─────────── */
+.things-scatter {
+  position: relative;
+  width: 100%;
+  height: 640px;
+  margin-top: 4px;
+}
+.scatter-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 236px;
+  margin: -142px 0 0 -118px;   /* 카드 중심을 스테이지 중앙에 앵커 */
+  transform-origin: 50% 50%;
+  will-change: transform;
+  pointer-events: none;         /* 클릭은 뷰포트 좌표 판정으로 처리 */
+  transition: box-shadow 0.25s ease;
+}
+.scatter-card-inner {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 10px 10px 4px;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.16);
+  border: 1px solid #eef2f7;
+}
+.scatter-card.is-front .scatter-card-inner {
+  box-shadow: 0 26px 60px rgba(15, 23, 42, 0.26);
+}
+.scatter-img {
+  width: 100%;
+  height: 184px;
+  border-radius: 13px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #e2e8f0;
+}
+.scatter-cap { padding: 11px 6px 8px; }
+.scatter-name {
+  display: block;
+  font-size: 19px;
+  font-weight: 800;
+  color: #1e293b;
+  letter-spacing: -0.02em;
+  margin-bottom: 3px;
+}
+.scatter-meta {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+/* 스크롤 유도 힌트 */
+.scatter-hint {
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #2563eb;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 9px 18px;
+  border-radius: 99px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.1);
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  z-index: 200;
+}
+.scatter-hint i { font-size: 18px; animation: scatterHintBounce 1.4s ease-in-out infinite; }
+@keyframes scatterHintBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
+}
+
+/* Footer 고정 */
+#footer-common {
+  flex-shrink: 0;
+  z-index: 100;
+  background-color: #ffffff;
+}
+/* 이 페이지 한정: 푸터 상단 빈 여백(margin-top) 제거 */
+#footer-common .footer {
+  margin-top: 0;
+}
+
+/* 하단 중앙 도트 인디케이터 */
+.page-dots {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  z-index: 91;
+}
+.page-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background-color: #cbd5e1;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.page-dot:hover {
+  background-color: #2563eb;
+  transform: scale(1.2);
+}
+.page-dot.active {
+  width: 28px;
+  border-radius: 99px;
+  background-color: #2563eb;
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.4);
+}
+
+/* 좌우 전환 화살표 버튼 */
+.cube-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.95);
+  color: #1e293b;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 90;
+  transition: opacity 0.3s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+.cube-arrow i {
+  font-size: 32px;
+  line-height: 1;
+}
+.cube-arrow:hover {
+  background-color: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 8px 26px rgba(37, 99, 235, 0.4);
+}
+.cube-arrow:active {
+  background-color: #1d4ed8;
+}
+.cube-arrow-prev { left: 28px; }
+.cube-arrow-next { right: 28px; }
+/* 이동할 곳이 없는 버튼은 숨김 */
+.cube-arrow.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+</style>
+</head>
+<body>
+
+<!-- 공통 GNB 영역 -->
+<div id="gnb-common"></div>
+
+<!-- 메인 스크롤 뷰포트 -->
+<div class="simple-main-viewport">
+  <div class="simple-main-container" id="mainContainer">
+    
+    <!-- 1페이지: 검색/대문 -->
+    <section class="main-section section-search">
+      <p class="simple-eyebrow"><i class="ti ti-quote"></i> 우리말의 뿌리, 지역어</p>
+      <h1 class="simple-title">지역어는 우리 민족의 역사와 전통, 언어문화,<br>지역민들의 정서를 고스란히 담은 <em>소중한 문화유산</em>입니다.</h1>
+
+      <!-- 검색 폼 -->
+      <form action="./dialect_search_prototype.html" method="get" class="simple-search-box">
+        <input type="text" name="query" class="simple-search-input" placeholder="검색어를 입력하세요" autocomplete="off">
+        <button type="submit" class="simple-search-btn" aria-label="검색">
+          <i class="ti ti-search"></i>
+        </button>
+      </form>
+
+      <!-- 추천 검색어 칩 -->
+      <div class="simple-chips">
+        <button type="button" class="simple-chip" onclick="location.href='./dialect_search_prototype.html?query=부삭'">#부삭</button>
+        <button type="button" class="simple-chip" onclick="location.href='./dialect_search_prototype.html?query=가스나'">#가스나</button>
+        <button type="button" class="simple-chip" onclick="location.href='./dialect_search_prototype.html?query=낭구'">#낭구</button>
+        <button type="button" class="simple-chip" onclick="location.href='./dialect_search_prototype.html?query=워메'">#워메</button>
+        <button type="button" class="simple-chip" onclick="location.href='./dialect_search_prototype.html?query=드릇마농'">#드릇마농</button>
+      </div>
+
+      <!-- 실시간 카운팅 통계 -->
+      <div class="simple-stats" id="statsBox">
+        <div class="stat-item">
+          <div class="stat-num" data-target="152430">0</div>
+          <div class="stat-label"><i class="ti ti-abc"></i> 조사된 지역어 어휘</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-num" data-target="8720">0</div>
+          <div class="stat-label"><i class="ti ti-message-2"></i> 구술발화 자료</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-num" data-target="34580">0</div>
+          <div class="stat-label"><i class="ti ti-microphone"></i> 수집된 음성자료</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-num" data-target="12860">0</div>
+          <div class="stat-label"><i class="ti ti-photo"></i> 사진자료</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2페이지: 지역어 카드 캐러셀 -->
+    <section class="main-section section-grid">
+      <div class="carousel-wrap">
+        <h2 class="simple-grid-title">이런 말, 들어보셨나요? <span>재미있는 우리 지역어</span></h2>
+        <p class="carousel-sub"><i class="ti ti-mouse"></i> 드래그하거나 스크롤하여 넘겨보고, <i class="ti ti-volume"></i> 버튼으로 발음을 들어보세요.</p>
+
+        <!-- 3D 캐러셀 스테이지 -->
+        <div class="stage-3d" id="stage3d" tabindex="0" aria-label="지역어 3D 캐러셀">
+          <div class="scene-3d" id="scene3d">
+            
+            <div class="word-card-3d" style="--accent:#e11d48">
+              <div class="word-plate-3d">
+                <span class="glyph-bg">부</span>
+                <div class="word-card-3d-top">
+                  <span class="word-region-3d"><i class="ti ti-map-pin"></i> 경상</span>
+                  <button type="button" class="word-play-3d" aria-label="발음 듣기" data-say="부삭. 부삭에 가서 밥 좀 가온나."><i class="ti ti-volume"></i></button>
+                </div>
+                <h3 class="word-term-3d">부삭</h3>
+                <p class="word-mean-3d">= 부엌</p>
+                <p class="word-ex-3d">“부삭에 가서 밥 좀 가온나.”</p>
+              </div>
+            </div>
+
+            <div class="word-card-3d" style="--accent:#e11d48">
+              <div class="word-plate-3d">
+                <span class="glyph-bg">정</span>
+                <div class="word-card-3d-top">
+                  <span class="word-region-3d"><i class="ti ti-map-pin"></i> 경상</span>
+                  <button type="button" class="word-play-3d" aria-label="발음 듣기" data-say="정구지. 정구지 넣고 전 부치자."><i class="ti ti-volume"></i></button>
+                </div>
+                <h3 class="word-term-3d">정구지</h3>
+                <p class="word-mean-3d">= 부추</p>
+                <p class="word-ex-3d">“정구지 넣고 전 부치자.”</p>
+              </div>
+            </div>
+
+            <div class="word-card-3d" style="--accent:#16a34a">
+              <div class="word-plate-3d">
+                <span class="glyph-bg">거</span>
+                <div class="word-card-3d-top">
+                  <span class="word-region-3d"><i class="ti ti-map-pin"></i> 전라</span>
+                  <button type="button" class="word-play-3d" aria-label="발음 듣기" data-say="거시기. 거시기 좀 갖고 와봐."><i class="ti ti-volume"></i></button>
+                </div>
+                <h3 class="word-term-3d">거시기</h3>
+                <p class="word-mean-3d">= 그것 / 저기</p>
+                <p class="word-ex-3d">“거시기 좀 갖고 와봐.”</p>
+              </div>
+            </div>
+
+            <div class="word-card-3d" style="--accent:#16a34a">
+              <div class="word-plate-3d">
+                <span class="glyph-bg">겁</span>
+                <div class="word-card-3d-top">
+                  <span class="word-region-3d"><i class="ti ti-map-pin"></i> 전라</span>
+                  <button type="button" class="word-play-3d" aria-label="발음 듣기" data-say="겁나게. 오늘 겁나게 덥네잉."><i class="ti ti-volume"></i></button>
+                </div>
+                <h3 class="word-term-3d">겁나게</h3>
+                <p class="word-mean-3d">= 굉장히 / 매우</p>
+                <p class="word-ex-3d">“오늘 겁나게 덥네잉.”</p>
+              </div>
+            </div>
+
+            <div class="word-card-3d" style="--accent:#0891b2">
+              <div class="word-plate-3d">
+                <span class="glyph-bg">혼</span>
+                <div class="word-card-3d-top">
+                  <span class="word-region-3d"><i class="ti ti-map-pin"></i> 제주</span>
+                  <button type="button" class="word-play-3d" aria-label="발음 듣기" data-say="혼저옵서예. 혼저옵서예, 반갑수다."><i class="ti ti-volume"></i></button>
+                </div>
+                <h3 class="word-term-3d">혼저옵서예</h3>
+                <p class="word-mean-3d">= 어서 오세요</p>
+                <p class="word-ex-3d">“혼저옵서예, 반갑수다.”</p>
+              </div>
+            </div>
+
+            <div class="word-card-3d" style="--accent:#0891b2">
+              <div class="word-plate-3d">
+                <span class="glyph-bg">폭</span>
+                <div class="word-card-3d-top">
+                  <span class="word-region-3d"><i class="ti ti-map-pin"></i> 제주</span>
+                  <button type="button" class="word-play-3d" aria-label="발음 듣기" data-say="폭삭 속았수다. 오늘 하루 폭삭 속았수다."><i class="ti ti-volume"></i></button>
+                </div>
+                <h3 class="word-term-3d">폭삭 속았수다</h3>
+                <p class="word-mean-3d">= 정말 수고하셨습니다</p>
+                <p class="word-ex-3d">“오늘 하루 폭삭 속았수다.”</p>
+              </div>
+            </div>
+
+            <div class="word-card-3d" style="--accent:#d97706">
+              <div class="word-plate-3d">
+                <span class="glyph-bg">시</span>
+                <div class="word-card-3d-top">
+                  <span class="word-region-3d"><i class="ti ti-map-pin"></i> 충청</span>
+                  <button type="button" class="word-play-3d" aria-label="발음 듣기" data-say="시방. 시방 뭐 하는겨?"><i class="ti ti-volume"></i></button>
+                </div>
+                <h3 class="word-term-3d">시방</h3>
+                <p class="word-mean-3d">= 지금</p>
+                <p class="word-ex-3d">“시방 뭐 하는겨?”</p>
+              </div>
+            </div>
+
+            <div class="word-card-3d" style="--accent:#d97706">
+              <div class="word-plate-3d">
+                <span class="glyph-bg">개</span>
+                <div class="word-card-3d-top">
+                  <span class="word-region-3d"><i class="ti ti-map-pin"></i> 충청</span>
+                  <button type="button" class="word-play-3d" aria-label="발음 듣기" data-say="개갈 안 난다. 일이 통 개갈 안 나네."><i class="ti ti-volume"></i></button>
+                </div>
+                <h3 class="word-term-3d">개갈 안 난다</h3>
+                <p class="word-mean-3d">= 개운치 않다</p>
+                <p class="word-ex-3d">“일이 통 개갈 안 나네.”</p>
+              </div>
+            </div>
+
+            <div class="word-card-3d" style="--accent:#7c3aed">
+              <div class="word-plate-3d">
+                <span class="glyph-bg">마</span>
+                <div class="word-card-3d-top">
+                  <span class="word-region-3d"><i class="ti ti-map-pin"></i> 강원</span>
+                  <button type="button" class="word-play-3d" aria-label="발음 듣기" data-say="마카. 마카 다 모예봐."><i class="ti ti-volume"></i></button>
+                </div>
+                <h3 class="word-term-3d">마카</h3>
+                <p class="word-mean-3d">= 모두 / 전부</p>
+                <p class="word-ex-3d">“마카 다 모예봐.”</p>
+              </div>
+            </div>
+
+            <!-- 더 보기 카드 -->
+            <div class="word-card-3d" onclick="location.href='./dialect_search_prototype.html'">
+              <div class="word-plate-3d more-plate">
+                <i class="ti ti-arrow-right"></i>
+                <span>더 많은 지역어<br>둘러보기</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 스크롤 진행 바 -->
+        <div class="carousel-progress"><div class="carousel-progress-bar" id="carProgress"></div></div>
+      </div>
+    </section>
+
+    <!-- 3페이지: 방언 퀴즈 -->
+    <section class="main-section section-quiz">
+      <div class="quiz-wrap">
+        <div class="quiz-header">
+          <div>
+            <h2>3초 방언 퀴즈</h2>
+            <p class="quiz-header-sub">방언 뜻을 맞히고 오늘의 랭킹에 도전해보세요</p>
+          </div>
+          <div class="quiz-header-right">
+            <span class="quiz-score" id="quizScore">SCORE 0/4</span>
+          </div>
+        </div>
+
+        <div class="quiz-body">
+          <!-- 퀴즈 카드 -->
+          <div class="quiz-card">
+            <div class="quiz-card-top">
+              <span class="quiz-qnum" id="quizQnum">Q1 / 4</span>
+              <span class="quiz-region" id="quizRegion">경상 방언</span>
+            </div>
+            <div class="quiz-card-mid">
+              <span class="quiz-ask">이 단어 뜻은?</span>
+              <h3 class="quiz-word" id="quizWord">달비</h3>
+              <p class="quiz-sub">3초 안에 골라봐요!</p>
+              <p class="quiz-hint-text" id="quizHint"></p>
+            </div>
+            <div class="quiz-options" id="quizOptions">
+              <button type="button" class="quiz-opt" data-i="0">A. 달력 <i class="ti ti-arrow-right"></i></button>
+              <button type="button" class="quiz-opt" data-i="1">B. 달래 <i class="ti ti-arrow-right"></i></button>
+              <button type="button" class="quiz-opt" data-i="2">C. 달걀 <i class="ti ti-arrow-right"></i></button>
+              <button type="button" class="quiz-opt" data-i="3">D. 달밤 <i class="ti ti-arrow-right"></i></button>
+            </div>
+            <div class="quiz-card-bottom">
+              <button type="button" class="quiz-skip" id="quizSkip">← 넘기기</button>
+              <button type="button" class="quiz-hint" id="quizHintBtn">힌트 보기 •••</button>
+            </div>
+          </div>
+
+          <!-- 랭킹 패널 -->
+          <div class="quiz-panel">
+            <div class="quiz-panel-head">
+              <h3>이번 주 랭킹</h3>
+              <span class="quiz-live">실시간</span>
+            </div>
+            <ul class="rank-list" id="rankList">
+              <li class="rank-item"><span class="rank-no">#1</span><span class="rank-emoji">🍊</span><span class="rank-name">제주굴러버</span><span class="rank-pt">1,280 pt</span></li>
+              <li class="rank-item"><span class="rank-no">#2</span><span class="rank-emoji">🌊</span><span class="rank-name">부산갈매기</span><span class="rank-pt">1,120 pt</span></li>
+              <li class="rank-item"><span class="rank-no">#3</span><span class="rank-emoji">🍚</span><span class="rank-name">전주비빔밥</span><span class="rank-pt">980 pt</span></li>
+              <li class="rank-item me"><span class="rank-no">#4</span><span class="rank-emoji">⭐</span><span class="rank-name">나</span><span class="rank-pt">0 pt</span></li>
+            </ul>
+            <div class="quiz-tip">
+              <p class="quiz-tip-title">퀴즈 팁</p>
+              <p class="quiz-tip-desc">틀려도 괜찮아요! 방언은 자주 들을수록 입에 붙어요. 오늘 3문제만 풀면 말모이 뱃지를 드려요.</p>
+              <div class="quiz-tip-actions">
+                <button type="button" class="quiz-retry" id="quizRetry">다시 하기</button>
+                <button type="button" class="quiz-next" id="quizNext">다음 문제 →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4페이지: 생활 속 사물 방언 -->
+    <section class="main-section section-things">
+      <div class="things-wrap">
+        <div class="things-header">
+          <div>
+            <h2 class="things-title">사라져가는 물건, 사라져가는 말</h2>
+            <p class="things-sub">각 지역의 생활 속 사물을 방언으로 기록합니다</p>
+          </div>
+          <a class="things-all" href="./dialect_search_prototype.html">전체 보기 <i class="ti ti-arrow-right"></i></a>
+        </div>
+
+        <!-- 스크롤(휠)에 따라 카드가 쌓임 → 흩어짐 으로 전개되는 스캐터 콜라주 -->
+        <div class="things-scatter" id="thingsScatter">
+
+          <article class="scatter-card" data-query="두석">
+            <div class="scatter-card-inner">
+              <div class="scatter-img" style="background-image:url('./image/200805001-2.jpg')"></div>
+              <div class="scatter-cap"><span class="scatter-name">두석</span><span class="scatter-meta">경상남도 · 2008</span></div>
+            </div>
+          </article>
+
+          <article class="scatter-card" data-query="뀌지부채">
+            <div class="scatter-card-inner">
+              <div class="scatter-img" style="background-image:url('./image/200710306.jpg')"></div>
+              <div class="scatter-cap"><span class="scatter-name">뀌지부채</span><span class="scatter-meta">전라남도 · 2007</span></div>
+            </div>
+          </article>
+
+          <article class="scatter-card" data-query="농악북">
+            <div class="scatter-card-inner">
+              <div class="scatter-img" style="background-image:url('./image/200704347.jpg')"></div>
+              <div class="scatter-cap"><span class="scatter-name">농악북</span><span class="scatter-meta">경상북도 · 2007</span></div>
+            </div>
+          </article>
+
+          <article class="scatter-card" data-query="궤혈">
+            <div class="scatter-card-inner">
+              <div class="scatter-img" style="background-image:url('./image/200908015.jpg')"></div>
+              <div class="scatter-cap"><span class="scatter-name">궤혈</span><span class="scatter-meta">서울특별시 · 2009</span></div>
+            </div>
+          </article>
+
+          <article class="scatter-card" data-query="감자때">
+            <div class="scatter-card-inner">
+              <div class="scatter-img" style="background-image:url('./image/200811821.jpg')"></div>
+              <div class="scatter-cap"><span class="scatter-name">감자때</span><span class="scatter-meta">전라남도 · 2008</span></div>
+            </div>
+          </article>
+
+          <article class="scatter-card" data-query="감자떡">
+            <div class="scatter-card-inner">
+              <div class="scatter-img" style="background-image:url('./image/200911701.jpg')"></div>
+              <div class="scatter-cap"><span class="scatter-name">감자떡</span><span class="scatter-meta">인천광역시 · 2009</span></div>
+            </div>
+          </article>
+
+          <article class="scatter-card" data-query="감자송편">
+            <div class="scatter-card-inner">
+              <div class="scatter-img" style="background-image:url('./image/200911620.jpg')"></div>
+              <div class="scatter-cap"><span class="scatter-name">감자송편</span><span class="scatter-meta">강원도 · 2009</span></div>
+            </div>
+          </article>
+
+          <article class="scatter-card" data-query="감자때짐치">
+            <div class="scatter-card-inner">
+              <div class="scatter-img" style="background-image:url('./image/200811853.jpg')"></div>
+              <div class="scatter-cap"><span class="scatter-name">감자때짐치</span><span class="scatter-meta">전라남도 · 2008</span></div>
+            </div>
+          </article>
+
+          <div class="scatter-hint" id="scatterHint"><i class="ti ti-mouse"></i> 스크롤하여 펼쳐보세요</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 좌우 전환 버튼 -->
+  <button type="button" class="cube-arrow cube-arrow-prev" id="navPrev" aria-label="이전 화면">
+    <i class="ti ti-chevron-left"></i>
+  </button>
+  <button type="button" class="cube-arrow cube-arrow-next" id="navNext" aria-label="다음 화면">
+    <i class="ti ti-chevron-right"></i>
+  </button>
+
+  <!-- 페이지 인디케이터 도트 -->
+  <div class="page-dots">
+    <div class="page-dot active" onclick="moveToPage(0)" title="검색"></div>
+    <div class="page-dot" onclick="moveToPage(1)" title="추천 콘텐츠"></div>
+    <div class="page-dot" onclick="moveToPage(2)" title="방언 퀴즈"></div>
+    <div class="page-dot" onclick="moveToPage(3)" title="생활 속 사물"></div>
+  </div>
+</div>
+
+<!-- 공통 Footer 영역 -->
+<div id="footer-common"></div>
+
+<script>
+let currentPage = 0;
+const totalPages = 4;
+let isScrolling = false;
+const container = document.getElementById('mainContainer');
+const viewport = document.querySelector('.simple-main-viewport');
+const dots = document.querySelectorAll('.page-dot');
+
+// 실제 적용 중인 누적 회전각(계속 감소/증가하며 무한 순환)
+let rotationAngle = 0;
+
+// 누적 각도로부터 현재 페이지(0~3) 계산
+function pageFromAngle(angle) {
+  return ((Math.round(-angle / 90) % totalPages) + totalPages) % totalPages;
+}
+
+// 큐브를 현재 rotationAngle 값으로 회전
+function applyRotation() {
+  container.style.transform = `translateZ(-50vw) rotateY(${rotationAngle}deg)`;
+}
+
+function updateDots() {
+  dots.forEach((dot, index) => {
+    dot.classList.toggle('active', index === currentPage);
+  });
+}
+
+// 3D 큐브의 모든 면(섹션)은 DOM에 동시에 존재해, 안 보이는 면이 클릭을 가로챈다.
+// (backface-visibility는 렌더링만 숨길 뿐 hit-testing은 막지 못함)
+// 따라서 현재 보이는 섹션만 상호작용을 허용한다.
+const mainSections = document.querySelectorAll('.main-section');
+function updateSectionInteractivity() {
+  mainSections.forEach((sec, i) => {
+    sec.style.pointerEvents = (i === currentPage) ? 'auto' : 'none';
+  });
+}
+
+// 회전 후 공통 처리(페이지 갱신, 음성 정지, 통계 재생 등)
+function afterRotate() {
+  const prevPage = currentPage;
+  currentPage = pageFromAngle(rotationAngle);
+  updateDots();
+  updateNav();
+  updateSectionInteractivity();
+  stopSpeaking();
+  // 다른 페이지에서 첫 페이지(통계)로 돌아오면 카운팅을 다시 재생
+  if (currentPage === 0 && prevPage !== 0) animateCounts();
+  // 4페이지 진입 시 스캐터를 다시 '쌓임' 상태로 리셋해 펼침 연출을 재생
+  if (currentPage === 3 && prevPage !== 3) scatterTarget = 0;
+}
+
+// 방향 이동(연속 회전): dir = +1 다음(오른쪽), -1 이전(왼쪽) — 끝에서 무한 순환
+function step(dir) {
+  rotationAngle -= dir * 90; // 다음 화면 = 각도 감소
+  applyRotation();
+  afterRotate();
+}
+
+// 특정 페이지로 최단 경로 회전(도트 클릭용)
+function moveToPage(pageIndex) {
+  if (pageIndex < 0 || pageIndex >= totalPages) return;
+  let target = -pageIndex * 90;
+  // 현재 각도와 등가(±360°)인 값 중 가장 가까운 쪽으로 회전
+  while (target - rotationAngle > 180) target -= 360;
+  while (target - rotationAngle < -180) target += 360;
+  rotationAngle = target;
+  applyRotation();
+  afterRotate();
+}
+
+// 회전 잠금(트랜지션 시간 동안 중복 입력 방지)
+function lockDuringTransition() {
+  isScrolling = true;
+  setTimeout(() => { isScrolling = false; }, 1000);
+}
+
+/* ── 좌우 전환 버튼 ───────────────────────── */
+const navPrev = document.getElementById('navPrev');
+const navNext = document.getElementById('navNext');
+
+// 무한 순환이므로 화살표는 항상 표시
+function updateNav() {
+  navPrev.classList.remove('hidden');
+  navNext.classList.remove('hidden');
+}
+
+navPrev.addEventListener('click', () => {
+  if (isScrolling) return;
+  step(-1);
+  lockDuringTransition();
+});
+navNext.addEventListener('click', () => {
+  if (isScrolling) return;
+  step(1); // 마지막(4번째) 화면에서 오른쪽 → 1번으로 이어짐
+  lockDuringTransition();
+});
+
+/* ── 키보드 방향키(보조 조작) ─────────────── */
+window.addEventListener('keydown', (e) => {
+  if (isScrolling) return;
+
+  // 2페이지(단어 캐러셀) 활성화 상태에서는 방향키를 캐러셀 스냅으로 사용하고 페이지 전환은 막음
+  if (currentPage === 1) {
+    if (e.key === 'ArrowRight') {
+      target3d = Math.min(cards3d.length - 1, target3d + 1);
+      e.preventDefault();
+    } else if (e.key === 'ArrowLeft') {
+      target3d = Math.max(0, target3d - 1);
+      e.preventDefault();
+    }
+    return;
+  }
+
+  if (['ArrowRight', 'PageDown'].includes(e.key)) {
+    step(1);
+    lockDuringTransition();
+  } else if (['ArrowLeft', 'PageUp'].includes(e.key)) {
+    step(-1);
+    lockDuringTransition();
+  }
+});
+
+/* ── 3D Coverflow 인터랙션 구현 (2페이지) ── */
+const scene3d = document.getElementById('scene3d');
+const stage3d = document.getElementById('stage3d');
+const cards3d = Array.from(scene3d.querySelectorAll('.word-card-3d'));
+
+let pos3d = 4;          // 연속적인 캐러셀 위치 (기본값: 혼저옵서예 카드)
+let target3d = 4;       // 정렬 스냅 타겟 인덱스 (기본값: 혼저옵서예 카드)
+let mx3d = 0, my3d = 0;      // 마우스 좌표 (-1 ~ 1)
+let vmx3d = 0, vmy3d = 0;    // 감쇠 보정된 마우스 좌표
+
+// 단어 카드 간 3D 간격 (반응형 연산)
+const calculateGap3d = () => Math.max(220, Math.min(270, window.innerWidth * 0.22));
+let GAP3d = calculateGap3d();
+
+window.addEventListener('resize', () => {
+  GAP3d = calculateGap3d();
+});
+
+// 마우스 움직임 캡처 -> Look-around
+stage3d.addEventListener('mousemove', (e) => {
+  const rect = stage3d.getBoundingClientRect();
+  mx3d = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+  my3d = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+});
+stage3d.addEventListener('mouseleave', () => {
+  mx3d = 0;
+  my3d = 0;
+});
+
+// 마우스 휠 지원 (2페이지 활성화 시에만 동작)
+window.addEventListener('wheel', (e) => {
+  // 2페이지: 캐러셀 넘김
+  if (currentPage === 1) {
+    e.preventDefault();
+    const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+    if (Math.abs(d) > 4) {
+      target3d = Math.max(0, Math.min(cards3d.length - 1, Math.round(pos3d + Math.sign(d))));
+    }
+    return;
+  }
+  // 4페이지: 휠로 스캐터 전개도(0=쌓임 ~ 1=흩어짐) 스크럽
+  if (currentPage === 3) {
+    e.preventDefault();
+    scatterTarget = Math.max(0, Math.min(1, scatterTarget + e.deltaY * 0.0016));
+    return;
+  }
+}, { passive: false });
+
+// 드래그 제어
+let dragging3d = false;
+let startX3d = 0;
+let startPos3d = 0;
+
+stage3d.addEventListener('pointerdown', (e) => {
+  if (e.target.closest('.word-play-3d')) return; // 음성 재생 클릭 차단
+  dragging3d = true;
+  stage3d.classList.add('dragging');
+  startX3d = e.clientX;
+  startPos3d = pos3d;
+  stage3d.setPointerCapture(e.pointerId);
+});
+
+stage3d.addEventListener('pointermove', (e) => {
+  if (!dragging3d) return;
+  const dist = e.clientX - startX3d;
+  pos3d = startPos3d - dist / GAP3d;
+  pos3d = Math.max(0, Math.min(cards3d.length - 1, pos3d));
+  updateCarProgress3d();
+});
+
+stage3d.addEventListener('pointerup', () => {
+  if (!dragging3d) return;
+  dragging3d = false;
+  stage3d.classList.remove('dragging');
+  target3d = Math.max(0, Math.min(cards3d.length - 1, Math.round(pos3d)));
+});
+
+// 개별 카드 클릭 시 중앙 정렬 snap
+cards3d.forEach((card, idx) => {
+  card.addEventListener('click', (e) => {
+    if (e.target.closest('.word-play-3d')) return;
+    target3d = idx;
+  });
+});
+
+// 캐러셀 하단 스크롤 진행 바 업데이트
+const carProgress = document.getElementById('carProgress');
+function updateCarProgress3d() {
+  const maxIdx = cards3d.length - 1;
+  const pct = maxIdx > 0 ? (pos3d / maxIdx) * 100 : 0;
+  carProgress.style.width = pct + '%';
+}
+
+// 3D 씬 드로잉 루프
+function frame3d() {
+  if (currentPage === 1) {
+    // 타겟 보간
+    if (!dragging3d) {
+      pos3d += (target3d - pos3d) * 0.12;
+    }
+    // 마우스 기울기 보간
+    vmx3d += (mx3d - vmx3d) * 0.08;
+    vmy3d += (my3d - vmy3d) * 0.08;
+
+    // 무대 틸트
+    const sceneRotY = vmx3d * 8;
+    const sceneRotX = -vmy3d * 6;
+    scene3d.style.transform = `rotateX(${sceneRotX}deg) rotateY(${sceneRotY}deg)`;
+
+    // 개별 카드 3D 연산
+    cards3d.forEach((c, i) => {
+      const off = i - pos3d;
+      const absOff = Math.abs(off);
+      
+      const x = off * GAP3d;
+      const z = -absOff * 180; // 거리에 비례해서 깊이 push
+      const rotY = (-off * 24) + (vmx3d * 4); // 커버플로우 각도 꺾기
+      const scale = Math.max(0.6, 1 - absOff * 0.15);
+      const opacity = Math.max(0.1, 1 - absOff * 0.35);
+
+      c.style.transform = `translate3d(${x}px, 0, ${z}px) rotateY(${rotY}deg) scale(${scale})`;
+      c.style.opacity = opacity;
+      c.style.zIndex = String(100 - Math.round(absOff * 10));
+
+      // 센터 클래스 토글
+      const isCenter = absOff < 0.5;
+      c.classList.toggle('center', isCenter);
+      // 겹쳐 쌓인 카드들의 클릭 가로채기 방지: 중앙 카드만 상호작용 허용
+      c.style.pointerEvents = isCenter ? 'auto' : 'none';
+    });
+
+    updateCarProgress3d();
+  }
+  requestAnimationFrame(frame3d);
+}
+requestAnimationFrame(frame3d);
+
+/* ── 4페이지: 스크롤 전개형 스캐터 콜라주 ─────────── */
+const scatterCards = Array.from(document.querySelectorAll('.scatter-card'));
+const scatterHint = document.getElementById('scatterHint');
+let scatterP = 0;        // 현재 전개도 (0=쌓임, 1=흩어짐)
+let scatterTarget = 0;   // 목표 전개도 (휠로 조절)
+
+// 흩어졌을 때의 목표 배치 (스테이지 중앙 기준 px / 회전 / 스케일 / 앞뒤)
+// 겹치지 않도록 좌우 간격을 넉넉히 두고 위·아래 2열로 엇갈리게 배치
+const SCATTER_LAYOUT = [
+  { x: -540, y: -150, r: -4, s: 0.94, z: 24 },
+  { x: -185, y: -172, r:  3, s: 0.98, z: 30 },
+  { x:  185, y: -150, r: -3, s: 0.96, z: 28 },
+  { x:  540, y: -170, r:  5, s: 0.92, z: 22 },
+  { x: -540, y:  152, r:  4, s: 0.92, z: 20 },
+  { x: -185, y:  172, r: -4, s: 0.96, z: 26 },
+  { x:  185, y:  150, r:  4, s: 0.94, z: 24 },
+  { x:  540, y:  168, r: -5, s: 0.92, z: 18 },
+];
+
+// 쌓여 있을 때(진행도 0)의 미세 팬 배치 — 카드 더미 느낌
+function stackedPose(i, n) {
+  const c = (i - (n - 1) / 2);
+  return { x: c * 5, y: c * 3, r: c * 2.4, s: 0.9, z: i + 1 };
+}
+
+const lerp = (a, b, t) => a + (b - a) * t;
+
+function applyScatter() {
+  const n = scatterCards.length;
+  scatterCards.forEach((card, i) => {
+    const from = stackedPose(i, n);
+    const to = SCATTER_LAYOUT[i % SCATTER_LAYOUT.length];
+    const x = lerp(from.x, to.x, scatterP);
+    const y = lerp(from.y, to.y, scatterP);
+    const r = lerp(from.r, to.r, scatterP);
+    const s = lerp(from.s, to.s, scatterP);
+    card.style.transform = `translate(${x}px, ${y}px) rotate(${r}deg) scale(${s})`;
+    card.style.zIndex = String(Math.round(lerp(from.z, to.z, scatterP)));
+    card.classList.toggle('is-front', i === 0 && scatterP > 0.15);
+  });
+  if (scatterHint) scatterHint.style.opacity = String(Math.max(0, 1 - scatterP * 6));
+}
+applyScatter();
+
+function frameScatter() {
+  if (currentPage === 3) {
+    scatterP += (scatterTarget - scatterP) * 0.14;
+    if (Math.abs(scatterTarget - scatterP) > 0.0005) applyScatter();
+  }
+  requestAnimationFrame(frameScatter);
+}
+requestAnimationFrame(frameScatter);
+
+/* ── 음성 재생 (브라우저 내장 한국어 TTS) ──────── */
+let currentBtn = null;
+
+// 브라우저 음성 목록은 비동기로 로드되므로 미리 확보해 둔다.
+let koVoice = null;
+function loadKoVoice() {
+  if (!('speechSynthesis' in window)) return;
+  const voices = window.speechSynthesis.getVoices();
+  koVoice = voices.find(v => /^ko(-|_)?/i.test(v.lang) || /korean|한국/i.test(v.name)) || null;
+}
+if ('speechSynthesis' in window) {
+  loadKoVoice();
+  window.speechSynthesis.addEventListener('voiceschanged', loadKoVoice);
+}
+
+// 프로토타입: 실제 음성 재생 여부와 무관하게 아이콘 토글이 항상 동작하도록
+// 시각 상태(재생중 표시)를 타이머로 직접 제어한다. TTS는 가능하면 함께 시도.
+let playTimer = null;
+function resetBtnUI() {
+  if (playTimer) { clearTimeout(playTimer); playTimer = null; }
+  if (currentBtn) {
+    currentBtn.classList.remove('playing');
+    currentBtn.querySelector('i').className = 'ti ti-volume';
+    currentBtn = null;
+  }
+}
+function stopSpeaking() {
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  resetBtnUI();
+}
+
+// 재생 버튼 활성화 (아이콘 토글 + 가능하면 TTS). 시각 동작이 항상 보장됨.
+function activatePlay(btn) {
+  const isSame = currentBtn === btn;
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  resetBtnUI();
+  if (isSame) return; // 같은 버튼 재클릭 = 정지 토글
+
+  currentBtn = btn;
+  btn.classList.add('playing');
+  btn.querySelector('i').className = 'ti ti-player-stop';
+
+  const say = btn.dataset.say || '';
+  const holdMs = Math.min(6000, Math.max(1800, say.length * 110));
+  playTimer = setTimeout(resetBtnUI, holdMs);
+
+  if ('speechSynthesis' in window) {
+    const utter = new SpeechSynthesisUtterance(say);
+    utter.lang = 'ko-KR';
+    if (koVoice) utter.voice = koVoice;
+    utter.rate = 0.95;
+    utter.onend = resetBtnUI;
+    window.speechSynthesis.speak(utter);
+  }
+}
+
+// hit-testing이 정상인 브라우저용: 버튼 자체 클릭 리스너
+document.querySelectorAll('.word-play-3d').forEach((btn) => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    activatePlay(btn);
+  });
+});
+
+/* ── 중첩 3D perspective 대응: 좌표 기반 수동 클릭 판정 ───────────
+   바깥 뷰포트(2000px) 안에서 큐브가 돌고 그 안 stage(1200px)가 또
+   perspective를 걸어, 브라우저 hit-testing이 클릭을 카드가 아닌 뷰포트로
+   떨군다. getBoundingClientRect()는 3D 변환이 반영된 실제 화면 좌표를 주므로
+   이를 이용해 어떤 카드/버튼이 눌렸는지 직접 계산한다. */
+function rectHas(r, x, y) { return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; }
+
+// 좌표에 놓인 카드 중 가장 앞(zIndex 최대)인 카드 인덱스
+function cardIndexAt(x, y) {
+  let best = -1, bestZ = -Infinity;
+  cards3d.forEach((c, i) => {
+    if (rectHas(c.getBoundingClientRect(), x, y)) {
+      const z = parseInt(c.style.zIndex || '0', 10);
+      if (z > bestZ) { bestZ = z; best = i; }
+    }
+  });
+  return best;
+}
+
+viewport.addEventListener('click', (e) => {
+  // 2페이지: 캐러셀 카드/재생버튼 좌표 판정
+  if (currentPage === 1) {
+    if (e.target.closest && e.target.closest('.word-card-3d')) return;
+    const idx = cardIndexAt(e.clientX, e.clientY);
+    if (idx < 0) return;
+    const card = cards3d[idx];
+    const centerIdx = Math.round(pos3d);
+    if (idx === centerIdx) {
+      const btn = card.querySelector('.word-play-3d');
+      if (btn && rectHas(btn.getBoundingClientRect(), e.clientX, e.clientY)) {
+        activatePlay(btn);
+        return;
+      }
+      if (typeof card.onclick === 'function') card.onclick();
+    } else {
+      target3d = idx;
+    }
+    return;
+  }
+
+  // 4페이지: 스캐터 카드 좌표 판정 → 해당 물건 검색으로 이동
+  if (currentPage === 3) {
+    let hit = null, hitZ = -Infinity;
+    scatterCards.forEach((card) => {
+      if (rectHas(card.getBoundingClientRect(), e.clientX, e.clientY)) {
+        const z = parseInt(card.style.zIndex || '0', 10);
+        if (z > hitZ) { hitZ = z; hit = card; }
+      }
+    });
+    if (hit) location.href = './dialect_search_prototype.html?query=' + encodeURIComponent(hit.dataset.query);
+    return;
+  }
+});
+
+/* ── 3페이지: 방언 퀴즈 ─────────────────────── */
+const quizData = [
+  { region: '경상 방언', word: '달비',   options: ['달력', '달래', '달걀', '달밤'],           answer: 1, hint: '봄철 들판에서 캐 먹는 나물이에요.' },
+  { region: '전라 방언', word: '거시기', options: ['그것 · 무엇', '거울', '거미', '거지'],     answer: 0, hint: '말이 막힐 때 두루 갖다 쓰는 말이에요.' },
+  { region: '제주 방언', word: '감저',   options: ['감자', '고구마', '토란', '무'],           answer: 1, hint: '제주에선 감자를 "지슬"이라고 불러요.' },
+  { region: '강원 방언', word: '마카',   options: ['먼저', '모두 · 전부', '마차', '망치'],     answer: 1, hint: '"다 함께"라는 뜻이에요.' },
+];
+
+const players = [
+  { name: '제주굴러버', emoji: '🍊', pt: 1280 },
+  { name: '부산갈매기', emoji: '🌊', pt: 1120 },
+  { name: '전주비빔밥', emoji: '🍚', pt: 980 },
+  { name: '나', emoji: '⭐', pt: 0, me: true },
+];
+const POINT_PER_Q = 320;
+
+const quizWord = document.getElementById('quizWord');
+const quizRegion = document.getElementById('quizRegion');
+const quizQnum = document.getElementById('quizQnum');
+const quizHint = document.getElementById('quizHint');
+const quizOptions = document.getElementById('quizOptions');
+const quizScore = document.getElementById('quizScore');
+const rankList = document.getElementById('rankList');
+
+let qIndex = 0;
+let score = 0;
+let answered = false;
+
+function renderRanking() {
+  const sorted = [...players].sort((a, b) => b.pt - a.pt);
+  rankList.innerHTML = sorted.map((p, i) => `
+    <li class="rank-item${p.me ? ' me' : ''}">
+      <span class="rank-no">#${i + 1}</span>
+      <span class="rank-emoji">${p.emoji}</span>
+      <span class="rank-name">${p.name}</span>
+      <span class="rank-pt">${p.pt.toLocaleString('ko-KR')} pt</span>
+    </li>`).join('');
+}
+
+function updateQuizScore() {
+  quizScore.textContent = `SCORE ${score}/${quizData.length}`;
+}
+
+function renderQuestion() {
+  const q = quizData[qIndex];
+  answered = false;
+  quizQnum.textContent = `Q${qIndex + 1} / ${quizData.length}`;
+  quizRegion.textContent = q.region;
+  quizWord.textContent = q.word;
+  quizHint.textContent = '';
+  quizOptions.innerHTML = q.options.map((opt, i) =>
+    `<button type="button" class="quiz-opt" data-i="${i}">${'ABCD'[i]}. ${opt} <i class="ti ti-arrow-right"></i></button>`
+  ).join('');
+  quizOptions.querySelectorAll('.quiz-opt').forEach((btn) => {
+    btn.addEventListener('click', () => selectOption(parseInt(btn.dataset.i, 10)));
+  });
+}
+
+function selectOption(i) {
+  if (answered) return;
+  answered = true;
+  const q = quizData[qIndex];
+  const btns = quizOptions.querySelectorAll('.quiz-opt');
+  btns.forEach((b) => { b.disabled = true; });
+  btns[q.answer].classList.add('correct');
+  if (i === q.answer) {
+    score++;
+    updateQuizScore();
+  } else {
+    btns[i].classList.add('wrong');
+  }
+  // 내 점수를 랭킹에 반영하고 순위 재정렬
+  players.find((p) => p.me).pt = score * POINT_PER_Q;
+  renderRanking();
+}
+
+function nextQuestion() {
+  qIndex = (qIndex + 1) % quizData.length;
+  renderQuestion();
+}
+
+function retryQuiz() {
+  qIndex = 0;
+  score = 0;
+  updateQuizScore();
+  players.find((p) => p.me).pt = 0;
+  renderRanking();
+  renderQuestion();
+}
+
+document.getElementById('quizNext').addEventListener('click', nextQuestion);
+document.getElementById('quizSkip').addEventListener('click', nextQuestion);
+document.getElementById('quizRetry').addEventListener('click', retryQuiz);
+document.getElementById('quizHintBtn').addEventListener('click', () => {
+  quizHint.textContent = '💡 ' + quizData[qIndex].hint;
+});
+
+/* ── 1페이지: 통계 숫자 카운트업 애니메이션 ──────── */
+let countsDone = false;
+function animateCounts() {
+  if (countsDone) return;
+  countsDone = true;
+  const nums = document.querySelectorAll('.stat-num');
+  const DURATION = 1600;
+  nums.forEach((el) => {
+    const target = parseInt(el.dataset.target, 10) || 0;
+    const start = performance.now();
+    const step = (now) => {
+      const t = Math.min(1, (now - start) / DURATION);
+      const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
+      el.textContent = Math.round(target * eased).toLocaleString('ko-KR');
+      if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  });
+}
+
+renderQuestion();
+updateQuizScore();
+renderRanking();
+
+updateDots();
+updateNav();
+updateSectionInteractivity();
+// 최초 진입 시 살짝 지연 후 카운팅 시작
+window.addEventListener('load', () => setTimeout(animateCounts, 350));
+</script>
+
+</body>
+</html>
