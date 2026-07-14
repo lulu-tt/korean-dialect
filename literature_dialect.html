@@ -388,6 +388,31 @@
       white-space: nowrap;
     }
 
+    /* 작가 / 작품 선택 (초성 탭 + 검색 + 선택 목록) */
+    .picker-section { margin-top: 22px; padding-top: 20px; border-top: 1px dashed #e2e8f0; display: flex; flex-direction: column; gap: 22px; }
+    .picker-row { display: flex; gap: 22px; align-items: flex-start; }
+    .picker-label { flex: 0 0 52px; font-size: 15px; font-weight: 800; color: #374151; padding-top: 6px; }
+    .picker-body { flex: 1; min-width: 0; }
+    .choseong-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .cho-tab {
+      width: 40px; height: 40px; border: 1px solid #d8dee8; background: #fff; border-radius: 8px;
+      font-size: 15px; font-weight: 700; color: #475569; cursor: pointer; font-family: inherit; transition: 0.15s;
+    }
+    .cho-tab:hover { border-color: #94a3b8; color: #1f2937; }
+    .cho-tab.active { background: #5b2333; border-color: #5b2333; color: #fff; }
+    .picker-search {
+      width: 260px; max-width: 100%; height: 36px; border: 1px solid #d8dee8; border-radius: 8px;
+      padding: 0 12px; font-size: 13.5px; font-family: inherit; margin-bottom: 14px; box-sizing: border-box;
+    }
+    .picker-search:focus { outline: none; border-color: #ea580c; box-shadow: 0 0 0 3px rgba(234, 88, 12,0.08); }
+    .picker-list { display: flex; flex-wrap: wrap; gap: 12px 22px; }
+    .pick { display: inline-flex; align-items: center; gap: 7px; font-size: 14px; color: #374151; cursor: pointer; line-height: 1.4; }
+    .pick input { accent-color: #ea580c; cursor: pointer; margin: 0; }
+    .pick:hover { color: #ea580c; }
+    .pick:has(input:checked) span { color: #ea580c; font-weight: 700; }
+    .picker-empty { color: #94a3b8; font-size: 13.5px; margin: 6px 0 0; }
+    .mobile .picker-row, .tablet .picker-row { flex-direction: column; gap: 10px; }
+
     .chip-row {
       display: flex;
       flex-wrap: wrap;
@@ -528,11 +553,59 @@
     .view-pill.active { background: #111827; color:#fff; border-color:#111827; }
 
     .result-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 24px;
+    }
+    /* ── 문학 속 지역어 상세 목록(항목별 박스형) ── */
+    .lit-entry {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);
+      transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    .lit-entry:hover { border-color: #3b82f6; box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08); }
+    .lit-head {
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+      background: #f8fafc; padding: 16px 24px;
+      border-bottom: 1px solid #eef2f7;
+    }
+    .lit-num { font-weight: 800; color: #6b7280; min-width: 18px; text-align: center; font-size: 15px; }
+    .lit-head-main { display: flex; align-items: baseline; gap: 10px; flex: 1; min-width: 220px; }
+    .lit-head-main .lbl { font-size: 14px; color: #6b7280; font-weight: 600; }
+    .lit-word { font-size: 19px; font-weight: 800; color: #111827; letter-spacing: -0.02em; }
+    .lit-pos { font-size: 15px; color: #111827; font-weight: 700; }
+    .lit-head-right { display: flex; align-items: baseline; gap: 30px; font-size: 14px; color: #6b7280; font-weight: 500; flex-wrap: wrap; }
+    .lit-head-right b { color: #111827; font-weight: 700; }
+    .lit-row { display: flex; gap: 20px; padding: 18px 24px; border-top: 1px solid #f1f5f9; }
+    .lit-row:first-of-type { border-top: none; }
+    .lit-label { flex: 0 0 90px; color: #6b7280; font-weight: 700; font-size: 14px; }
+    .lit-value { flex: 1; min-width: 0; font-size: 14.5px; line-height: 1.75; color: #111827; }
+    .lit-value .lit-source { color: #ea580c; font-weight: 500; margin-left: 4px; }
+    .lit-eg { color: #2563eb; font-weight: 700; margin-right: 8px; }
+    .lit-value mark { font-style: normal; color: #2563eb; background: rgba(30, 64, 175, 0.06); padding: 1px 4px; border-radius: 4px; }
+    .mobile .lit-head, .mobile .lit-row { flex-direction: column; gap: 6px; }
+    .mobile .lit-head-right { gap: 12px; }
+    /* ── 카드형 뷰 (3열 그리드) ── */
+    .result-cards {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 24px;
       margin-top: 24px;
     }
+    /* 뷰 전환 토글 (카드형 / 목록형) */
+    .view-toggle { display: flex; gap: 8px; justify-content: flex-end; margin: 8px 0 0; }
+    .view-toggle button {
+      border: 1px solid #d8dee8; background: #fff; color: #6b7280;
+      font-weight: 700; font-size: 13px; padding: 8px 16px; border-radius: 8px;
+      cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s;
+    }
+    .view-toggle button:hover { border-color: #94a3b8; color: #374151; }
+    .view-toggle button.active { background: #111827; color: #fff; border-color: #111827; }
+    .mobile .result-cards, .tablet .result-cards { grid-template-columns: 1fr; }
     .result-card {
       background: #ffffff; 
       border: 1px solid #e5e7eb; 
@@ -551,27 +624,34 @@
       box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08); 
     }
     .result-head {
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      margin-bottom: 16px; 
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 16px;
     }
     .dialect-word {
-      display: flex; 
-      align-items: center; 
-      gap: 8px; 
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
     }
     .dialect-word strong {
-      font-size: 18px; 
-      color: #111827; 
-      font-weight: 700; 
+      font-size: 18px;
+      color: #111827;
+      font-weight: 700;
       letter-spacing: -0.02em;
+      line-height: 1.35;
+      word-break: keep-all;
     }
     .tag {
       border-radius: 20px;
       padding: 3px 10px;
       font-size: 11px;
       font-weight: 600;
+      white-space: nowrap;
+      flex: 0 0 auto;
     }
     .tag.region {
       background: #eff6ff; 
@@ -582,11 +662,11 @@
       color: #7c3aed;
     }
     .source-meta {
-      font-size: 13px; 
-      color: #6b7280; 
-      font-weight: 500; 
+      font-size: 13px;
+      color: #6b7280;
+      font-weight: 500;
       line-height: 1.4;
-      text-align: right;
+      text-align: left;
     }
     .quote {
       font-size: 15.5px; 
@@ -610,15 +690,37 @@
       border-bottom: 1.5px solid #3b82f6; 
     }
     .result-meta {
-      display: flex; 
-      align-items: center; 
-      justify-content: space-between; 
-      border-top: 1px solid #e5e7eb; 
-      padding-top: 16px; 
-      margin-top: auto; 
-      color: #6b7280;
-      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 16px;
+      margin-top: auto;
+      color: #4b5563;
+      font-size: 13px;
+      line-height: 1.6;
     }
+    .result-meta .rm-line b { color: #374151; font-weight: 700; margin-right: 4px; }
+    .result-meta .def-src { color: #ea580c; font-weight: 500; }
+
+    /* 용례 목록 (1건 이상) + 접기/펼치기 — 카드형·목록형 공용 */
+    .eg-block { margin: 8px 0 20px; flex: 1; }
+    .eg-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+    .eg-list.collapsed > .eg-item:nth-child(n+3) { display: none; }
+    .eg-item { display: flex; gap: 8px; font-size: 14.5px; line-height: 1.75; color: #111827; }
+    .eg-mark { color: #2563eb; font-weight: 700; flex: 0 0 auto; }
+    .eg-text { flex: 1; min-width: 0; }
+    .eg-text mark { font-style: normal; color: #2563eb; background: rgba(30, 64, 175, 0.06); padding: 1px 4px; border-radius: 4px; }
+    .eg-src { color: #ea580c; font-weight: 500; margin-left: 4px; }
+    .eg-toggle {
+      margin-top: 12px; background: none; border: none; color: #2563eb; font-weight: 700;
+      font-size: 13px; cursor: pointer; font-family: inherit; padding: 4px 0;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .eg-toggle:hover { text-decoration: underline; }
+    /* 목록형에서는 용례 라벨과 정렬을 맞추기 위해 값 영역이 전체폭 사용 */
+    .lit-value .eg-block { margin: 0; }
     .card-actions {
       display: flex;
       gap: 12px;
@@ -830,36 +932,123 @@
                     <option value="황해도">황해도</option>
                   </select>
                 </div>
-                <div class="field"><label>작가 선택</label><div class="select">김동인 <span>⌄</span></div></div>
-                <div class="field"><label>작품 선택</label><div class="select muted">전체 작품 <span>⌄</span></div></div>
                 <div class="field">
                   <label for="filter-type">지역어 타입</label>
                   <select id="filter-type" class="select" style="border: 1px solid #D8DEE8; background: #fff; padding: 0 13px; font-size: 14px; font-weight: 700; color: #111827; height: 38px; border-radius: 8px; appearance: none; background: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2394a3b8\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E') no-repeat right 12px center; padding-right: 32px; font-family: inherit; cursor: pointer; width: 100%; box-sizing: border-box;">
+                    <option value="전체" selected>전체</option>
+                    <option value="지역어">지역어</option>
                     <option value="표준어">표준어</option>
-                    <option value="지역어" selected>지역어</option>
                   </select>
                 </div>
                 <div class="field">
-                  <label for="filter-scope">검색 범위</label>
-                  <select id="filter-scope" class="select" style="border: 1px solid #D8DEE8; background: #fff; padding: 0 13px; font-size: 14px; font-weight: 700; color: #111827; height: 38px; border-radius: 8px; appearance: none; background: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2394a3b8\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E') no-repeat right 12px center; padding-right: 32px; font-family: inherit; cursor: pointer; width: 100%; box-sizing: border-box;">
+                  <label for="filter-match">포함 여부</label>
+                  <select id="filter-match" class="select" style="border: 1px solid #D8DEE8; background: #fff; padding: 0 13px; font-size: 14px; font-weight: 700; color: #111827; height: 38px; border-radius: 8px; appearance: none; background: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2394a3b8\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E') no-repeat right 12px center; padding-right: 32px; font-family: inherit; cursor: pointer; width: 100%; box-sizing: border-box;">
                     <option value="포함" selected>포함</option>
                     <option value="일치">일치</option>
                     <option value="시작문자">시작문자</option>
                     <option value="끝문자">끝문자</option>
                   </select>
                 </div>
-                <div class="field"><label>문장 포함 여부</label><div class="select">예문 있음 <span>⌄</span></div></div>
-                <div class="field"><label>정렬</label><div class="select">관련도순 <span>⌄</span></div></div>
-                <div class="field">
-                  <label for="filter-view-mode">보기 방식</label>
-                  <select id="filter-view-mode" class="select" style="border: 1px solid #D8DEE8; background: #fff; padding: 0 13px; font-size: 14px; font-weight: 700; color: #111827; height: 38px; border-radius: 8px; appearance: none; background: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2394a3b8\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E') no-repeat right 12px center; padding-right: 32px; font-family: inherit; cursor: pointer; width: 100%; box-sizing: border-box;">
-                    <option value="카드형" selected>카드형</option>
-                    <option value="문장형">문장형</option>
-                    <option value="작품별">작품별</option>
-                    <option value="지도보기">지도보기</option>
-                  </select>
+              </div>
+
+              <!-- 작가 / 작품 선택 (초성 탭 + 검색 + 선택 목록) -->
+              <div class="picker-section">
+                <div class="picker-row">
+                  <span class="picker-label">작가</span>
+                  <div class="picker-body">
+                    <div class="choseong-tabs" role="group" aria-label="작가 초성 필터">
+                      <button type="button" class="cho-tab active" data-cho="ㄱ" onclick="selectChoseong(this)">ㄱ</button>
+                      <button type="button" class="cho-tab" data-cho="ㄴ" onclick="selectChoseong(this)">ㄴ</button>
+                      <button type="button" class="cho-tab" data-cho="ㄷ" onclick="selectChoseong(this)">ㄷ</button>
+                      <button type="button" class="cho-tab" data-cho="ㄹ" onclick="selectChoseong(this)">ㄹ</button>
+                      <button type="button" class="cho-tab" data-cho="ㅁ" onclick="selectChoseong(this)">ㅁ</button>
+                      <button type="button" class="cho-tab" data-cho="ㅂ" onclick="selectChoseong(this)">ㅂ</button>
+                      <button type="button" class="cho-tab" data-cho="ㅅ" onclick="selectChoseong(this)">ㅅ</button>
+                      <button type="button" class="cho-tab" data-cho="ㅇ" onclick="selectChoseong(this)">ㅇ</button>
+                      <button type="button" class="cho-tab" data-cho="ㅈ" onclick="selectChoseong(this)">ㅈ</button>
+                      <button type="button" class="cho-tab" data-cho="ㅊ" onclick="selectChoseong(this)">ㅊ</button>
+                      <button type="button" class="cho-tab" data-cho="ㅋ" onclick="selectChoseong(this)">ㅋ</button>
+                      <button type="button" class="cho-tab" data-cho="ㅌ" onclick="selectChoseong(this)">ㅌ</button>
+                      <button type="button" class="cho-tab" data-cho="ㅍ" onclick="selectChoseong(this)">ㅍ</button>
+                      <button type="button" class="cho-tab" data-cho="ㅎ" onclick="selectChoseong(this)">ㅎ</button>
+                    </div>
+                    <input type="text" id="authorSearch" class="picker-search" placeholder="작가 이름 검색" oninput="filterPicker('authorList', this.value)">
+                    <div class="picker-list" id="authorList">
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="강석경"><span>강석경</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="강준희"><span>강준희</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="강평원"><span>강평원</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="구술/성춘식·편집/신경란"><span>구술/성춘식, 편집/신경란</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="권정생"><span>권정생</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김남천"><span>김남천</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김남천(金南天)"><span>김남천(金南天)</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김동리"><span>김동리</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김문수"><span>김문수</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김성동"><span>김성동</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김소월" checked><span>김소월</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김소월역(譯)"><span>김소월역(譯)</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김여정"><span>김여정</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김영랑"><span>김영랑</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김용길"><span>김용길</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김용택"><span>김용택</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김원일"><span>김원일</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김재홍"><span>김재홍</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김점호"><span>김점호</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김정한"><span>김정한</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김주영"><span>김주영</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김중태"><span>김중태</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김지하"><span>김지하</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김춘복"><span>김춘복</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김춘수"><span>김춘수</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김태진"><span>김태진</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김훈"><span>김훈</span></label>
+                    </div>
+                    <p class="picker-empty" id="authorEmpty" style="display:none;">해당 초성의 작가 표본 데이터가 없습니다.</p>
+                  </div>
+                </div>
+
+                <div class="picker-row">
+                  <span class="picker-label">작품</span>
+                  <div class="picker-body">
+                    <input type="text" id="workSearch" class="picker-search" placeholder="작품명 검색" oninput="filterPicker('workList', this.value)">
+                    <div class="picker-list" id="workList">
+                      <label class="pick"><input type="radio" name="work" value="전체" checked><span>(전체)</span></label>
+                      <label class="pick"><input type="radio" name="work" value="귀쑤람이"><span>귀쑤람이</span></label>
+                      <label class="pick"><input type="radio" name="work" value="그를 숨꾼 밤"><span>그를 숨꾼 밤</span></label>
+                      <label class="pick"><input type="radio" name="work" value="기억(記憶)"><span>기억(記憶)</span></label>
+                      <label class="pick"><input type="radio" name="work" value="나는 세상 모르고 사랏노라"><span>나는 세상 모르고 사랏노라</span></label>
+                      <label class="pick"><input type="radio" name="work" value="녀름의 달밤"><span>녀름의 달밤</span></label>
+                      <label class="pick"><input type="radio" name="work" value="니불"><span>니불</span></label>
+                      <label class="pick"><input type="radio" name="work" value="님에게"><span>님에게</span></label>
+                      <label class="pick"><input type="radio" name="work" value="님의 말슴"><span>님의 말슴</span></label>
+                      <label class="pick"><input type="radio" name="work" value="달밤"><span>달밤</span></label>
+                      <label class="pick"><input type="radio" name="work" value="몹쏠쑴"><span>몹쏠쑴</span></label>
+                      <label class="pick"><input type="radio" name="work" value="무신(無信)"><span>무신(無信)</span></label>
+                      <label class="pick"><input type="radio" name="work" value="바라건대는 우리에게 우리의 보섭 대일 짱이 잇섯드면"><span>바라건대는 우리에게 우리의 보섭 대일 짱이 잇섯드면</span></label>
+                      <label class="pick"><input type="radio" name="work" value="바리운몸"><span>바리운몸</span></label>
+                      <label class="pick"><input type="radio" name="work" value="벗마을"><span>벗마을</span></label>
+                      <label class="pick"><input type="radio" name="work" value="부부(夫婦)"><span>부부(夫婦)</span></label>
+                      <label class="pick"><input type="radio" name="work" value="불탄자리"><span>불탄자리</span></label>
+                      <label class="pick"><input type="radio" name="work" value="비난수하는 맘"><span>비난수하는 맘</span></label>
+                      <label class="pick"><input type="radio" name="work" value="빗"><span>빗</span></label>
+                      <label class="pick"><input type="radio" name="work" value="산(山)"><span>산(山)</span></label>
+                      <label class="pick"><input type="radio" name="work" value="오는봄"><span>오는봄</span></label>
+                      <label class="pick"><input type="radio" name="work" value="우리집"><span>우리집</span></label>
+                      <label class="pick"><input type="radio" name="work" value="월색(月色)"><span>월색(月色)</span></label>
+                      <label class="pick"><input type="radio" name="work" value="이한밤"><span>이한밤</span></label>
+                      <label class="pick"><input type="radio" name="work" value="접동새"><span>접동새</span></label>
+                      <label class="pick"><input type="radio" name="work" value="접동"><span>접동</span></label>
+                      <label class="pick"><input type="radio" name="work" value="진달내쏫"><span>진달내쏫</span></label>
+                      <label class="pick"><input type="radio" name="work" value="찬저녁"><span>찬저녁</span></label>
+                      <label class="pick"><input type="radio" name="work" value="창(窓)을 열어 놓아"><span>창(窓)을 열어 놓아</span></label>
+                      <label class="pick"><input type="radio" name="work" value="첫치마"><span>첫치마</span></label>
+                      <label class="pick"><input type="radio" name="work" value="춘조(春朝)"><span>춘조(春朝)</span></label>
+                      <label class="pick"><input type="radio" name="work" value="홋길"><span>홋길</span></label>
+                    </div>
+                    <p class="picker-empty" id="workEmpty" style="display:none;">검색 결과가 없습니다.</p>
+                  </div>
                 </div>
               </div>
+
               <div class="filter-tools">
                 <button class="mini-btn">초기화</button>
                 <button class="filter-toggle-btn">필터 적용</button>
@@ -890,115 +1079,362 @@
                 <div style="display: inline-block;">
                   <h2 style="font-size: 22px; font-weight: 800; color: #1e3a8a; margin: 0 0 6px; letter-spacing: -0.02em;">선택 조건 방언 검색 결과</h2>
                   <p style="font-size: 14px; color: var(--muted); margin: 0; font-weight: 500;">
-                    선택된 조건으로 검색된 지역어는 총 <strong style="color: var(--primary); font-weight: 800;">5</strong>건입니다. (문장 맥락, 작품 정보, 해설 중심)
+                    선택된 조건으로 검색된 지역어는 총 <strong style="color: var(--primary); font-weight: 800;">11</strong>건입니다. (해설, 용례, 다른 방언형 중심)
                   </p>
                 </div>
               </div>
 
-              <div class="result-list">
-                <!-- 카드 1 (가달) -->
+              <div class="view-toggle" role="group" aria-label="보기 방식 전환">
+                <button type="button" id="btnCardView" class="active" aria-pressed="true" onclick="setResultView('card')">▦ 카드형</button>
+                <button type="button" id="btnListView" aria-pressed="false" onclick="setResultView('list')">≣ 목록형</button>
+              </div>
+
+              <!-- 카드형 뷰 -->
+              <div class="result-cards" id="viewCards">
+                <!-- 1 가새보리 -->
                 <article class="result-card">
                   <div class="result-head">
-                    <div class="dialect-word">
-                      <strong>가달</strong>
-                      <span class="tag region">제주도</span>
-                      <span class="tag type">명사</span>
-                    </div>
-                    <div class="source-meta">현기영 · 바람 타는 섬<br/>대응 표준어: 다리</div>
+                    <div class="dialect-word"><strong>가새보리</strong><span class="tag region">충청도</span><span class="tag type">명사</span></div>
+                    <div class="source-meta">대응 표준어: 대응 표준어 없음</div>
                   </div>
-                  <p class="quote">
-                    “<mark>가달</mark>이 넷, 호호호. 아, 순주는 좋겠네. 어디서 연애하고 있을까? 지금쯤 한창 네 <mark>가달</mark>이 얼크러져 있을 테지?”
-                  </p>
+                  <div class="eg-block">
+                    <ul class="eg-list">
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">인분은 옥수수 뿐만 아니라 밀과 보리에도 퍼다 주는데, 이는 대개 밀, 보리가 <mark>가새보리</mark> 또는 가새밀이 될 때 퍼다 준다. <span class="eg-src">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></li>
+                    </ul>
+                  </div>
                   <div class="result-meta">
-                    <span>뜻풀이: 사람이나 동물의 몸통 아래에 붙어서 딛고 서거나 뛰는 일을 맡은 신체의 일부분.</span>
-                    <div class="card-actions">
-                      <button class="tiny-btn">상세 보기 →</button>
-                    </div>
+                    <span class="rm-line"><b>뜻풀이</b>보리 싹이 자라서 보리 잎이 가위 모양으로 두세 잎 정도로 자란 보리. <span class="def-src">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span>
+                    <span class="rm-line"><b>다른 방언형</b>가위보리</span>
                   </div>
                 </article>
 
-                <!-- 카드 2 (가르각산) -->
+                <!-- 2 간두다 -->
                 <article class="result-card">
                   <div class="result-head">
-                    <div class="dialect-word">
-                      <strong>가르각산</strong>
-                      <span class="tag region">제주도</span>
-                      <span class="tag type">부사</span>
-                    </div>
-                    <div class="source-meta">오성찬 · 그리워라 그 섬<br/>대응 표준어: 제각각</div>
+                    <div class="dialect-word"><strong>간두다</strong><span class="tag region">충청도</span><span class="tag type">동사</span></div>
+                    <div class="source-meta">대응 표준어: 그만두다</div>
                   </div>
-                  <p class="quote">
-                    “가장 괴로운 것은 조밥을 먹는 일”이라고 했는데, 한 숟가락 떠 넣으면 <mark>가르각산</mark> 입 안에 흩어져 혀와 입 천장을 찌르던 깔깔한 조밥.
-                  </p>
+                  <div class="eg-block">
+                    <ul class="eg-list">
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “<mark>간도</mark>.” “언눔이 도령.” “<mark>간두</mark>라니까.” <span class="eg-src">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></li>
+                    </ul>
+                  </div>
                   <div class="result-meta">
-                    <span>뜻풀이: 여럿이 모두 각각.</span>
-                    <div class="card-actions">
-                      <button class="tiny-btn">상세 보기 →</button>
-                    </div>
+                    <span class="rm-line"><b>뜻풀이</b>하던 일이나 하던 말을 더 이상 하지 말고 그치다. <span class="def-src">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span>
+                    <span class="rm-line"><b>다른 방언형</b>고만두다, 곤두다, 건두다</span>
                   </div>
                 </article>
 
-                <!-- 카드 3 (가름) -->
+                <!-- 3 갑북갑북 -->
                 <article class="result-card">
                   <div class="result-head">
-                    <div class="dialect-word">
-                      <strong>가름</strong>
-                      <span class="tag region">제주도</span>
-                      <span class="tag type">명사</span>
-                    </div>
-                    <div class="source-meta">현길언 · 김녕사굴 본풀이<br/>대응 표준어: 동네</div>
+                    <div class="dialect-word"><strong>갑북갑북</strong><span class="tag region">충청도</span><span class="tag type">부사</span></div>
+                    <div class="source-meta">대응 표준어: 깜빡깜빡, #흠뻑흠뻑.</div>
                   </div>
-                  <p class="quote">
-                    “강남(江南) 천자국(天子國) 안<mark>가름</mark>(동네) 김정승 댁에서 솟아나신 총맹스런 세 부인입니다.”
-                  </p>
+                  <div class="eg-block">
+                    <ul class="eg-list">
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">“그러면 나는 어리어리한 환몽에서 다시 진달래를 씹었고 또 그러면 솔솔 불어오는 재넘이에 <mark>갑북갑북</mark> 졸음이 왔다. <span class="eg-src">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></li>
+                    </ul>
+                  </div>
                   <div class="result-meta">
-                    <span>뜻풀이: 한 마을을 이루고 있는, 자연적으로 형성된 규모가 작은 동네.</span>
-                    <div class="card-actions">
-                      <button class="tiny-btn">상세 보기 →</button>
-                    </div>
+                    <span class="rm-line"><b>뜻풀이</b>① 졸음이 오거나 술에 취해서 눈이 자꾸 감겼다 뜨였다 하면서 고개를 꾸벅이는 모양. ② 여러 사람이 모두 술에 흠뻑 취해 있거나 물에 흠뻑 젖어 있는 모양. <span class="def-src">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span>
+                    <span class="rm-line"><b>다른 방언형</b>깜빡깜빡</span>
                   </div>
                 </article>
 
-                <!-- 카드 4 (가름째) -->
+                <!-- 4 갑산 돈피 -->
                 <article class="result-card">
                   <div class="result-head">
-                    <div class="dialect-word">
-                      <strong>가름째</strong>
-                      <span class="tag region">평안북도</span>
-                      <span class="tag type">명사</span>
-                    </div>
-                    <div class="source-meta">김소월 · 빗<br/>대응 표준어 없음</div>
+                    <div class="dialect-word"><strong>갑산 돈피</strong><span class="tag region">충청도</span><span class="tag type">구</span></div>
+                    <div class="source-meta">대응 표준어: 대응 표준어 없음</div>
                   </div>
-                  <p class="quote">
-                    아아 괴로워라, 다리우는 내 마음의 <mark>가름째</mark>야.
-                  </p>
+                  <div class="eg-block">
+                    <ul class="eg-list">
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">이런 중에도 부역 나가고 남의 집 품팔이 하고 나무해다 장에 팔고 틈틈이 공부까지 하려니 몸이 <mark>갑산 돈피</mark>라도 지탱할 수가 없어 파김치 되기 십상이었다. <span class="eg-src">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></li>
+                    </ul>
+                  </div>
                   <div class="result-meta">
-                    <span>뜻풀이: 두 지역으로 갈리는 곳에 있는 등성이나 고개.</span>
-                    <div class="card-actions">
-                      <button class="tiny-btn">상세 보기 →</button>
-                    </div>
+                    <span class="rm-line"><b>뜻풀이</b>아주 튼튼하고 체력이 강함을 비유적으로 나타낸 말. <span class="def-src">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span>
+                    <span class="rm-line"><b>다른 방언형</b>다른 방언형 없음</span>
                   </div>
                 </article>
 
-                <!-- 카드 5 (가름팥) -->
+                <!-- 5 개살스럽다 -->
                 <article class="result-card">
                   <div class="result-head">
-                    <div class="dialect-word">
-                      <strong>가름팥</strong>
-                      <span class="tag region">제주도</span>
-                      <span class="tag type">명사</span>
-                    </div>
-                    <div class="source-meta">현길언 · 땅 벌곡<br/>대응 표준어 없음</div>
+                    <div class="dialect-word"><strong>개살스럽다</strong><span class="tag region">충청도, 강원도</span><span class="tag type">형용사</span></div>
+                    <div class="source-meta">대응 표준어: 독살스럽다</div>
                   </div>
-                  <p class="quote">
-                    난전밭(野田) 팔아 백만 원 <mark>가름팥</mark>(洞內田) 팔아 백만 원 딸애기 시집보내고...
-                  </p>
+                  <div class="eg-block">
+                    <ul class="eg-list">
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">홀어머니가 며느리를 보면 <mark>개살스러워</mark>져 심통부리기 예사요, 아들 내외가 정분이라도 좋으면 이게 질투가 나 심술을 부리며 눈에 쌍심지를 켠다는 말 말이다. <span class="eg-src">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></li>
+                    </ul>
+                  </div>
                   <div class="result-meta">
-                    <span>뜻풀이: 마을 안에 있는 밭.</span>
-                    <div class="card-actions">
-                      <button class="tiny-btn">상세 보기 →</button>
-                    </div>
+                    <span class="rm-line"><b>뜻풀이</b>성품이나 행동이 살기가 있고 날카로우며 모질고 악독한 데가 있다. <span class="def-src">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span>
+                    <span class="rm-line"><b>다른 방언형</b>매살스럽다</span>
                   </div>
+                </article>
+
+                <!-- 6 개토시 -->
+                <article class="result-card">
+                  <div class="result-head">
+                    <div class="dialect-word"><strong>개토시</strong><span class="tag region">충청도</span><span class="tag type">명사</span></div>
+                    <div class="source-meta">대응 표준어: 개차반</div>
+                  </div>
+                  <div class="eg-block">
+                    <ul class="eg-list">
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">선생님한테 불려가 치도곤을 당한 게 한두 번이 아니요 악동의 <mark>개토시</mark>로 악명 높아 어머니가 대신 무릎 꿇은 게 한두 번이 아니었지만 나는 예원이 앞에서만은 늘 주인 앞의 강아지 같았다. <span class="eg-src">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></li>
+                    </ul>
+                  </div>
+                  <div class="result-meta">
+                    <span class="rm-line"><b>뜻풀이</b>말과 행동이 아주 거칠고 너절한 사람을 비유적으로 속되게 이르는 말. <span class="def-src">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span>
+                    <span class="rm-line"><b>다른 방언형</b>개차반</span>
+                  </div>
+                </article>
+
+                <!-- 7 객사한 놈 지팡이 버리듯 한다 -->
+                <article class="result-card">
+                  <div class="result-head">
+                    <div class="dialect-word"><strong>객사한 놈 지팡이 버리듯 한다</strong><span class="tag region">충청도</span><span class="tag type">속담</span></div>
+                    <div class="source-meta">대응 표준어: 대응 표준어 없음</div>
+                  </div>
+                  <div class="eg-block">
+                    <ul class="eg-list">
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">타락한 것들은 돈이라면 환장을 하고 부패한 것들은 돈이라면 사족을 못 써 지조 따위는 원두장이 쓴 외 버리듯 하고 청렴 따위는 <mark>객사한 놈 지팡이 버리듯 한다</mark>. <span class="eg-src">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></li>
+                    </ul>
+                  </div>
+                  <div class="result-meta">
+                    <span class="rm-line"><b>뜻풀이</b>객지에서 죽은 사람이 가지고 다니던 지팡이를 쉽게 버리듯이 지조나 청렴을 쉽게 버림을 비유적으로 이르는 말. <span class="def-src">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span>
+                    <span class="rm-line"><b>다른 방언형</b>원두쟁이 쏜 외 버리듯 한다, 객사한 놈 지팽이 버리듯 한다.</span>
+                  </div>
+                </article>
+
+                <!-- 8 갸기부리다 -->
+                <article class="result-card">
+                  <div class="result-head">
+                    <div class="dialect-word"><strong>갸기부리다</strong><span class="tag region">충청도</span><span class="tag type">동사</span></div>
+                    <div class="source-meta">대응 표준어: 대응 표준어 없음</div>
+                  </div>
+                  <div class="eg-block">
+                    <ul class="eg-list">
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">인사를 받든 안 받든 나만 인사하면 되고 등기부 열람해다 사무보면 그게 사무원다운 거지. 위인들이 <mark>갸기부리</mark>고 곤댓짓하는 거야 제가 잘나 그런 줄 착각하는 모양이니 치지도외 해버리자. <span class="eg-src">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></li>
+                    </ul>
+                  </div>
+                  <div class="result-meta">
+                    <span class="rm-line"><b>뜻풀이</b>남을 업신여기고 잘난 체하며 뽐내는 행동을 하다. <span class="def-src">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span>
+                    <span class="rm-line"><b>다른 방언형</b>갸기부리다</span>
+                  </div>
+                </article>
+
+                <!-- 9 거렁뱅이 -->
+                <article class="result-card">
+                  <div class="result-head">
+                    <div class="dialect-word"><strong>거렁뱅이</strong><span class="tag region">충청도</span><span class="tag type">명사</span></div>
+                    <div class="source-meta">대응 표준어: 비렁뱅이</div>
+                  </div>
+                  <div class="eg-block">
+                    <ul class="eg-list">
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">“자네 그거 어디서 배워먹은 행세따리야. 손님한테 밥대접하는 게 개돼지 밥주듯 하다니. 아무리 비럭질로 연명하는 <mark>거렁뱅이</mark>라도 대문을 넘어서면 손님이야. 그런데 그런 손님한테 밥을 쏟아부어줘? 천하에 못된 거 같으니라고.” <span class="eg-src">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></li>
+                    </ul>
+                  </div>
+                  <div class="result-meta">
+                    <span class="rm-line"><b>뜻풀이</b>남에게 빌어먹고 사는 사람을 낮잡아 이르는 말. <span class="def-src">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span>
+                    <span class="rm-line"><b>다른 방언형</b>걸뱅이, 걸빙이, 걸비이, 동냥아치, 동냥치, 동냥박씨, 어더배기, 어더박시, 어더뱅이, 으더박시, 비렁뱅이, 비렁배이, 비렁배, 비렁이, 비렝박이, 그지</span>
+                  </div>
+                </article>
+
+                <!-- 10 거악하다 -->
+                <article class="result-card">
+                  <div class="result-head">
+                    <div class="dialect-word"><strong>거악하다</strong><span class="tag region">충청도</span><span class="tag type">형용사</span></div>
+                    <div class="source-meta">대응 표준어: 그악하다</div>
+                  </div>
+                  <div class="eg-block">
+                    <ul class="eg-list">
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">먼저 살던 곳에서 이곳까지는 60리가 실한 산길이고 이 산길 중간엔 길마재라고 하는 <mark>거악한</mark> 재와 곤은터재라고 하는 가파른 재가 있는데 우리는 이 두 재를 지게로 이삿짐을 다 져날랐다. <span class="eg-src">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></li>
+                    </ul>
+                  </div>
+                  <div class="result-meta">
+                    <span class="rm-line"><b>뜻풀이</b>산세나 지세가 발을 디디기 어려울 만큼 험하고 가파르다. <span class="def-src">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span>
+                    <span class="rm-line"><b>다른 방언형</b>그악스럽다, 그악시룹다</span>
+                  </div>
+                </article>
+
+                <!-- 11 가씨나 (용례 다건 예시) -->
+                <article class="result-card">
+                  <div class="result-head">
+                    <div class="dialect-word"><strong>가씨나</strong><span class="tag region">경상도</span><span class="tag type">명사</span></div>
+                    <div class="source-meta">대응 표준어: 계집아이, 계집</div>
+                  </div>
+                  <div class="eg-block">
+                    <ul class="eg-list collapsed">
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">‘망할 놈의 <mark>가씨나</mark>!’ <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">‘배짱이 맞아서 지랄 잘한다. <mark>가씨나</mark>까지 내쫓고… …’ <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">‘빌어묵을 <mark>가씨나</mark>! 죽이부릴까.’ <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">“시끄럽다. 장가를 못 가서 분통이 터져서 안 그라나. 이런 날 시집가는 <mark>가씨나</mark> 풍파 데기 많겠다.” <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">“이 <mark>가시나</mark>, 이 <mark>가시나</mark>가 뭐라 카노?” 명혜가 새파란 얼굴로 앙칼지게 소리치며 그런 종숙이 누나를 뒤쫓았다. <span class="eg-src">〈이문열, 변경, 1992〉</span></span></li>
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">“참 얄궂제. 어디 <mark>가씨나</mark>가 없어서 하필이믄 용란이한테 청혼을 했을까? 세상이 다 아는 일인데…” 안방에서 부리던 심술이 아직도 삭지 않았다. “생이는 그라믄 용란이 생이가 시집도 못 가고 그냥 늙어 죽었음 속이씨원하것소.” <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">명숙이 고 <mark>가시나</mark> 얼굴이 반쪽이더라. 남편이 바람폈다 카드라. <span class="eg-src">〈이만희, 이만희희곡집2, 1998〉</span></span></li>
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">용옥은 기가 차는 모양이다. “그러나 저러나 홍섭이 그놈이 서울 <mark>가씨나</mark>한테 장가들었다믄?” <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">저자식 학교 다닐 적에 <mark>가시나</mark>들한테 인기 되게 없었어요. 나만 보면 “형! <mark>가시나</mark> 하나만 돌라 하나만 돌라… …” <span class="eg-src">〈이만희, 이만희희곡집2, 1998〉</span></span></li>
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">“<mark>가씨나</mark>나 하나 둘 기지. 앉아서 밥 얻어묵기 민망하구마.” <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
+                    </ul>
+                    <button type="button" class="eg-toggle" onclick="toggleExamples(this)">용례 더보기 (총 10건) <span class="eg-caret">▾</span></button>
+                  </div>
+                  <div class="result-meta">
+                    <span class="rm-line"><b>뜻풀이</b>① 시집가지 않은 어린 여자 아이를 낮잡아 이르는 말. ② ‘여자’를 낮잡아 이르는 말. <span class="def-src">〈문학 속의 경상 방언, 이상규·신승용, 글누림, 2010〉</span></span>
+                    <span class="rm-line"><b>다른 방언형</b>가시나, 가스나, 가스내</span>
+                  </div>
+                </article>
+              </div>
+
+              <!-- 목록형 뷰 -->
+              <div class="result-list" id="viewList" style="display: none;">
+                <!-- 1 가새보리 -->
+                <article class="lit-entry">
+                  <div class="lit-head">
+                    <span class="lit-num">1</span>
+                    <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">가새보리</span> <span class="lit-pos">「명사」</span></span>
+                    <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>대응 표준어 없음</b></span></span>
+                  </div>
+                  <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">보리 싹이 자라서 보리 잎이 가위 모양으로 두세 잎 정도로 자란 보리. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
+                  <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>인분은 옥수수 뿐만 아니라 밀과 보리에도 퍼다 주는데, 이는 대개 밀, 보리가 <mark>가새보리</mark> 또는 가새밀이 될 때 퍼다 준다. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></div>
+                  <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">가위보리</span></div>
+                </article>
+
+                <!-- 2 간두다 -->
+                <article class="lit-entry">
+                  <div class="lit-head">
+                    <span class="lit-num">2</span>
+                    <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">간두다</span> <span class="lit-pos">「동사」</span></span>
+                    <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>그만두다</b></span></span>
+                  </div>
+                  <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">하던 일이나 하던 말을 더 이상 하지 말고 그치다. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
+                  <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “<mark>간도</mark>.” “언눔이 도령.” “<mark>간두</mark>라니까.” <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></div>
+                  <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">고만두다, 곤두다, 건두다</span></div>
+                </article>
+
+                <!-- 3 갑북갑북 -->
+                <article class="lit-entry">
+                  <div class="lit-head">
+                    <span class="lit-num">3</span>
+                    <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">갑북갑북</span> <span class="lit-pos">「부사」</span></span>
+                    <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>깜빡깜빡, #흠뻑흠뻑.</b></span></span>
+                  </div>
+                  <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">① 졸음이 오거나 술에 취해서 눈이 자꾸 감겼다 뜨였다 하면서 고개를 꾸벅이는 모양. ② 여러 사람이 모두 술에 흠뻑 취해 있거나 물에 흠뻑 젖어 있는 모양. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
+                  <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>“그러면 나는 어리어리한 환몽에서 다시 진달래를 씹었고 또 그러면 솔솔 불어오는 재넘이에 <mark>갑북갑북</mark> 졸음이 왔다. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></div>
+                  <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">깜빡깜빡</span></div>
+                </article>
+
+                <!-- 4 갑산 돈피 -->
+                <article class="lit-entry">
+                  <div class="lit-head">
+                    <span class="lit-num">4</span>
+                    <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">갑산 돈피</span> <span class="lit-pos">「구」</span></span>
+                    <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>대응 표준어 없음</b></span></span>
+                  </div>
+                  <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">아주 튼튼하고 체력이 강함을 비유적으로 나타낸 말. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
+                  <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>이런 중에도 부역 나가고 남의 집 품팔이 하고 나무해다 장에 팔고 틈틈이 공부까지 하려니 몸이 <mark>갑산 돈피</mark>라도 지탱할 수가 없어 파김치 되기 십상이었다. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></div>
+                  <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">다른 방언형 없음</span></div>
+                </article>
+
+                <!-- 5 개살스럽다 -->
+                <article class="lit-entry">
+                  <div class="lit-head">
+                    <span class="lit-num">5</span>
+                    <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">개살스럽다</span> <span class="lit-pos">「형용사」</span></span>
+                    <span class="lit-head-right"><span>지역 : <b>충청도, 강원도</b></span><span>대응 표준어 : <b>독살스럽다</b></span></span>
+                  </div>
+                  <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">성품이나 행동이 살기가 있고 날카로우며 모질고 악독한 데가 있다. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
+                  <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>홀어머니가 며느리를 보면 <mark>개살스러워</mark>져 심통부리기 예사요, 아들 내외가 정분이라도 좋으면 이게 질투가 나 심술을 부리며 눈에 쌍심지를 켠다는 말 말이다. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></div>
+                  <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">매살스럽다</span></div>
+                </article>
+
+                <!-- 6 개토시 -->
+                <article class="lit-entry">
+                  <div class="lit-head">
+                    <span class="lit-num">6</span>
+                    <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">개토시</span> <span class="lit-pos">「명사」</span></span>
+                    <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>개차반</b></span></span>
+                  </div>
+                  <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">말과 행동이 아주 거칠고 너절한 사람을 비유적으로 속되게 이르는 말. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
+                  <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>선생님한테 불려가 치도곤을 당한 게 한두 번이 아니요 악동의 <mark>개토시</mark>로 악명 높아 어머니가 대신 무릎 꿇은 게 한두 번이 아니었지만 나는 예원이 앞에서만은 늘 주인 앞의 강아지 같았다. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></div>
+                  <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">개차반</span></div>
+                </article>
+
+                <!-- 7 객사한 놈 지팡이 버리듯 한다 -->
+                <article class="lit-entry">
+                  <div class="lit-head">
+                    <span class="lit-num">7</span>
+                    <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">객사한 놈 지팡이 버리듯 한다</span> <span class="lit-pos">「속담」</span></span>
+                    <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>대응 표준어 없음</b></span></span>
+                  </div>
+                  <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">객지에서 죽은 사람이 가지고 다니던 지팡이를 쉽게 버리듯이 지조나 청렴을 쉽게 버림을 비유적으로 이르는 말. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
+                  <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>타락한 것들은 돈이라면 환장을 하고 부패한 것들은 돈이라면 사족을 못 써 지조 따위는 원두장이 쓴 외 버리듯 하고 청렴 따위는 <mark>객사한 놈 지팡이 버리듯 한다</mark>. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></div>
+                  <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">원두쟁이 쏜 외 버리듯 한다, 객사한 놈 지팽이 버리듯 한다.</span></div>
+                </article>
+
+                <!-- 8 갸기부리다 -->
+                <article class="lit-entry">
+                  <div class="lit-head">
+                    <span class="lit-num">8</span>
+                    <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">갸기부리다</span> <span class="lit-pos">「동사」</span></span>
+                    <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>대응 표준어 없음</b></span></span>
+                  </div>
+                  <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">남을 업신여기고 잘난 체하며 뽐내는 행동을 하다. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
+                  <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>인사를 받든 안 받든 나만 인사하면 되고 등기부 열람해다 사무보면 그게 사무원다운 거지. 위인들이 <mark>갸기부리</mark>고 곤댓짓하는 거야 제가 잘나 그런 줄 착각하는 모양이니 치지도외 해버리자. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></div>
+                  <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">갸기부리다</span></div>
+                </article>
+
+                <!-- 9 거렁뱅이 -->
+                <article class="lit-entry">
+                  <div class="lit-head">
+                    <span class="lit-num">9</span>
+                    <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">거렁뱅이</span> <span class="lit-pos">「명사」</span></span>
+                    <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>비렁뱅이</b></span></span>
+                  </div>
+                  <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">남에게 빌어먹고 사는 사람을 낮잡아 이르는 말. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
+                  <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>“자네 그거 어디서 배워먹은 행세따리야. 손님한테 밥대접하는 게 개돼지 밥주듯 하다니. 아무리 비럭질로 연명하는 <mark>거렁뱅이</mark>라도 대문을 넘어서면 손님이야. 그런데 그런 손님한테 밥을 쏟아부어줘? 천하에 못된 거 같으니라고.” <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></div>
+                  <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">걸뱅이, 걸빙이, 걸비이, 동냥아치, 동냥치, 동냥박씨, 어더배기, 어더박시, 어더뱅이, 으더박시, 비렁뱅이, 비렁배이, 비렁배, 비렁이, 비렝박이, 그지</span></div>
+                </article>
+
+                <!-- 10 거악하다 -->
+                <article class="lit-entry">
+                  <div class="lit-head">
+                    <span class="lit-num">10</span>
+                    <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">거악하다</span> <span class="lit-pos">「형용사」</span></span>
+                    <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>그악하다</b></span></span>
+                  </div>
+                  <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">산세나 지세가 발을 디디기 어려울 만큼 험하고 가파르다. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
+                  <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>먼저 살던 곳에서 이곳까지는 60리가 실한 산길이고 이 산길 중간엔 길마재라고 하는 <mark>거악한</mark> 재와 곤은터재라고 하는 가파른 재가 있는데 우리는 이 두 재를 지게로 이삿짐을 다 져날랐다. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></div>
+                  <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">그악스럽다, 그악시룹다</span></div>
+                </article>
+
+                <!-- 11 가씨나 (용례 다건 예시) -->
+                <article class="lit-entry">
+                  <div class="lit-head">
+                    <span class="lit-num">11</span>
+                    <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">가씨나</span> <span class="lit-pos">「명사」</span></span>
+                    <span class="lit-head-right"><span>지역 : <b>경상도</b></span><span>대응 표준어 : <b>계집아이, 계집</b></span></span>
+                  </div>
+                  <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">① 시집가지 않은 어린 여자 아이를 낮잡아 이르는 말. ② ‘여자’를 낮잡아 이르는 말. <span class="lit-source">〈문학 속의 경상 방언, 이상규·신승용, 글누림, 2010〉</span></span></div>
+                  <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><div class="eg-block">
+                    <ul class="eg-list collapsed">
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">‘망할 놈의 <mark>가씨나</mark>!’ <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">‘배짱이 맞아서 지랄 잘한다. <mark>가씨나</mark>까지 내쫓고… …’ <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">‘빌어묵을 <mark>가씨나</mark>! 죽이부릴까.’ <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">“시끄럽다. 장가를 못 가서 분통이 터져서 안 그라나. 이런 날 시집가는 <mark>가씨나</mark> 풍파 데기 많겠다.” <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">“이 <mark>가시나</mark>, 이 <mark>가시나</mark>가 뭐라 카노?” 명혜가 새파란 얼굴로 앙칼지게 소리치며 그런 종숙이 누나를 뒤쫓았다. <span class="eg-src">〈이문열, 변경, 1992〉</span></span></li>
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">“참 얄궂제. 어디 <mark>가씨나</mark>가 없어서 하필이믄 용란이한테 청혼을 했을까? 세상이 다 아는 일인데…” 안방에서 부리던 심술이 아직도 삭지 않았다. “생이는 그라믄 용란이 생이가 시집도 못 가고 그냥 늙어 죽었음 속이씨원하것소.” <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">명숙이 고 <mark>가시나</mark> 얼굴이 반쪽이더라. 남편이 바람폈다 카드라. <span class="eg-src">〈이만희, 이만희희곡집2, 1998〉</span></span></li>
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">용옥은 기가 차는 모양이다. “그러나 저러나 홍섭이 그놈이 서울 <mark>가씨나</mark>한테 장가들었다믄?” <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">저자식 학교 다닐 적에 <mark>가시나</mark>들한테 인기 되게 없었어요. 나만 보면 “형! <mark>가시나</mark> 하나만 돌라 하나만 돌라… …” <span class="eg-src">〈이만희, 이만희희곡집2, 1998〉</span></span></li>
+                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">“<mark>가씨나</mark>나 하나 둘 기지. 앉아서 밥 얻어묵기 민망하구마.” <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
+                    </ul>
+                    <button type="button" class="eg-toggle" onclick="toggleExamples(this)">용례 더보기 (총 10건) <span class="eg-caret">▾</span></button>
+                  </div></span></div>
+                  <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">가시나, 가스나, 가스내</span></div>
                 </article>
               </div>
             </div>
@@ -1013,6 +1449,80 @@
 <div id="footer-common"></div>
 
 <script>
+  // 작가 초성 탭 선택 → 해당 초성 작가만 노출 (검색어 초기화)
+  function selectChoseong(btn) {
+    document.querySelectorAll('.cho-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const search = document.getElementById('authorSearch');
+    if (search) search.value = '';
+    filterPicker('authorList', '');
+  }
+
+  // 작가/작품 목록 필터 (작가 목록은 활성 초성 범위 내에서, 검색어로 추가 필터)
+  function filterPicker(listId, query) {
+    const list = document.getElementById(listId);
+    if (!list) return;
+    const q = (query || '').trim().toLowerCase();
+    const activeCho = listId === 'authorList'
+      ? (document.querySelector('.cho-tab.active') || {}).dataset && document.querySelector('.cho-tab.active').dataset.cho
+      : null;
+    let visible = 0;
+    list.querySelectorAll('.pick').forEach(pick => {
+      const inCho = activeCho ? (pick.dataset.cho === activeCho) : true;
+      const matches = pick.textContent.toLowerCase().includes(q);
+      const show = inCho && matches;
+      pick.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    const emptyId = listId === 'authorList' ? 'authorEmpty' : 'workEmpty';
+    const empty = document.getElementById(emptyId);
+    if (empty) empty.style.display = visible ? 'none' : '';
+  }
+
+  // 초기 노출: 활성 초성(ㄱ) 기준으로 작가 목록 필터
+  window.addEventListener('load', () => filterPicker('authorList', ''));
+
+  // 용례 접기/펼치기 (1건 이상일 때만 버튼 노출)
+  function toggleExamples(btn) {
+    const block = btn.closest('.eg-block');
+    if (!block) return;
+    const list = block.querySelector('.eg-list');
+    const caret = btn.querySelector('.eg-caret');
+    const total = list.children.length;
+    const collapsed = list.classList.toggle('collapsed');
+    if (collapsed) {
+      btn.childNodes[0].nodeValue = '용례 더보기 (총 ' + total + '건) ';
+      if (caret) caret.textContent = '▾';
+    } else {
+      btn.childNodes[0].nodeValue = '용례 접기 ';
+      if (caret) caret.textContent = '▴';
+    }
+  }
+
+  // 검색 결과 뷰 전환 (카드형 / 목록형)
+  function setResultView(mode) {
+    const cards = document.getElementById('viewCards');
+    const list = document.getElementById('viewList');
+    const btnCard = document.getElementById('btnCardView');
+    const btnList = document.getElementById('btnListView');
+    const isCard = mode === 'card';
+    if (cards) cards.style.display = isCard ? 'grid' : 'none';
+    if (list) list.style.display = isCard ? 'none' : 'flex';
+    if (btnCard) { btnCard.classList.toggle('active', isCard); btnCard.setAttribute('aria-pressed', String(isCard)); }
+    if (btnList) { btnList.classList.toggle('active', !isCard); btnList.setAttribute('aria-pressed', String(!isCard)); }
+    // 상단 필터의 '보기 방식' 셀렉트와 동기화 (있을 경우)
+    const sel = document.getElementById('filter-view-mode');
+    if (sel) sel.value = isCard ? '카드형' : '문장형';
+  }
+  // '보기 방식' 셀렉트에서도 전환 가능하도록 연결
+  (function () {
+    const sel = document.getElementById('filter-view-mode');
+    if (sel) sel.addEventListener('change', () => {
+      if (sel.value === '카드형') setResultView('card');
+      else if (sel.value === '문장형') setResultView('list');
+    });
+  })();
+
   const device = document.getElementById('device');
   const deviceButtons = document.querySelectorAll('[data-device]');
   const stateButtons = document.querySelectorAll('[data-state]');

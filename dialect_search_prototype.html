@@ -6,6 +6,8 @@
 <title>지역어종합정보 — 통합자료검색</title>
 <link rel="shortcut icon" href="./favicon.ico">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.9.0/ol.css">
+<script src="https://cdn.jsdelivr.net/npm/ol@v10.9.0/dist/ol.js"></script>
 <link rel="stylesheet" href="./styles.css">
 <script src="./gnb.js" defer></script>
 <script src="./share.js" defer></script>
@@ -172,7 +174,7 @@
   .kw-badge{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid transparent;white-space:nowrap;}
   .kw-badge.blue{background:rgba(37,99,235,0.10);border-color:rgba(37,99,235,0.22);color:var(--blue);}
   .kw-badge.green{background:rgba(16,185,129,0.10);border-color:rgba(16,185,129,0.22);color:#0f766e;}
-  .kw-badge.orange{background:rgba(249,115,22,0.10);border-color:rgba(249,115,22,0.22);color:#c2410c;}
+  .kw-badge.orange{background:rgba(249,115,22,0.10);border-color:rgba(249,115,22,0.22);color:#ea580c;}
   .kw-def{font-size:13px;color:var(--muted);line-height:1.7;border-left:2px solid rgba(236,72,153,0.55);padding-left:10px;white-space:pre-line;}
   .kw-right{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:10px;min-width:170px;}
   .kw-stats{display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
@@ -243,13 +245,14 @@
   .life-chip .w{font-size:14px;font-weight:800;letter-spacing:-0.02em;}
   .life-chip .r{font-size:10px;color:var(--muted);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;}
   .life-chip .ico{flex:0 0 auto;width:28px;height:28px;border-radius:999px;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:center;color:#475569;background:#fff;}
-  .life-chip.orange .w{color:#c2410c;}
+  .life-chip.orange .w{color:#ea580c;}
   .life-chip.green .w{color:#0f766e;}
   .life-chip.blue .w{color:var(--blue);}
   .life-chip.gray .w{color:#64748b;}
-  .life-subphotos{display:flex;flex-direction:column;gap:0;margin-top:20px;}
-  .life-sp{background:#fff;display:flex;gap:24px;padding:24px 0;border-bottom:1px solid #e2e8f0;align-items:flex-start;}
-  .life-sp:last-child{border-bottom:none;}
+  /* 사진 생활어 목록: 구술발화·문학 목록과 동일한 박스형 스타일 */
+  .life-subphotos{display:flex;flex-direction:column;gap:16px;margin-top:0;}
+  .life-sp{background:var(--card);display:flex;gap:24px;padding:20px 24px;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow2);align-items:flex-start;transition:0.2s ease;}
+  .life-sp:hover{border-color:#cbd5e1;box-shadow:0 8px 24px rgba(15, 23, 42, 0.07);}
   .life-sp-ph{flex-shrink:0;width:240px;height:160px;background:#e2e8f0;border-radius:6px;overflow:hidden;background-size:cover;background-position:center;border:1px solid #e2e8f0;}
   .life-sp-bd{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;padding:0;}
   .life-sp-title{font-size:18px;font-weight:800;color:#991b1b;letter-spacing:-0.02em;text-align:left;}
@@ -276,6 +279,293 @@
   tr:hover td { background: #ffffff; }
   .vol-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; color: var(--blue); cursor: pointer; font-size: 16px; border: 1px solid var(--blue-light); background: #ffffff; padding: 0; transition: 0.2s; box-shadow: var(--shadow2); }
   .vol-btn:hover { background: var(--blue-light); transform: scale(1.05); }
+
+  /* ── 전체 탭: 카테고리별 목록을 타이틀로 구분 ── */
+  .cat-title { display: flex; align-items: baseline; gap: 8px; font-size: 22px; font-weight: 800; color: #1f2937; letter-spacing: -0.01em; padding: 0 4px 14px; border-bottom: 2px solid #e5e7eb; margin: 40px 0 18px; }
+  .cat-title .cnt { font-size: 18px; font-weight: 800; color: #ea580c; }
+  .cat-more-bar { display: flex; justify-content: flex-end; margin: 4px 0 8px; }
+  /* 구술발화 목록과 '더 보기' 버튼 사이 간격 확보 */
+  .cat-more-bar[data-cat="oral"] { margin-top: 16px; }
+  /* 호버 시 아래에서 위로 주황색이 차오르는 효과 (배경 그라디언트 레이어를 확장) */
+  .cat-more-btn { display: inline-flex; align-items: center; gap: 6px; padding: 11px 22px; border-radius: 10px; border: 1px solid #ea580c; background-color: #ffffff; background-image: linear-gradient(#ea580c, #ea580c); background-repeat: no-repeat; background-position: center bottom; background-size: 100% 0%; color: #ea580c; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; transition: background-size 0.35s cubic-bezier(0.25, 0.8, 0.25, 1), color 0.2s ease; }
+  .cat-more-btn:hover { background-size: 100% 100%; color: #ffffff; }
+  .cat-more-btn i { font-size: 15px; }
+  /* ── 문학 속 지역어 상세 목록(목록형, literature_dialect.html 이식) ── */
+  .lit-list { display: flex; flex-direction: column; gap: 16px; }
+  .lit-entry {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);
+    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  .lit-entry:hover { border-color: #3b82f6; box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08); }
+  .lit-head {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    background: #f8fafc; padding: 16px 24px;
+    border-bottom: 1px solid #eef2f7;
+  }
+  .lit-num { font-weight: 800; color: #6b7280; min-width: 18px; text-align: center; font-size: 15px; }
+  .lit-head-main { display: flex; align-items: baseline; gap: 10px; flex: 1; min-width: 220px; }
+  .lit-head-main .lbl { font-size: 14px; color: #6b7280; font-weight: 600; }
+  .lit-word { font-size: 19px; font-weight: 800; color: #111827; letter-spacing: -0.02em; }
+  .lit-pos { font-size: 15px; color: #111827; font-weight: 700; }
+  .lit-head-right { display: flex; align-items: baseline; gap: 30px; font-size: 14px; color: #6b7280; font-weight: 500; flex-wrap: wrap; }
+  .lit-head-right b { color: #111827; font-weight: 700; }
+  .lit-row { display: flex; gap: 20px; padding: 18px 24px; border-top: 1px solid #f1f5f9; }
+  .lit-row:first-of-type { border-top: none; }
+  .lit-label { flex: 0 0 90px; color: #6b7280; font-weight: 700; font-size: 14px; }
+  .lit-value { flex: 1; min-width: 0; font-size: 14.5px; line-height: 1.75; color: #111827; }
+  .lit-value .lit-source { color: #ea580c; font-weight: 500; margin-left: 4px; }
+  .lit-eg { color: #2563eb; font-weight: 700; margin-right: 8px; }
+  .lit-value mark { font-style: normal; color: #2563eb; background: rgba(30, 64, 175, 0.06); padding: 1px 4px; border-radius: 4px; }
+  .mobile .lit-head, .mobile .lit-row { flex-direction: column; gap: 6px; }
+  .mobile .lit-head-right { gap: 12px; }
+  /* 타이틀 기반 레이아웃에서는 결과 카드 테두리를 평면화하고 카드 내부 배지 헤더를 숨김 */
+  .scard, .scard.open, .scard:hover { border: none; box-shadow: none; transform: none; border-radius: 0; margin-bottom: 4px; background: transparent; }
+  .scard .card-head { padding: 0 4px 10px; background: transparent; }
+  .scard .card-head:hover { background: transparent; }
+  .scard .card-title-row { display: none; }
+  .scard .card-body { border-top: none; }
+  /* 카드형 목록(어휘·문학·사진)은 좌우 패딩과 상단 여백을 제거해
+     타이틀과 목록 사이 간격을 구술발화 목록과 동일하게(=cat-title 하단 여백만) 맞춤 */
+  #c1.scard .card-body { padding-left: 0; padding-right: 0; padding-top: 0; }
+  /* 문학·사진 생활어 목록도 구술발화·어휘와 동일하게 컨테이너 전체 폭 사용 + 상단 여백 제거 */
+  #c4.scard .card-body, #c0.scard .card-body { padding-left: 0; padding-right: 0; padding-top: 0; }
+
+  /* ── 구술발화 조사 결과 목록 (oral_dialect.html 스타일 포팅) ── */
+  .osent-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 4px; }
+  .osent-item { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow2); transition: 0.2s ease; }
+  .osent-item:hover { border-color: #cbd5e1; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07); }
+  .osent-head { display: flex; align-items: center; gap: 16px; padding: 16px 24px; background: #f8fafc; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .osent-num { flex: 0 0 auto; width: 28px; font-size: 15px; font-weight: 800; color: #94a3b8; font-variant-numeric: tabular-nums; }
+  .osent-topic { flex: 1 1 auto; min-width: 200px; display: flex; align-items: baseline; gap: 8px; }
+  .osent-topic .k { font-size: 13px; font-weight: 700; color: #64748b; white-space: nowrap; }
+  .osent-topic .v { font-size: 15px; font-weight: 800; color: var(--text); letter-spacing: -0.01em; }
+  .osent-topic .v i.sep { color: #cbd5e1; font-style: normal; margin: 0 2px; }
+  .osent-info { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+  .osent-info .cell { font-size: 13px; color: #475569; font-weight: 600; }
+  .osent-info .cell .k { color: #94a3b8; font-weight: 700; margin-right: 5px; }
+  .osent-src-btn { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; border: none; background: var(--blue); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; text-decoration: none; transition: 0.2s; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.18); }
+  .osent-src-btn:hover { background: var(--blue-hover); transform: translateY(-1px); }
+  .osent-src-btn i { font-size: 15px; }
+  .osent-dl-btn { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--blue); background: #ffffff; color: var(--blue); font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; text-decoration: none; transition: 0.2s; }
+  .osent-dl-btn:hover { background: var(--blue-light); transform: translateY(-1px); }
+  .osent-dl-btn i { font-size: 15px; }
+  .osent-body { padding: 18px 24px; }
+  .osent-sentences { display: flex; flex-direction: column; gap: 12px; }
+  .osent-sentences.scrollable { overflow-y: auto; padding-right: 10px; }
+  .osent-sentences.scrollable::-webkit-scrollbar { width: 8px; }
+  .osent-sentences.scrollable::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 99px; }
+  .osent-sentences.scrollable::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+  .osent-sentences.scrollable::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  .osent-sentence { position: relative; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; background: #fbfcfe; display: flex; flex-direction: column; gap: 10px; transition: 0.15s ease; }
+  .osent-sentence:hover { border-color: #cbd5e1; background: #ffffff; box-shadow: var(--shadow2); }
+  .osent-row { display: flex; gap: 12px; align-items: flex-start; }
+  .osent-tag { flex: 0 0 auto; width: 96px; text-align: center; padding: 6px 0; border-radius: 8px; font-size: 12px; font-weight: 700; line-height: 1.15; }
+  .osent-tag.morph { background: #eff6ff; color: var(--blue); border: 1px solid #bfdbfe; }
+  .osent-tag.std { background: #eef2f7; color: #475569; border: 1px solid #dfe6ee; }
+  .osent-text { flex: 1 1 auto; min-width: 0; margin: 0; font-size: 14.5px; line-height: 1.75; color: var(--text); font-weight: 500; }
+  .osent-text.std-text { color: #475569; font-weight: 500; }
+  .kw-hl { color: #be123c; font-weight: 700; }
+
+  /* 문장별 음성 재생 버튼 & 재생 위치 표시 (oral_dialect.html 이식) */
+  .osent-play { flex: 0 0 auto; align-self: center; width: 34px; height: 34px; border-radius: 50%; border: 1px solid #bfdbfe; background: #eff6ff; color: var(--blue); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: 0.2s ease; box-shadow: var(--shadow2); }
+  .osent-play:hover { background: var(--blue); color: #fff; border-color: var(--blue); transform: translateY(-1px); }
+  .osent-play i { font-size: 16px; line-height: 1; }
+  .osent-play.is-playing { background: var(--blue); color: #fff; border-color: var(--blue); animation: osentPulse 1.3s ease-in-out infinite; }
+  @keyframes osentPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(37,99,235,0.4); } 50% { box-shadow: 0 0 0 6px rgba(37,99,235,0); } }
+  /* 재생 중 읽는 흐름 표시 (노래방 방식) */
+  .flch { transition: background-color 0.18s linear, color 0.18s linear; }
+  .osent-text .flch.read { background: #fde68a; color: #7c2d12; }
+  .osent-text .flch.read.read-head { border-top-right-radius: 4px; border-bottom-right-radius: 4px; }
+  .osent-text .flch.read.read-tail { border-top-left-radius: 4px; border-bottom-left-radius: 4px; }
+  /* 문장 하단 재생 진행 표시줄 */
+  .osent-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; border-radius: 0 0 12px 12px; overflow: hidden; opacity: 0; transition: opacity 0.2s ease; pointer-events: none; }
+  .osent-sentence.playing .osent-progress { opacity: 1; }
+  .osent-progress-bar { height: 100%; width: 0; background: var(--blue); transition: width 0.15s linear; }
+  .osent-sentence.playing { border-color: #bfdbfe; background: #ffffff; box-shadow: var(--shadow2); }
+
+  /* ── 원문 보기 모달 (oral_dialect.html 이식, --wine→--blue) ── */
+  .modal.src-modal { max-width: 1000px; width: calc(100vw - 80px); }
+  #sourceModalOverlay .modal { margin: auto; }
+  .src-modal .modal-head { background: var(--blue); border-bottom: none; }
+  .src-modal .modal-head-title { color: #ffffff; margin-bottom: 0; }
+  .src-modal .close-btn { background: transparent; border-color: rgba(255,255,255,0.45); color: #ffffff; box-shadow: none; }
+  .src-modal .close-btn:hover { background: rgba(255,255,255,0.18); color: #ffffff; }
+  .src-modal .modal-body { padding: 0; max-height: none; overflow: visible; }
+  .src-modal .modal-close-btn { background: var(--blue); box-shadow: 0 4px 12px rgba(37,99,235,0.2); }
+  .src-modal .modal-close-btn:hover { background: var(--blue-hover); box-shadow: 0 6px 16px rgba(37,99,235,0.3); }
+  .src-info { padding: 16px 24px; background: #f8fafc; border-bottom: 1px solid var(--line); }
+  .src-info dl { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 22px; margin: 0; font-size: 14px; }
+  .src-info dt { font-weight: 700; color: #64748b; }
+  .src-info dd { margin: 0; font-weight: 700; color: var(--text); }
+  .src-info dd.topic { font-size: 15px; margin-right: auto; }
+  .src-check { display: flex; align-items: center; gap: 8px; padding: 16px 24px 6px; }
+  .src-check input { width: 18px; height: 18px; accent-color: var(--blue); cursor: pointer; }
+  .src-check label { font-size: 14px; font-weight: 700; color: #334155; cursor: pointer; }
+  .src-scroll { max-height: 60vh; overflow-y: auto; padding: 10px 24px 20px; display: flex; flex-direction: column; gap: 8px; }
+  .src-item { display: flex; gap: 14px; padding: 10px 14px; border-radius: 10px; border-left: 3px solid transparent; transition: box-shadow 0.15s ease; }
+  .src-item:has(.src-person.investigator) { background: #f4f5ff; border-left-color: #6366f1; }
+  .src-item:has(.src-person.informant) { background: #eff6ff; border-left-color: #2563eb; }
+  .src-item.src-active { box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.45); }
+  .src-person { flex: 0 0 auto; width: 78px; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; color: #334155; padding-top: 2px; }
+  .src-person .src-ico { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; flex: 0 0 auto; }
+  .src-person.investigator { color: #4338ca; }
+  .src-person.investigator .src-ico { background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; }
+  .src-person.informant { color: #1d4ed8; }
+  .src-person.informant .src-ico { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .src-talk { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .src-line { display: flex; gap: 10px; align-items: flex-start; }
+  .src-line dt { flex: 0 0 auto; width: 84px; text-align: center; padding: 3px 0; border-radius: 7px; font-size: 11.5px; font-weight: 700; background: #ffffff; color: #475569; border: 1px solid #e2e8f0; }
+  .src-line.src-phoneme dt { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+  .src-line dd { flex: 1 1 auto; min-width: 0; margin: 0; font-size: 14px; line-height: 1.55; color: var(--text); font-weight: 500; padding-top: 2px; transition: background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, opacity 0.2s ease; }
+  .src-line dd .flch.read { background: #fde68a; color: #7c2d12; }
+  .src-line dd .flch.read.read-head { border-top-right-radius: 4px; border-bottom-right-radius: 4px; }
+  .src-line dd .flch.read.read-tail { border-top-left-radius: 4px; border-bottom-left-radius: 4px; }
+  .src-line dd.spoken { opacity: 0.5; }
+  .src-line.src-phoneme { display: none; }
+  .src-scroll.show-phoneme .src-line.src-phoneme { display: flex; }
+  .s-keyword { color: #be123c; font-weight: 700; }
+  .src-play-btn { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 99px; border: none; background: var(--blue); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2); transition: 0.2s ease; }
+  .src-play-btn:hover { background: var(--blue-hover); transform: translateY(-1px); }
+  .src-play-btn i { font-size: 15px; }
+  .src-progress { position: relative; height: 6px; margin: 6px 24px 12px; border-radius: 99px; background: #e2e8f0; cursor: pointer; touch-action: none; }
+  .src-progress::before { content: ''; position: absolute; left: 0; right: 0; top: -9px; bottom: -9px; }
+  .src-progress-bar { position: relative; height: 100%; width: 0; background: var(--blue); border-radius: 99px; transition: width 0.12s linear; }
+  .src-progress-bar::after { content: ''; position: absolute; right: -7px; top: 50%; width: 14px; height: 14px; transform: translateY(-50%); background: #fff; border: 3px solid var(--blue); border-radius: 50%; box-shadow: 0 1px 4px rgba(0,0,0,0.25); transition: transform 0.12s ease; }
+  .src-progress:hover .src-progress-bar::after { transform: translateY(-50%) scale(1.15); }
+  .src-item.src-seek { box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.45); }
+  @media (max-width: 768px) {
+    .modal.src-modal { width: calc(100vw - 24px); }
+    .src-item { flex-direction: column; gap: 8px; }
+    .src-line { flex-direction: column; gap: 4px; }
+    .src-line dt { width: auto; align-self: flex-start; padding: 4px 12px; }
+  }
+
+  @media (max-width: 640px) {
+    .osent-head { gap: 10px 16px; }
+    .osent-topic { flex-basis: 100%; }
+    .osent-src-btn, .osent-dl-btn { width: 100%; justify-content: center; }
+    .osent-row { flex-direction: column; gap: 6px; }
+    .osent-tag { width: auto; align-self: flex-start; padding: 5px 12px; }
+  }
+
+  /* ── 어휘 조사 결과 목록 (vocab_dialect.html 스타일 포팅) ── */
+  .vocab-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow2); background: #ffffff; }
+  .vocab-table th { background: #f8fafc; color: #334155; font-weight: 700; padding: 16px 14px; text-align: center; font-size: 13.5px; border-bottom: 1px solid var(--line); }
+  .vocab-table td { padding: 18px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; text-align: left; transition: background 0.15s ease; }
+  .vocab-table tbody tr:not(.details-row):last-child td { border-bottom: none; }
+  .vocab-table tbody tr:not(.details-row):hover td { background: #f8fafc; cursor: pointer; }
+  .vocab-table .col-num { width: 70px; text-align: center; color: #64748b; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .vocab-table .col-dialect { width: 170px; font-size: 15px; font-weight: 800; color: #db2777; text-align: center; }
+  .vocab-table .col-regions { color: #475569; line-height: 1.6; font-size: 13.5px; font-weight: 500; }
+  .vocab-table .col-std { width: 130px; font-size: 15px; font-weight: 800; color: var(--blue); text-align: center; }
+  .vocab-table .col-more { width: 100px; text-align: center; }
+  /* 지역어 아래 표준어 동일/다름 배지 (vocab_dialect.html 스타일 포팅) */
+  .dialect-col-wrapper { display: flex; flex-direction: column; align-items: center; gap: 6px; justify-content: center; }
+  .match-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 700; white-space: nowrap; border: 1px solid transparent; }
+  .match-badge::before { font-size: 9px; line-height: 1; }
+  .match-badge.same { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+  .match-badge.same::before { content: '●'; color: #22c55e; margin-right: 2px; }
+  .match-badge.diff { background: #fff5f5; border-color: #fed7d7; color: #9b2c2c; }
+  .match-badge.diff::before { content: '▲'; color: #e53e3e; margin-right: 2px; }
+  .row-more-btn { background: #ffffff; border: 1px solid var(--line); color: #64748b; cursor: pointer; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; transition: all 0.2s ease; box-shadow: var(--shadow2); }
+  .row-more-btn:hover { background: #f1f5f9; color: #0f172a; border-color: #cbd5e1; transform: scale(1.05); }
+  .row-more-btn i { transition: transform 0.25s ease; }
+  .vocab-table tr.open .row-more-btn i { transform: rotate(180deg); color: var(--blue); }
+  .vocab-table tr.open td { background: #f8fafc; }
+
+  .details-row { display: none; background: #ffffff; }
+  .details-row.show { display: table-row; }
+  .details-row > td { padding: 0 !important; border-bottom: 1px solid var(--line); }
+  .details-container { padding: 24px 30px; background: #fafbfc; border-top: 1px dashed var(--line); }
+  .details-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+  .details-title { font-size: 14px; font-weight: 800; color: var(--blue); display: flex; align-items: center; gap: 6px; }
+  .details-title::before { content: ''; display: inline-block; width: 4px; height: 12px; background: var(--blue); border-radius: 2px; }
+  .details-header-actions { display: flex; align-items: center; gap: 10px; }
+  .details-map-btn { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 6px 14px; border-radius: 6px; border: 1px solid var(--blue); background: #ffffff; color: var(--blue); font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; white-space: nowrap; box-shadow: var(--shadow2); transition: 0.2s; }
+  .details-map-btn:hover { background: var(--blue-light); border-color: var(--blue-hover); color: var(--blue-hover); transform: translateY(-1px); }
+  .details-map-btn i { font-size: 15px; }
+
+  /* ── 지도 보기 모달 (vocab_dialect.html 이식) ── */
+  /* .modal.map-modal 로 우선순위를 높여 뒤에 정의된 .modal(max-width:720px)에 덮이지 않게 함 */
+  .modal.map-modal { max-width: 1200px; width: calc(100vw - 80px); }
+  #mapModalOverlay.show { align-items: flex-start; }
+  #mapModalOverlay .map-modal { margin: auto; }
+  .map-modal .modal-body { padding: 0; max-height: none; overflow: visible; }
+  .map-modal .map-with-panel { flex-direction: row; align-items: stretch; border-radius: 0; }
+  .map-modal .vocab-map { flex: 1 1 auto; min-width: 0; height: 540px; border: none; border-top: 1px solid var(--line); border-radius: 0; }
+  .map-modal .map-legend { border-radius: var(--radius); }
+  .map-modal #regionDetailPanelModal {
+    position: static; flex: 0 0 340px; width: 340px; height: 540px; max-height: 540px;
+    border-radius: 0; border-top: 1px solid var(--line); border-left: 1px solid var(--line); box-shadow: none;
+  }
+  .map-modal #regionDetailPanelModal.active { display: flex; }
+  .map-with-panel { display: flex; flex-direction: column; gap: 0; position: relative; }
+  .vocab-map { width: 100%; height: 500px; background: #ffffff; border: 1px solid var(--line); border-top: none; position: relative; }
+  .vocab-map .ol-viewport { background: #f0f4f8; }
+  .map-legend { position: absolute; left: 16px; bottom: 16px; width: 280px; max-height: 300px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow2); overflow-y: auto; z-index: 50; }
+  .map-legend-title { font-size: 13px; font-weight: 700; color: var(--text); margin: 0 0 8px; }
+  .map-legend-text { font-size: 12px; color: #64748b; margin: 0; line-height: 1.6; }
+  .legend-items { display: flex; flex-direction: column; gap: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #475569; }
+  .legend-color { flex-shrink: 0; }
+  .legend-label { flex: 1; min-width: 0; }
+  .region-detail-panel { display: none; position: absolute; right: 16px; top: 16px; width: 320px; height: 468px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow2); flex-direction: column; z-index: 100; }
+  .region-detail-panel.active { display: flex; }
+  .panel-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
+  .panel-title { font-size: 16px; font-weight: 700; color: var(--text); margin: 0; }
+  .close-panel-btn { width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent; cursor: pointer; color: #64748b; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+  .close-panel-btn:hover { background: #f1f5f9; color: var(--text); }
+  .panel-content { padding: 16px 24px; overflow-y: auto; }
+  .region-dialect-item { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+  .region-dialect-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .dialect-form-label { font-size: 14px; font-weight: 700; color: var(--blue); margin-bottom: 8px; display: block; }
+  .dialect-audio-list { display: flex; flex-direction: column; gap: 6px; }
+  .dialect-audio-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; background: #f8fafc; font-size: 12px; }
+  .dialect-audio-item:hover { background: #f1f5f9; }
+  .dialect-audio-btn { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--line); background: #ffffff; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; color: var(--blue); flex-shrink: 0; transition: 0.2s; }
+  .dialect-audio-btn:hover { background: var(--blue); color: #ffffff; border-color: var(--blue); }
+  .dialect-audio-info { flex: 1; min-width: 0; }
+  .dialect-location { font-weight: 600; color: var(--text); }
+  .dialect-speaker { font-size: 11px; color: #64748b; margin-top: 2px; }
+  .region-marker-selected { stroke: #1e40af !important; stroke-width: 3 !important; }
+  @media (max-width: 768px) {
+    .map-modal { width: calc(100vw - 24px); }
+    .map-modal .map-with-panel { flex-direction: column; }
+    .map-modal .vocab-map { height: 320px; }
+    .map-modal #regionDetailPanelModal { flex-basis: auto; width: 100%; height: auto; max-height: 320px; border-left: none; }
+    .map-legend { position: static; width: 100%; max-height: 200px; margin-top: -1px; }
+  }
+
+  .details-table-wrapper { max-height: 340px; overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; background: #ffffff; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02); }
+  .details-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; table-layout: fixed; }
+  .details-table th { background: #f8fafc; color: #475569; font-weight: 700; padding: 14px 20px; border-bottom: 1px solid var(--line); font-size: 13px; text-align: center; }
+  .details-table td { padding: 18px 20px; border-bottom: 1px solid #f1f5f9; color: #334155; font-weight: 500; transition: background 0.15s; text-align: center; }
+  .details-table td.audio-cell { padding: 14px 20px; }
+  .details-table tr:last-child td { border-bottom: none; }
+  .details-table tr:hover td { background: #f8fafc; }
+  .audio-play-inline { background: #ffffff; border: 1px solid #cbd5e1; color: var(--blue); width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; font-size: 13px; box-shadow: var(--shadow2); padding: 0; margin: 0 auto; vertical-align: middle; }
+  .audio-play-inline:hover { background: var(--blue-light); border-color: var(--blue); color: var(--blue-hover); transform: scale(1.08); }
+  .details-empty { padding: 24px; text-align: center; color: #64748b; background: #ffffff; border: 1px solid var(--line); border-radius: 10px; font-weight: 600; }
+
+  /* 지역어 표기 안내 툴팁 */
+  .dialect-tooltip-trigger { cursor: help; color: #64748b; font-weight: 700; font-size: 16px; margin-left: 6px; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; transition: 0.2s; position: relative; }
+  .dialect-tooltip-trigger:hover { color: var(--blue); background: rgba(37, 99, 235, 0.08); }
+  .dialect-tooltip-trigger.active { color: var(--blue); background: rgba(37, 99, 235, 0.12); }
+  .dialect-tooltip { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 14px 16px; font-size: 12px; white-space: normal; width: max-content; max-width: 280px; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.2s, visibility 0.2s; z-index: 1000; margin-top: 8px; text-align: left; }
+  .dialect-tooltip-trigger:hover ~ .dialect-tooltip, .dialect-tooltip-trigger.active ~ .dialect-tooltip { opacity: 1; visibility: visible; pointer-events: auto; }
+  .tooltip-title { font-weight: 700; color: var(--text); margin-bottom: 8px; font-size: 13px; }
+  .tooltip-item { color: #475569; line-height: 1.6; margin-bottom: 6px; }
+  .tooltip-item:last-child { margin-bottom: 0; }
+
+  /* 전체 탭에서 어휘 목록 더보기 바 */
+  .vocab-more-bar { display: none; margin-top: 14px; text-align: center; }
+  .vocab-more-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 22px; border-radius: 99px; border: 1px dashed #cbd5e1; background: #ffffff; color: var(--blue); font-size: 13.5px; font-weight: 700; font-family: inherit; cursor: pointer; transition: 0.2s; }
+  .vocab-more-btn:hover { background: var(--blue-light); border-color: var(--blue); }
+
   .more-btn { font-size: 13px; font-weight: 600; padding: 10px; width: 100%; text-align: center; border-radius: 12px; border: 1px dashed #cbd5e1; background: #ffffff; cursor: pointer; color: #64748b; font-family: inherit; transition: 0.2s; }
   .more-btn:hover { background: #f1f5f9; color: var(--text); border-color: #94a3b8; }
 
@@ -633,11 +923,11 @@
 
   <!-- Result tabs -->
   <div class="tab-bar">
-    <button class="tab on" onclick="setTab(this)">전체 <span class="tab-count">89</span></button>
-    <button class="tab" onclick="setTab(this)">어휘 조사 <span class="tab-count">52</span></button>
-    <button class="tab" onclick="setTab(this)">구술발화 <span class="tab-count">21</span></button>
-    <button class="tab" onclick="setTab(this)">문학 속 지역어 <span class="tab-count">9</span></button>
-    <button class="tab" onclick="setTab(this)">사진 생활어 <span class="tab-count">7</span></button>
+    <button class="tab on" data-cat="all" onclick="setTab(this)">전체 <span class="tab-count">89</span></button>
+    <button class="tab" data-cat="vocab" onclick="setTab(this)">어휘 조사 <span class="tab-count">52</span></button>
+    <button class="tab" data-cat="oral" onclick="setTab(this)">구술발화 <span class="tab-count">21</span></button>
+    <button class="tab" data-cat="lit" onclick="setTab(this)">문학 속 지역어 <span class="tab-count">9</span></button>
+    <button class="tab" data-cat="life" onclick="setTab(this)">사진 생활어 <span class="tab-count">7</span></button>
   </div>
 
   <!-- 어휘 관계 배너 (Tag Net Banner) -->
@@ -667,55 +957,554 @@
     <div class="tnb-footer">현재 '북감재' 52건 표시 중 — 전체 포함 검색 시 <span class="highlight-num">89건</span></div>
   </div>
 
-  <!-- Keyword summary -->
-  <div class="kw-sum" aria-label="검색어 요약 의미">
-    <div class="kw-left">
-      <div class="kw-head">
-        <span class="kw-word">감자</span>
-        <span class="kw-pos">명사</span>
-      </div>
-      <div class="kw-badges" aria-label="검색어 특성">
-        <span class="kw-badge blue">전국 분포</span>
-        <span class="kw-badge green">구황작물</span>
-        <span class="kw-badge orange">방언형 7종</span>
-      </div>
-      <div class="kw-def">서늘한 기후에서 잘 자라는 구황 작물.
-지역에 따라 북감재(전라도), 감저(전라·제주), 감재(충청도) 등으로 불린다.</div>
-    </div>
-    <div class="kw-right">
-      <div class="kw-stats" aria-label="요약 통계">
-        <div class="kw-stat"><span class="k">방언형 수</span><span class="v main">7종</span></div>
-        <div class="kw-stat"><span class="k">전국 인지도</span><span class="v accent">57%</span></div>
-      </div>
-      <div class="kw-actions" aria-label="빠른 이동">
-        <a class="btn-outline" href="./dialect_map.html"><i class="ti ti-map" aria-hidden="true"></i> 지도 보기</a>
-        <a class="btn-outline" href="./dialect_awareness_v2.html"><i class="ti ti-chart-bar" aria-hidden="true"></i> 인지도 보기</a>
-      </div>
-    </div>
-  </div>
-
   <!-- Result header -->
   <div class="result-header">
     <div class="result-count"></div>
-    <div class="result-actions">
-      <button class="excel-btn"><i class="ti ti-file-spreadsheet" style="font-size:13px;" aria-hidden="true"></i> 엑셀 내려받기</button>
-      <select style="font-size:12px;padding:5px 8px;"><option>관련도순</option><option>가나다순</option><option>최신순</option></select>
+  </div>
+
+  <div class="cat-title" data-cat="vocab">어휘 조사 자료 <span class="cnt">(총 52건)</span></div>
+  <!-- Card 1: 어휘 조사 결과 리스트 테이블 -->
+  <div class="scard open" id="c1" data-cat="vocab">
+    <div class="card-body show" id="body-c1">
+      <table class="vocab-table" role="table">
+        <caption class="sr-only">어휘 검색 결과 목록. 지역어, 해당 지역, 표준어 정보 표시</caption>
+        <thead>
+          <tr>
+            <th class="col-num" scope="col">번호</th>
+            <th style="width:130px; text-align:center; position:relative;" scope="col">지역어<span class="dialect-tooltip-trigger" role="button" tabindex="0" aria-label="지역어 표기 안내" onclick="toggleDialectTooltip(event)" onkeypress="if(event.key==='Enter') toggleDialectTooltip(event)">ⓘ</span><div class="dialect-tooltip"><div class="tooltip-title">표기 안내</div><div class="tooltip-item"><strong>:</strong> — 길게 소리 나는 부분(장음)입니다. 예: 감:자</div><div class="tooltip-item"><strong>&#39;</strong> — 높은 소리(성조·악센트)를 나타냅니다. 예: 감&#39;자</div></div></th>
+            <th scope="col">지역</th>
+            <th class="col-std" scope="col">표준어</th>
+            <th class="col-more" scope="col">상세 보기</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 1 -->
+          <tr id="row-1" onclick="toggleDetails('1')">
+            <td class="col-num">1</td>
+            <td class="col-dialect">가을</td>
+            <td class="col-regions">강원도, 경기도, 경상남도, 경상북도, 광주광역시, 서울특별시, 울산광역시, 인천광역시, 전라남도, 전라북도, 제주특별자치도, 충청남도, 충청북도</td>
+            <td class="col-std">가을</td>
+            <td class="col-more"><button class="row-more-btn" aria-label="상세 보기" aria-expanded="false" onclick="event.stopPropagation(); toggleDetails('1')"><i class="ti ti-chevron-down"></i></button></td>
+          </tr>
+          <tr id="details-1" class="details-row">
+            <td colspan="5">
+              <div class="details-container">
+                <div class="details-header">
+                  <div class="details-title">가을의 지역별 음성 듣기</div>
+                  <div class="details-header-actions">
+                    <button type="button" class="details-map-btn" onclick="event.stopPropagation(); openMapModal('가을')"><i class="ti ti-map-2" aria-hidden="true"></i> 지도로 보기</button>
+                  </div>
+                </div>
+                <div class="details-table-wrapper">
+                  <table class="details-table" role="table">
+                    <caption class="sr-only">지역별 음성 자료 목록</caption>
+                    <thead>
+                      <tr>
+                        <th style="width:20%;" scope="col">지역</th>
+                        <th style="width:20%;" scope="col">시·군</th>
+                        <th style="width:15%;" scope="col">조사시기</th>
+                        <th style="width:30%;" scope="col">제보자</th>
+                        <th style="width:15%;" scope="col">음성</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>강원도</td><td>고성군</td><td>2016년</td><td>82세, 남성</td><td class="audio-cell center"><button class="audio-play-inline" onclick="event.stopPropagation()"><i class="ti ti-volume"></i></button></td></tr>
+                      <tr><td>강원도</td><td>양구군</td><td>2018년</td><td>81세, 여성</td><td class="audio-cell center"><button class="audio-play-inline" onclick="event.stopPropagation()"><i class="ti ti-volume"></i></button></td></tr>
+                      <tr><td>강원도</td><td>양양군</td><td>2006년</td><td>83세, 남성</td><td class="audio-cell center"><button class="audio-play-inline" onclick="event.stopPropagation()"><i class="ti ti-volume"></i></button></td></tr>
+                      <tr><td>강원도</td><td>영월군</td><td>2019년</td><td>79세, 여성</td><td class="audio-cell center"><button class="audio-play-inline" onclick="event.stopPropagation()"><i class="ti ti-volume"></i></button></td></tr>
+                      <tr><td>강원도</td><td>영월군</td><td>2019년</td><td>79세, 여성</td><td class="audio-cell center"><button class="audio-play-inline" onclick="event.stopPropagation()"><i class="ti ti-volume"></i></button></td></tr>
+                      <tr><td>경기도</td><td>원주시</td><td>2023년</td><td>50대, 여성</td><td class="audio-cell center"><button class="audio-play-inline" onclick="event.stopPropagation()"><i class="ti ti-volume"></i></button></td></tr>
+                      <tr><td>경기도</td><td>원주시</td><td>2023년</td><td>50대, 여성</td><td class="audio-cell center"><button class="audio-play-inline" onclick="event.stopPropagation()"><i class="ti ti-volume"></i></button></td></tr>
+                      <tr><td>경기도</td><td>원주시</td><td>2023년</td><td>20대, 남성</td><td class="audio-cell center"><button class="audio-play-inline" onclick="event.stopPropagation()"><i class="ti ti-volume"></i></button></td></tr>
+                      <tr><td>경기도</td><td>원주시</td><td>2023년</td><td>70대, 여성</td><td class="audio-cell center"><button class="audio-play-inline" onclick="event.stopPropagation()"><i class="ti ti-volume"></i></button></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <!-- 2 -->
+          <tr id="row-2" onclick="toggleDetails('2')">
+            <td class="col-num">2</td>
+            <td class="col-dialect">가을</td>
+            <td class="col-regions">경상북도</td>
+            <td class="col-std">가을</td>
+            <td class="col-more"><button class="row-more-btn" aria-label="상세 보기" aria-expanded="false" onclick="event.stopPropagation(); toggleDetails('2')"><i class="ti ti-chevron-down"></i></button></td>
+          </tr>
+          <tr id="details-2" class="details-row">
+            <td colspan="5">
+              <div class="details-container">
+                <div class="details-empty">음성 데이터 준비 중입니다.</div>
+              </div>
+            </td>
+          </tr>
+          <!-- 3 -->
+          <tr id="row-3" onclick="toggleDetails('3')">
+            <td class="col-num">3</td>
+            <td class="col-dialect">가을(=가:을)</td>
+            <td class="col-regions">전라북도, 충청북도</td>
+            <td class="col-std">가을</td>
+            <td class="col-more"><button class="row-more-btn" aria-label="상세 보기" aria-expanded="false" onclick="event.stopPropagation(); toggleDetails('3')"><i class="ti ti-chevron-down"></i></button></td>
+          </tr>
+          <tr id="details-3" class="details-row">
+            <td colspan="5">
+              <div class="details-container">
+                <div class="details-empty">음성 데이터 준비 중입니다.</div>
+              </div>
+            </td>
+          </tr>
+          <!-- 4 -->
+          <tr id="row-4" onclick="toggleDetails('4')">
+            <td class="col-num">4</td>
+            <td class="col-dialect">가을(=가을')</td>
+            <td class="col-regions">강원도, 경상남도, 경상북도, 부산광역시, 울산광역시</td>
+            <td class="col-std">가을</td>
+            <td class="col-more"><button class="row-more-btn" aria-label="상세 보기" aria-expanded="false" onclick="event.stopPropagation(); toggleDetails('4')"><i class="ti ti-chevron-down"></i></button></td>
+          </tr>
+          <tr id="details-4" class="details-row">
+            <td colspan="5">
+              <div class="details-container">
+                <div class="details-empty">음성 데이터 준비 중입니다.</div>
+              </div>
+            </td>
+          </tr>
+          <!-- 5 -->
+          <tr id="row-5" onclick="toggleDetails('5')">
+            <td class="col-num">5</td>
+            <td class="col-dialect">가을(=가을'/가을'ㄱ)</td>
+            <td class="col-regions">경상북도</td>
+            <td class="col-std">가을</td>
+            <td class="col-more"><button class="row-more-btn" aria-label="상세 보기" aria-expanded="false" onclick="event.stopPropagation(); toggleDetails('5')"><i class="ti ti-chevron-down"></i></button></td>
+          </tr>
+          <tr id="details-5" class="details-row">
+            <td colspan="5">
+              <div class="details-container">
+                <div class="details-empty">음성 데이터 준비 중입니다.</div>
+              </div>
+            </td>
+          </tr>
+          <!-- 6 -->
+          <tr id="row-6" onclick="toggleDetails('6')">
+            <td class="col-num">6</td>
+            <td class="col-dialect">가을ㄱ(=가:을'ㄱ)</td>
+            <td class="col-regions">강원도</td>
+            <td class="col-std">가을</td>
+            <td class="col-more"><button class="row-more-btn" aria-label="상세 보기" aria-expanded="false" onclick="event.stopPropagation(); toggleDetails('6')"><i class="ti ti-chevron-down"></i></button></td>
+          </tr>
+          <tr id="details-6" class="details-row">
+            <td colspan="5">
+              <div class="details-container">
+                <div class="details-empty">음성 데이터 준비 중입니다.</div>
+              </div>
+            </td>
+          </tr>
+          <!-- 7 -->
+          <tr id="row-7" onclick="toggleDetails('7')">
+            <td class="col-num">7</td>
+            <td class="col-dialect">가을ㄱ(=가을'ㄱ)</td>
+            <td class="col-regions">강원도</td>
+            <td class="col-std">가을</td>
+            <td class="col-more"><button class="row-more-btn" aria-label="상세 보기" aria-expanded="false" onclick="event.stopPropagation(); toggleDetails('7')"><i class="ti ti-chevron-down"></i></button></td>
+          </tr>
+          <tr id="details-7" class="details-row">
+            <td colspan="5">
+              <div class="details-container">
+                <div class="details-empty">음성 데이터 준비 중입니다.</div>
+              </div>
+            </td>
+          </tr>
+          <!-- 8 -->
+          <tr id="row-8" onclick="toggleDetails('8')">
+            <td class="col-num">8</td>
+            <td class="col-dialect">가을철</td>
+            <td class="col-regions">대전광역시, 전라남도, 충청남도</td>
+            <td class="col-std">가을</td>
+            <td class="col-more"><button class="row-more-btn" aria-label="상세 보기" aria-expanded="false" onclick="event.stopPropagation(); toggleDetails('8')"><i class="ti ti-chevron-down"></i></button></td>
+          </tr>
+          <tr id="details-8" class="details-row">
+            <td colspan="5">
+              <div class="details-container">
+                <div class="details-empty">음성 데이터 준비 중입니다.</div>
+              </div>
+            </td>
+          </tr>
+          <!-- 9 -->
+          <tr id="row-9" onclick="toggleDetails('9')">
+            <td class="col-num">9</td>
+            <td class="col-dialect">가을 추수하다</td>
+            <td class="col-regions">충청북도</td>
+            <td class="col-std">추수하다</td>
+            <td class="col-more"><button class="row-more-btn" aria-label="상세 보기" aria-expanded="false" onclick="event.stopPropagation(); toggleDetails('9')"><i class="ti ti-chevron-down"></i></button></td>
+          </tr>
+          <tr id="details-9" class="details-row">
+            <td colspan="5">
+              <div class="details-container">
+                <div class="details-empty">음성 데이터 준비 중입니다.</div>
+              </div>
+            </td>
+          </tr>
+          <!-- 10 -->
+          <tr id="row-10" onclick="toggleDetails('10')">
+            <td class="col-num">10</td>
+            <td class="col-dialect">가을가리(=가을가리)</td>
+            <td class="col-regions">경상북도</td>
+            <td class="col-std">가을갈이</td>
+            <td class="col-more"><button class="row-more-btn" aria-label="상세 보기" aria-expanded="false" onclick="event.stopPropagation(); toggleDetails('10')"><i class="ti ti-chevron-down"></i></button></td>
+          </tr>
+          <tr id="details-10" class="details-row">
+            <td colspan="5">
+              <div class="details-container">
+                <div class="details-empty">음성 데이터 준비 중입니다.</div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
-  <!-- Card 0: 사진으로 보는 생활어 -->
-  <div class="scard open" id="c0">
-    <div class="card-head" onclick="toggle('c0')">
-      <div class="card-meta">
-        <div class="card-title-row">
-          <span class="badge b-life b-life--blue"><i class="ti ti-camera" aria-hidden="true"></i> 사진으로 보는 생활어</span>
-          <span class="word">감자</span>
-          <span class="word-std">/ 북감재 · 감저 · 감재</span>
+  <div class="cat-more-bar" data-cat="vocab"><button type="button" class="cat-more-btn" onclick="goToTab('vocab')">어휘 조사 자료 더 보기 <i class="ti ti-plus" aria-hidden="true"></i></button></div>
+
+  <div class="cat-title" data-cat="oral">구술발화 조사 자료 <span class="cnt">(총 21건)</span></div>
+  <!-- Card 2: 구술발화 -->
+  <!-- 구술발화 검색 결과 목록 (oral_dialect.html 노출 방식과 동일) -->
+  <div class="osent-list" id="osentList" data-cat="oral">
+
+    <!-- 1 -->
+    <div class="osent-item">
+      <div class="osent-head">
+        <span class="osent-num">1</span>
+        <div class="osent-topic">
+          <span class="k">주제 :</span>
+          <span class="v">생업 활동 <i class="sep">〉</i> 밭농사</span>
         </div>
-        <div class="card-sub">전라도의 '북감재', 전라·제주의 '감저', 충청도의 '감재'… 같은 작물, 다른 이름을 사진으로 만나보세요.</div>
+        <div class="osent-info">
+          <span class="cell"><span class="k">지역</span>강원도 삼척시</span>
+          <span class="cell"><span class="k">조사연도</span>2004년</span>
+          <span class="cell"><span class="k">제보자</span>남성, 75세</span>
+        </div>
+        <a href="#" class="osent-src-btn" onclick="openSourceModal(); return false;">원문 보기 <i class="ti ti-external-link" aria-hidden="true"></i></a>
+        <a href="#" class="osent-dl-btn" onclick="downloadSource(this); return false;">다운로드 <i class="ti ti-download" aria-hidden="true"></i></a>
       </div>
-      <i class="ti ti-chevron-down chevron" aria-hidden="true"></i>
+      <div class="osent-body">
+        <div class="osent-sentences">
+          <div class="osent-sentence">
+            <div class="osent-row">
+              <span class="osent-tag morph">형태음소전사</span>
+              <p class="osent-text"><span class="kw-hl">감자</span> 자체가 몸이 굉장이 아주 머라 할까요, 상다이 아주 음</p>
+            </div>
+            <div class="osent-row">
+              <span class="osent-tag std">표준어 대역</span>
+              <p class="osent-text std-text">(<span class="kw-hl">감자</span> 자체가 몸이 굉장히 아주 뭐라고 할까요, 상당히 아주 음)</p>
+            </div>
+          </div>
+          <div class="osent-sentence">
+            <div class="osent-row">
+              <span class="osent-tag morph">형태음소전사</span>
+              <p class="osent-text">아까 얘기한 이르 우롱재라는 감재에 비하면은 이 <span class="kw-hl">감자</span>가 아주 굵어요</p>
+            </div>
+            <div class="osent-row">
+              <span class="osent-tag std">표준어 대역</span>
+              <p class="osent-text std-text">(아까 이야기한 이 우롱재라는 <span class="kw-hl">감자</span>에 비하면 이 <span class="kw-hl">감자</span>가 아주 굵어요)</p>
+            </div>
+          </div>
+          <div class="osent-sentence">
+            <div class="osent-row">
+              <span class="osent-tag morph">형태음소전사</span>
+              <p class="osent-text">그래도 이 머이 일반 <span class="kw-hl">감자</span>를 하긴 합니다. 하긴 하는데 지금은</p>
+            </div>
+            <div class="osent-row">
+              <span class="osent-tag std">표준어 대역</span>
+              <p class="osent-text std-text">(그래도 이 뭐 일반 <span class="kw-hl">감자</span>를 하긴 합니다. 하긴 하는데 지금은)</p>
+            </div>
+          </div>
+          <div class="osent-sentence">
+            <div class="osent-row">
+              <span class="osent-tag morph">형태음소전사</span>
+              <p class="osent-text">여기서도 <span class="kw-hl">감자</span>라고 하기는 하는데 옛날에는 다 감재라 그랬어</p>
+            </div>
+            <div class="osent-row">
+              <span class="osent-tag std">표준어 대역</span>
+              <p class="osent-text std-text">(여기서도 <span class="kw-hl">감자</span>라고 하기는 하는데 옛날에는 다 감재라 그랬어)</p>
+            </div>
+          </div>
+          <div class="osent-sentence">
+            <div class="osent-row">
+              <span class="osent-tag morph">형태음소전사</span>
+              <p class="osent-text">그 <span class="kw-hl">감자</span>를 캐다가 이래 삶아 가주고 먹으머 그게 그렇게 맛있어요</p>
+            </div>
+            <div class="osent-row">
+              <span class="osent-tag std">표준어 대역</span>
+              <p class="osent-text std-text">(그 <span class="kw-hl">감자</span>를 캐다가 이렇게 삶아 가지고 먹으면 그게 그렇게 맛있어요)</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- 2 -->
+    <div class="osent-item">
+      <div class="osent-head">
+        <span class="osent-num">2</span>
+        <div class="osent-topic">
+          <span class="k">주제 :</span>
+          <span class="v">생업 활동 <i class="sep">〉</i> 마을 공동체 생활을 위한 일손</span>
+        </div>
+        <div class="osent-info">
+          <span class="cell"><span class="k">지역</span>강원도 삼척시</span>
+          <span class="cell"><span class="k">조사연도</span>2004년</span>
+          <span class="cell"><span class="k">제보자</span>남성, 75세</span>
+        </div>
+        <a href="#" class="osent-src-btn" onclick="openSourceModal(); return false;">원문 보기 <i class="ti ti-external-link" aria-hidden="true"></i></a>
+        <a href="#" class="osent-dl-btn" onclick="downloadSource(this); return false;">다운로드 <i class="ti ti-download" aria-hidden="true"></i></a>
+      </div>
+      <div class="osent-body">
+        <div class="osent-sentences">
+          <div class="osent-sentence">
+            <div class="osent-row">
+              <span class="osent-tag morph">형태음소전사</span>
+              <p class="osent-text"><span class="kw-hl">감자</span> 찌고 국수 해 가주고 이런 큰 뚜가리에다 한 그득 <span class="kw-hl">감자</span> 한 가락 주머 두 개르 뚝딱 하고는 막걸리 주면 이런 데 세 개 내지 네 개 먹아요.</p>
+            </div>
+            <div class="osent-row">
+              <span class="osent-tag std">표준어 대역</span>
+              <p class="osent-text std-text">(<span class="kw-hl">감자</span> 찌고 국수 해 가지고 이런 큰 뚝배기에다 한가득 <span class="kw-hl">감자</span> 한 가득 주면 두 개를 뚝딱하고는 막걸리 주면 이런 데 세 개 내지 네 개 먹어요.)</p>
+            </div>
+          </div>
+          <div class="osent-sentence">
+            <div class="osent-row">
+              <span class="osent-tag morph">형태음소전사</span>
+              <p class="osent-text">보리쌀 퍼 조따 <span class="kw-hl">감자</span> 안치고 그 밥이 어느 정도 대문 그다 쭈욱 안차 났다가</p>
+            </div>
+            <div class="osent-row">
+              <span class="osent-tag std">표준어 대역</span>
+              <p class="osent-text std-text">(보리쌀 퍼서 저기에 <span class="kw-hl">감자</span>를 안치고 그 밥이 어느 정도 되면 거기에 쭉 안쳐 두었다가)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 -->
+    <div class="osent-item">
+      <div class="osent-head">
+        <span class="osent-num">3</span>
+        <div class="osent-topic">
+          <span class="k">주제 :</span>
+          <span class="v">생업 활동 <i class="sep">〉</i> 밭농사</span>
+        </div>
+        <div class="osent-info">
+          <span class="cell"><span class="k">지역</span>강원도 삼척시</span>
+          <span class="cell"><span class="k">조사연도</span>2004년</span>
+          <span class="cell"><span class="k">제보자</span>남성, 75세</span>
+        </div>
+        <a href="#" class="osent-src-btn" onclick="openSourceModal(); return false;">원문 보기 <i class="ti ti-external-link" aria-hidden="true"></i></a>
+        <a href="#" class="osent-dl-btn" onclick="downloadSource(this); return false;">다운로드 <i class="ti ti-download" aria-hidden="true"></i></a>
+      </div>
+      <div class="osent-body">
+        <div class="osent-sentences">
+          <div class="osent-sentence">
+            <div class="osent-row">
+              <span class="osent-tag morph">형태음소전사</span>
+              <p class="osent-text"><span class="kw-hl">감자</span>가 아니구 감재.</p>
+            </div>
+            <div class="osent-row">
+              <span class="osent-tag std">표준어 대역</span>
+              <p class="osent-text std-text">(<span class="kw-hl">감자</span>가 아니고 감재.)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4 -->
+    <div class="osent-item">
+      <div class="osent-head">
+        <span class="osent-num">4</span>
+        <div class="osent-topic">
+          <span class="k">주제 :</span>
+          <span class="v">생업 활동 <i class="sep">〉</i> 밭농사</span>
+        </div>
+        <div class="osent-info">
+          <span class="cell"><span class="k">지역</span>강원도 삼척시</span>
+          <span class="cell"><span class="k">조사연도</span>2004년</span>
+          <span class="cell"><span class="k">제보자</span>남성, 75세</span>
+        </div>
+        <a href="#" class="osent-src-btn" onclick="openSourceModal(); return false;">원문 보기 <i class="ti ti-external-link" aria-hidden="true"></i></a>
+        <a href="#" class="osent-dl-btn" onclick="downloadSource(this); return false;">다운로드 <i class="ti ti-download" aria-hidden="true"></i></a>
+      </div>
+      <div class="osent-body">
+        <div class="osent-sentences">
+          <div class="osent-sentence">
+            <div class="osent-row">
+              <span class="osent-tag morph">형태음소전사</span>
+              <p class="osent-text"><span class="kw-hl">감자</span>는 머 지금은 그렇게 하지 않으니까</p>
+            </div>
+            <div class="osent-row">
+              <span class="osent-tag std">표준어 대역</span>
+              <p class="osent-text std-text">(<span class="kw-hl">감자</span>는 뭐 지금은 그렇게 하지 않으니까)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5 -->
+    <div class="osent-item">
+      <div class="osent-head">
+        <span class="osent-num">5</span>
+        <div class="osent-topic">
+          <span class="k">주제 :</span>
+          <span class="v">생업 활동 <i class="sep">〉</i> 밭농사</span>
+        </div>
+        <div class="osent-info">
+          <span class="cell"><span class="k">지역</span>강원도 삼척시</span>
+          <span class="cell"><span class="k">조사연도</span>2004년</span>
+          <span class="cell"><span class="k">제보자</span>남성, 75세</span>
+        </div>
+        <a href="#" class="osent-src-btn" onclick="openSourceModal(); return false;">원문 보기 <i class="ti ti-external-link" aria-hidden="true"></i></a>
+        <a href="#" class="osent-dl-btn" onclick="downloadSource(this); return false;">다운로드 <i class="ti ti-download" aria-hidden="true"></i></a>
+      </div>
+      <div class="osent-body">
+        <div class="osent-sentences">
+          <div class="osent-sentence">
+            <div class="osent-row">
+              <span class="osent-tag morph">형태음소전사</span>
+              <p class="osent-text">감재 크게 이래 옹기게 감기<span class="kw-hl">감자</span> 오글거 …</p>
+            </div>
+            <div class="osent-row">
+              <span class="osent-tag std">표준어 대역</span>
+              <p class="osent-text std-text">(감자 크게 이렇게 옹골지게 감기<span class="kw-hl">감자</span> 오글거려 …)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="cat-more-bar" data-cat="oral"><button type="button" class="cat-more-btn" onclick="goToTab('oral')">구술발화 조사 자료 더 보기 <i class="ti ti-plus" aria-hidden="true"></i></button></div>
+
+  <div class="cat-title" data-cat="lit">문학 속 지역어 자료 <span class="cnt">(총 9건)</span></div>
+  <!-- Card 4: 문학 (목록형, literature_dialect.html 이식) -->
+  <div class="scard open" id="c4" data-cat="lit">
+    <div class="card-body show" id="body-c4">
+      <div class="lit-list">
+        <!-- 1 가새보리 -->
+        <article class="lit-entry">
+          <div class="lit-head">
+            <span class="lit-num">1</span>
+            <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">가새보리</span> <span class="lit-pos">「명사」</span></span>
+            <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>대응 표준어 없음</b></span></span>
+          </div>
+          <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">보리 싹이 자라서 보리 잎이 가위 모양으로 두세 잎 정도로 자란 보리. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
+          <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>인분은 옥수수 뿐만 아니라 밀과 보리에도 퍼다 주는데, 이는 대개 밀, 보리가 <mark>가새보리</mark> 또는 가새밀이 될 때 퍼다 준다. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></div>
+          <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">가위보리</span></div>
+        </article>
+
+        <!-- 2 간두다 -->
+        <article class="lit-entry">
+          <div class="lit-head">
+            <span class="lit-num">2</span>
+            <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">간두다</span> <span class="lit-pos">「동사」</span></span>
+            <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>그만두다</b></span></span>
+          </div>
+          <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">하던 일이나 하던 말을 더 이상 하지 말고 그치다. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
+          <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “<mark>간도</mark>.” “언눔이 도령.” “<mark>간두</mark>라니까.” <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></div>
+          <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">고만두다, 곤두다, 건두다</span></div>
+        </article>
+
+        <!-- 3 갑북갑북 -->
+        <article class="lit-entry">
+          <div class="lit-head">
+            <span class="lit-num">3</span>
+            <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">갑북갑북</span> <span class="lit-pos">「부사」</span></span>
+            <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>깜빡깜빡, #흠뻑흠뻑.</b></span></span>
+          </div>
+          <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">① 졸음이 오거나 술에 취해서 눈이 자꾸 감겼다 뜨였다 하면서 고개를 꾸벅이는 모양. ② 여러 사람이 모두 술에 흠뻑 취해 있거나 물에 흠뻑 젖어 있는 모양. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
+          <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>“그러면 나는 어리어리한 환몽에서 다시 진달래를 씹었고 또 그러면 솔솔 불어오는 재넘이에 <mark>갑북갑북</mark> 졸음이 왔다. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></div>
+          <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">깜빡깜빡</span></div>
+        </article>
+
+        <!-- 4 갑산 돈피 -->
+        <article class="lit-entry">
+          <div class="lit-head">
+            <span class="lit-num">4</span>
+            <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">갑산 돈피</span> <span class="lit-pos">「구」</span></span>
+            <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>대응 표준어 없음</b></span></span>
+          </div>
+          <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">아주 튼튼하고 체력이 강함을 비유적으로 나타낸 말. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
+          <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>이런 중에도 부역 나가고 남의 집 품팔이 하고 나무해다 장에 팔고 틈틈이 공부까지 하려니 몸이 <mark>갑산 돈피</mark>라도 지탱할 수가 없어 파김치 되기 십상이었다. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></div>
+          <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">다른 방언형 없음</span></div>
+        </article>
+
+        <!-- 5 개살스럽다 -->
+        <article class="lit-entry">
+          <div class="lit-head">
+            <span class="lit-num">5</span>
+            <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">개살스럽다</span> <span class="lit-pos">「형용사」</span></span>
+            <span class="lit-head-right"><span>지역 : <b>충청도, 강원도</b></span><span>대응 표준어 : <b>독살스럽다</b></span></span>
+          </div>
+          <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">성품이나 행동이 살기가 있고 날카로우며 모질고 악독한 데가 있다. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
+          <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>홀어머니가 며느리를 보면 <mark>개살스러워</mark>져 심통부리기 예사요, 아들 내외가 정분이라도 좋으면 이게 질투가 나 심술을 부리며 눈에 쌍심지를 켠다는 말 말이다. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></div>
+          <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">매살스럽다</span></div>
+        </article>
+
+        <!-- 6 개토시 -->
+        <article class="lit-entry">
+          <div class="lit-head">
+            <span class="lit-num">6</span>
+            <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">개토시</span> <span class="lit-pos">「명사」</span></span>
+            <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>개차반</b></span></span>
+          </div>
+          <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">말과 행동이 아주 거칠고 너절한 사람을 비유적으로 속되게 이르는 말. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
+          <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>선생님한테 불려가 치도곤을 당한 게 한두 번이 아니요 악동의 <mark>개토시</mark>로 악명 높아 어머니가 대신 무릎 꿇은 게 한두 번이 아니었지만 나는 예원이 앞에서만은 늘 주인 앞의 강아지 같았다. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></div>
+          <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">개차반</span></div>
+        </article>
+
+        <!-- 7 객사한 놈 지팡이 버리듯 한다 -->
+        <article class="lit-entry">
+          <div class="lit-head">
+            <span class="lit-num">7</span>
+            <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">객사한 놈 지팡이 버리듯 한다</span> <span class="lit-pos">「속담」</span></span>
+            <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>대응 표준어 없음</b></span></span>
+          </div>
+          <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">객지에서 죽은 사람이 가지고 다니던 지팡이를 쉽게 버리듯이 지조나 청렴을 쉽게 버림을 비유적으로 이르는 말. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
+          <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>타락한 것들은 돈이라면 환장을 하고 부패한 것들은 돈이라면 사족을 못 써 지조 따위는 원두장이 쓴 외 버리듯 하고 청렴 따위는 <mark>객사한 놈 지팡이 버리듯 한다</mark>. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></div>
+          <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">원두쟁이 쏜 외 버리듯 한다, 객사한 놈 지팽이 버리듯 한다.</span></div>
+        </article>
+
+        <!-- 8 갸기부리다 -->
+        <article class="lit-entry">
+          <div class="lit-head">
+            <span class="lit-num">8</span>
+            <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">갸기부리다</span> <span class="lit-pos">「동사」</span></span>
+            <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>대응 표준어 없음</b></span></span>
+          </div>
+          <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">남을 업신여기고 잘난 체하며 뽐내는 행동을 하다. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
+          <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>인사를 받든 안 받든 나만 인사하면 되고 등기부 열람해다 사무보면 그게 사무원다운 거지. 위인들이 <mark>갸기부리</mark>고 곤댓짓하는 거야 제가 잘나 그런 줄 착각하는 모양이니 치지도외 해버리자. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></div>
+          <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">갸기부리다</span></div>
+        </article>
+
+        <!-- 9 거렁뱅이 -->
+        <article class="lit-entry">
+          <div class="lit-head">
+            <span class="lit-num">9</span>
+            <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">거렁뱅이</span> <span class="lit-pos">「명사」</span></span>
+            <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>비렁뱅이</b></span></span>
+          </div>
+          <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">남에게 빌어먹고 사는 사람을 낮잡아 이르는 말. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
+          <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>“자네 그거 어디서 배워먹은 행세따리야. 손님한테 밥대접하는 게 개돼지 밥주듯 하다니. 아무리 비럭질로 연명하는 <mark>거렁뱅이</mark>라도 대문을 넘어서면 손님이야. 그런데 그런 손님한테 밥을 쏟아부어줘? 천하에 못된 거 같으니라고.” <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></div>
+          <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">걸뱅이, 걸빙이, 걸비이, 동냥아치, 동냥치, 동냥박씨, 어더배기, 어더박시, 어더뱅이, 으더박시, 비렁뱅이, 비렁배이, 비렁배, 비렁이, 비렝박이, 그지</span></div>
+        </article>
+      </div>
+    </div>
+  </div>
+
+  <div class="cat-more-bar" data-cat="lit"><button type="button" class="cat-more-btn" onclick="goToTab('lit')">문학 속 지역어 자료 더 보기 <i class="ti ti-plus" aria-hidden="true"></i></button></div>
+
+  <div class="cat-title" data-cat="life">사진 생활어 자료 <span class="cnt">(총 7건)</span></div>
+  <!-- Card 0: 사진으로 보는 생활어 -->
+  <div class="scard open" id="c0" data-cat="life">
     <div class="card-body show" id="body-c0">
       <div class="life-grid">
 
@@ -796,333 +1585,12 @@
             </div>
           </div>
 
-          <div class="life-warn" role="note" aria-label="인지도 경고">
-            <div class="left">
-              <i class="ti ti-trending-down" aria-hidden="true"></i>
-              <div class="txt">전국 인지도 57% — 10명 중 6명이 방언형을 알고 있습니다.
-단, 10–20대는 31%로 세대 간 격차가 57%p에 달합니다.</div>
-            </div>
-            <div class="act">
-              <a class="btn-outline" href="./dialect_awareness_v2.html" style="border-color:var(--blue);color:var(--blue);"><i class="ti ti-chart-bar" aria-hidden="true"></i> 인지도 상세 보기 →</a>
-            </div>
-          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Card 1: 어휘 조사 결과 리스트 테이블 -->
-  <div class="scard open" id="c1">
-    <div class="card-head" onclick="toggle('c1')">
-      <div class="card-meta">
-        <div class="card-title-row">
-          <span class="badge b-vocab">어휘 조사 결과 목록</span>
-          <span class="word">가을</span>
-          <span class="word-std">외 10건</span>
-        </div>
-        <div class="card-sub">검색된 전국 어휘 조사 상세 목록입니다. 행을 선택하면 지역별 상세 조사 정보 및 음성을 들으실 수 있습니다.</div>
-      </div>
-      <i class="ti ti-chevron-down chevron" aria-hidden="true"></i>
-    </div>
-    <div class="card-body show" id="body-c1" style="padding: 0;">
-      <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left;">
-        <thead>
-          <tr style="border-bottom: 2px solid #e2e8f0; background: #f8fafc; font-weight: 700; color: #475569;">
-            <th style="padding: 16px 12px; width: 60px; text-align: center;">번호</th>
-            <th style="padding: 16px 12px; width: 150px;">지역어</th>
-            <th style="padding: 16px 12px;">지역</th>
-            <th style="padding: 16px 12px; width: 120px;">표준어</th>
-            <th style="padding: 16px 12px; width: 100px; text-align: center;">상세 보기</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- 1번 행 -->
-          <tr style="border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: background 0.15s;" onclick="toggleAccordion('row-1')" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
-            <td style="padding: 16px 12px; text-align: center; color: #64748b; font-weight: 600;">1</td>
-            <td style="padding: 16px 12px; color: #db2777; font-weight: 700;">가을</td>
-            <td style="padding: 16px 12px; color: #334155; line-height: 1.5;">강원도, 경기도, 경상남도, 경상북도, 광주광역시, 서울특별시, 울산광역시, 인천광역시, 전라남도, 전라북도, 제주특별자치도, 충청남도, 충청북도</td>
-            <td style="padding: 16px 12px; color: #db2777; font-weight: 700;">가을</td>
-            <td style="padding: 16px 12px; text-align: center; color: #94a3b8;"><i class="ti ti-chevron-down" id="arrow-row-1" style="font-size: 18px; transition: transform 0.2s;"></i></td>
-          </tr>
-          <!-- 1번 상세 패널 -->
-          <tr id="row-1" style="display: none; background: #f8fafc;">
-            <td colspan="5" style="padding: 24px 30px; border-bottom: 1px solid #e2e8f0;">
-              <div style="font-size: 14px; font-weight: 700; color: #db2777; margin-bottom: 16px;"><span style="color:#db2777;">가을</span>의 지역별 음성 듣기</div>
-              <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02); max-height: 300px; overflow-y: auto;">
-                <table style="width: 100%; border-collapse: collapse;">
-                  <thead>
-                    <tr style="border-bottom: 1px solid #cbd5e1; text-align: left; color: #64748b; font-size: 13px;">
-                      <th style="padding: 10px 12px;">지역</th>
-                      <th style="padding: 10px 12px;">조사시기</th>
-                      <th style="padding: 10px 12px;">제보자</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr style="border-bottom: 1px solid #f1f5f9;">
-                      <td style="padding: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-                        강원도 고성군 <button class="vol-btn" aria-label="음성 재생"><i class="ti ti-volume" style="font-size:14px;"></i></button>
-                      </td>
-                      <td style="padding: 12px; color: #475569;">2016년</td>
-                      <td style="padding: 12px; color: #475569;">82세, 남성</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #f1f5f9;">
-                      <td style="padding: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-                        강원도 양구군 <button class="vol-btn" aria-label="음성 재생"><i class="ti ti-volume" style="font-size:14px;"></i></button>
-                      </td>
-                      <td style="padding: 12px; color: #475569;">2018년</td>
-                      <td style="padding: 12px; color: #475569;">81세, 여성</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #f1f5f9;">
-                      <td style="padding: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-                        강원도 양양군 <button class="vol-btn" aria-label="음성 재생"><i class="ti ti-volume" style="font-size:14px;"></i></button>
-                      </td>
-                      <td style="padding: 12px; color: #475569;">2006년</td>
-                      <td style="padding: 12px; color: #475569;">83세, 남성</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #f1f5f9;">
-                      <td style="padding: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-                        강원도 영월군 <button class="vol-btn" aria-label="음성 재생"><i class="ti ti-volume" style="font-size:14px;"></i></button>
-                      </td>
-                      <td style="padding: 12px; color: #475569;">2019년</td>
-                      <td style="padding: 12px; color: #475569;">79세, 여성</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #f1f5f9;">
-                      <td style="padding: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-                        강원도 영월군 <button class="vol-btn" aria-label="음성 재생"><i class="ti ti-volume" style="font-size:14px;"></i></button>
-                      </td>
-                      <td style="padding: 12px; color: #475569;">2019년</td>
-                      <td style="padding: 12px; color: #475569;">79세, 여성</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #f1f5f9;">
-                      <td style="padding: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-                        경기도 원주시 <button class="vol-btn" aria-label="음성 재생"><i class="ti ti-volume" style="font-size:14px;"></i></button>
-                      </td>
-                      <td style="padding: 12px; color: #475569;">2023년</td>
-                      <td style="padding: 12px; color: #475569;">50대, 여성</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #f1f5f9;">
-                      <td style="padding: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-                        경기도 원주시 <button class="vol-btn" aria-label="음성 재생"><i class="ti ti-volume" style="font-size:14px;"></i></button>
-                      </td>
-                      <td style="padding: 12px; color: #475569;">2023년</td>
-                      <td style="padding: 12px; color: #475569;">50대, 여성</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #f1f5f9;">
-                      <td style="padding: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-                        경기도 원주시 <button class="vol-btn" aria-label="음성 재생"><i class="ti ti-volume" style="font-size:14px;"></i></button>
-                      </td>
-                      <td style="padding: 12px; color: #475569;">2023년</td>
-                      <td style="padding: 12px; color: #475569;">20대, 남성</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #f1f5f9;">
-                      <td style="padding: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-                        경기도 원주시 <button class="vol-btn" aria-label="음성 재생"><i class="ti ti-volume" style="font-size:14px;"></i></button>
-                      </td>
-                      <td style="padding: 12px; color: #475569;">2023년</td>
-                      <td style="padding: 12px; color: #475569;">70대, 여성</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </td>
-          </tr>
-
-          <!-- 2번 행 -->
-          <tr style="border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: background 0.15s;" onclick="toggleAccordion('row-2')" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
-            <td style="padding: 16px 12px; text-align: center; color: #64748b; font-weight: 600;">2</td>
-            <td style="padding: 16px 12px; color: #db2777; font-weight: 700;">가을</td>
-            <td style="padding: 16px 12px; color: #334155;">경상북도</td>
-            <td style="padding: 16px 12px; color: #db2777; font-weight: 700;">가을</td>
-            <td style="padding: 16px 12px; text-align: center; color: #94a3b8;"><i class="ti ti-chevron-down" id="arrow-row-2" style="font-size: 18px; transition: transform 0.2s;"></i></td>
-          </tr>
-          <tr id="row-2" style="display: none; background: #f8fafc;"><td colspan="5" style="padding: 20px; border-bottom: 1px solid #e2e8f0; text-align: center; color: #64748b;">음성 데이터 준비 중입니다.</td></tr>
-
-          <!-- 3번 행 -->
-          <tr style="border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: background 0.15s;" onclick="toggleAccordion('row-3')" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
-            <td style="padding: 16px 12px; text-align: center; color: #64748b; font-weight: 600;">3</td>
-            <td style="padding: 16px 12px; color: #db2777; font-weight: 700;">가을(=가:을)</td>
-            <td style="padding: 16px 12px; color: #334155;">전라북도, 충청북도</td>
-            <td style="padding: 16px 12px; color: #db2777; font-weight: 700;">가을</td>
-            <td style="padding: 16px 12px; text-align: center; color: #94a3b8;"><i class="ti ti-chevron-down" id="arrow-row-3" style="font-size: 18px; transition: transform 0.2s;"></i></td>
-          </tr>
-          <tr id="row-3" style="display: none; background: #f8fafc;"><td colspan="5" style="padding: 20px; border-bottom: 1px solid #e2e8f0; text-align: center; color: #64748b;">음성 데이터 준비 중입니다.</td></tr>
-
-          <!-- 4번 행 -->
-          <tr style="border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: background 0.15s;" onclick="toggleAccordion('row-4')" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
-            <td style="padding: 16px 12px; text-align: center; color: #64748b; font-weight: 600;">4</td>
-            <td style="padding: 16px 12px; color: #db2777; font-weight: 700;">가을(=가을')</td>
-            <td style="padding: 16px 12px; color: #334155;">강원도, 경상남도, 경상북도, 부산광역시, 울산광역시</td>
-            <td style="padding: 16px 12px; color: #db2777; font-weight: 700;">가을</td>
-            <td style="padding: 16px 12px; text-align: center; color: #94a3b8;"><i class="ti ti-chevron-down" id="arrow-row-4" style="font-size: 18px; transition: transform 0.2s;"></i></td>
-          </tr>
-          <tr id="row-4" style="display: none; background: #f8fafc;"><td colspan="5" style="padding: 20px; border-bottom: 1px solid #e2e8f0; text-align: center; color: #64748b;">음성 데이터 준비 중입니다.</td></tr>
-
-          <!-- 5번 행 -->
-          <tr style="border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: background 0.15s;" onclick="toggleAccordion('row-5')" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
-            <td style="padding: 16px 12px; text-align: center; color: #64748b; font-weight: 600;">5</td>
-            <td style="padding: 16px 12px; color: #db2777; font-weight: 700;">가을(=가을'/가을'ㄱ)</td>
-            <td style="padding: 16px 12px; color: #334155;">경상북도</td>
-            <td style="padding: 16px 12px; color: #db2777; font-weight: 700;">가을</td>
-            <td style="padding: 16px 12px; text-align: center; color: #94a3b8;"><i class="ti ti-chevron-down" id="arrow-row-5" style="font-size: 18px; transition: transform 0.2s;"></i></td>
-          </tr>
-          <tr id="row-5" style="display: none; background: #f8fafc;"><td colspan="5" style="padding: 20px; border-bottom: 1px solid #e2e8f0; text-align: center; color: #64748b;">음성 데이터 준비 중입니다.</td></tr>
-
-          <!-- 6번 행 -->
-          <tr style="border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: background 0.15s;" onclick="toggleAccordion('row-6')" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
-            <td style="padding: 16px 12px; text-align: center; color: #64748b; font-weight: 600;">6</td>
-            <td style="padding: 16px 12px; color: #db2777; font-weight: 700;">가을ㄱ(=가:을'ㄱ)</td>
-            <td style="padding: 16px 12px; color: #334155;">강원도</td>
-            <td style="padding: 16px 12px; color: #db2777; font-weight: 700;">가을</td>
-            <td style="padding: 16px 12px; text-align: center; color: #94a3b8;"><i class="ti ti-chevron-down" id="arrow-row-6" style="font-size: 18px; transition: transform 0.2s;"></i></td>
-          </tr>
-          <tr id="row-6" style="display: none; background: #f8fafc;"><td colspan="5" style="padding: 20px; border-bottom: 1px solid #e2e8f0; text-align: center; color: #64748b;">음성 데이터 준비 중입니다.</td></tr>
-
-          <!-- 7번 행 -->
-          <tr style="border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: background 0.15s;" onclick="toggleAccordion('row-7')" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
-            <td style="padding: 16px 12px; text-align: center; color: #64748b; font-weight: 600;">7</td>
-            <td style="padding: 16px 12px; color: #db2777; font-weight: 700;">가을ㄱ(=가을'ㄱ)</td>
-            <td style="padding: 16px 12px; color: #334155;">강원도</td>
-            <td style="padding: 16px 12px; color: #db2777; font-weight: 700;">가을</td>
-            <td style="padding: 16px 12px; text-align: center; color: #94a3b8;"><i class="ti ti-chevron-down" id="arrow-row-7" style="font-size: 18px; transition: transform 0.2s;"></i></td>
-          </tr>
-          <tr id="row-7" style="display: none; background: #f8fafc;"><td colspan="5" style="padding: 20px; border-bottom: 1px solid #e2e8f0; text-align: center; color: #64748b;">음성 데이터 준비 중입니다.</td></tr>
-
-          <!-- 8번 행 -->
-          <tr style="border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: background 0.15s;" onclick="toggleAccordion('row-8')" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
-            <td style="padding: 16px 12px; text-align: center; color: #64748b; font-weight: 600;">8</td>
-            <td style="padding: 16px 12px; color: #db2777; font-weight: 700;">가을철</td>
-            <td style="padding: 16px 12px; color: #334155;">대전광역시, 전라남도, 충청남도</td>
-            <td style="padding: 16px 12px; color: #db2777; font-weight: 700;">가을</td>
-            <td style="padding: 16px 12px; text-align: center; color: #94a3b8;"><i class="ti ti-chevron-down" id="arrow-row-8" style="font-size: 18px; transition: transform 0.2s;"></i></td>
-          </tr>
-          <tr id="row-8" style="display: none; background: #f8fafc;"><td colspan="5" style="padding: 20px; border-bottom: 1px solid #e2e8f0; text-align: center; color: #64748b;">음성 데이터 준비 중입니다.</td></tr>
-
-          <!-- 9번 행 -->
-          <tr style="border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: background 0.15s;" onclick="toggleAccordion('row-9')" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
-            <td style="padding: 16px 12px; text-align: center; color: #64748b; font-weight: 600;">9</td>
-            <td style="padding: 16px 12px; color: #db2777; font-weight: 700;">가을 추수하다</td>
-            <td style="padding: 16px 12px; color: #334155;">충청북도</td>
-            <td style="padding: 16px 12px; color: #475569; font-weight: 700;">추수하다</td>
-            <td style="padding: 16px 12px; text-align: center; color: #94a3b8;"><i class="ti ti-chevron-down" id="arrow-row-9" style="font-size: 18px; transition: transform 0.2s;"></i></td>
-          </tr>
-          <tr id="row-9" style="display: none; background: #f8fafc;"><td colspan="5" style="padding: 20px; border-bottom: 1px solid #e2e8f0; text-align: center; color: #64748b;">음성 데이터 준비 중입니다.</td></tr>
-
-          <!-- 10번 행 -->
-          <tr style="border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: background 0.15s;" onclick="toggleAccordion('row-10')" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
-            <td style="padding: 16px 12px; text-align: center; color: #64748b; font-weight: 600;">10</td>
-            <td style="padding: 16px 12px; color: #db2777; font-weight: 700;">가을가리(=가을가리)</td>
-            <td style="padding: 16px 12px; color: #334155;">경상북도</td>
-            <td style="padding: 16px 12px; color: #db2777; font-weight: 700;">가을갈이</td>
-            <td style="padding: 16px 12px; text-align: center; color: #94a3b8;"><i class="ti ti-chevron-down" id="arrow-row-10" style="font-size: 18px; transition: transform 0.2s;"></i></td>
-          </tr>
-          <tr id="row-10" style="display: none; background: #f8fafc;"><td colspan="5" style="padding: 20px; border-bottom: 1px solid #e2e8f0; text-align: center; color: #64748b;">음성 데이터 준비 중입니다.</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Card 2: 구술발화 -->
-  <div class="scard open" id="c2">
-    <div class="card-head" onclick="toggle('c2')">
-      <div class="card-meta">
-        <div class="card-title-row">
-          <span class="badge b-oral">구술발화</span>
-          <span style="font-size:15px;font-weight:500;">구술발화 조사 자료</span>
-          <i class="ti ti-volume" style="font-size:14px;color:#10b981;" aria-hidden="true"></i>
-        </div>
-        <div class="card-sub">주제: 생업 활동 › 발농사 &nbsp;|&nbsp; 지역: 강원도 삼척시 &nbsp;|&nbsp; 조사연도: 2004년 &nbsp;|&nbsp; 제보자: 남성, 75세</div>
-      </div>
-      <div class="oral-head-actions">
-        <button class="btn-outline" style="font-size:12px;" onclick="event.stopPropagation();showModal()">원문 보기 <i class="ti ti-external-link" style="font-size:12px;" aria-hidden="true"></i></button>
-        <i class="ti ti-chevron-down chevron" aria-hidden="true"></i>
-      </div>
-    </div>
-    <div class="card-body show" id="body-c2">
-      <div class="ex-intro"><strong style="color:var(--text);">가위</strong> — 구술발화자료 예문<br>현지 구술 조사에서 채록된 실제 발화 예문입니다.</div>
-
-      <div class="ex-list" aria-label="예문 목록">
-        <article class="ex-card" aria-label="예문 1">
-          <div class="ex-head">
-            <div class="ex-loc"><span class="ex-dot" aria-hidden="true"></span>강원도</div>
-            <div class="ex-pill">강원 방언</div>
-          </div>
-          <div class="ex-meta">제보자: 남성, 75세 · 조사연도: 2004년</div>
-
-          <div class="ex-speaker"><div class="sp-icon sp-i" aria-hidden="true">제</div>제보자 구술</div>
-          <table class="ex-table" aria-label="전사 및 대역">
-            <tbody>
-              <tr>
-                <td>형태음소전사</td>
-                <td class="ex-quote">"<span class="hl-red">감자</span>가 아니고 <span class="hl-red">감재</span>."</td>
-              </tr>
-              <tr>
-                <td>표준어 대역</td>
-                <td class="ex-quote">"(감자가 아니고 감재.)"</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div class="audio-row ex-audio">
-            <button class="play-btn" aria-label="음성 재생"><i class="ti ti-player-play" style="font-size:13px;" aria-hidden="true"></i></button>
-            <div class="wave" aria-label="음성 파형">
-              <div class="wb" style="height:55%;"></div><div class="wb" style="height:80%;"></div><div class="wb" style="height:40%;"></div><div class="wb" style="height:90%;"></div><div class="wb" style="height:60%;"></div><div class="wb" style="height:75%;"></div><div class="wb" style="height:85%;"></div><div class="wb" style="height:45%;"></div><div class="wb" style="height:70%;"></div><div class="wb" style="height:55%;"></div><div class="wb" style="height:80%;"></div><div class="wb" style="height:65%;"></div><div class="wb" style="height:40%;"></div><div class="wb" style="height:75%;"></div>
-            </div>
-            <span class="dur">0:04</span>
-          </div>
-        </article>
-
-        <article class="ex-card" aria-label="예문 2">
-          <div class="ex-head">
-            <div class="ex-loc"><span class="ex-dot blue" aria-hidden="true"></span>강원도</div>
-            <div class="ex-pill blue">강원 방언</div>
-          </div>
-          <div class="ex-meta">제보자: 남성, 75세 · 조사연도: 2004년</div>
-
-          <div class="ex-speaker"><div class="sp-icon sp-i" aria-hidden="true">제</div>제보자 구술</div>
-          <table class="ex-table" aria-label="전사 및 대역">
-            <tbody>
-              <tr>
-                <td>형태음소전사</td>
-                <td class="ex-quote">"<span class="hl-blue">감자</span>는 머 지금은 그렇게 하지 않으니까"</td>
-              </tr>
-              <tr>
-                <td>표준어 대역</td>
-                <td class="ex-quote">"(감자는 뭐 지금은 그렇게 하지 않으니까)"</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div class="audio-row ex-audio">
-            <button class="play-btn" aria-label="음성 재생"><i class="ti ti-player-play" style="font-size:13px;" aria-hidden="true"></i></button>
-            <div class="wave" aria-label="음성 파형">
-              <div class="wb" style="height:40%;"></div><div class="wb" style="height:65%;"></div><div class="wb" style="height:55%;"></div><div class="wb" style="height:85%;"></div><div class="wb" style="height:45%;"></div><div class="wb" style="height:70%;"></div><div class="wb" style="height:60%;"></div><div class="wb" style="height:80%;"></div><div class="wb" style="height:50%;"></div><div class="wb" style="height:75%;"></div><div class="wb" style="height:55%;"></div><div class="wb" style="height:65%;"></div>
-            </div>
-            <span class="dur">0:05</span>
-          </div>
-        </article>
-      </div>
-    </div>
-  </div>
-
-  <!-- Card 4: 문학 -->
-  <div class="scard" id="c4">
-    <div class="card-head" onclick="toggle('c4')">
-      <div class="card-meta">
-        <div class="card-title-row">
-          <span class="badge b-lit">문학 속 지역어</span>
-          <span class="word">감자</span>
-          <span class="word-std">소설 출전</span>
-        </div>
-        <div class="card-sub">출처: 김동인 「감자」 &nbsp;|&nbsp; 등록: 2021년</div>
-      </div>
-      <i class="ti ti-chevron-down chevron" aria-hidden="true"></i>
-    </div>
-    <div class="card-body" id="body-c4">
-      <div class="lit-quote">"...복녀네 집에서는 그 해 봄에도 어김없이 <span class="hl-amber">감자</span>를 심었다.<br>그 <span class="hl-amber">감자</span>가 없이는 하루도 살아갈 수가 없었다..."</div>
-      <div style="font-size:12px;color:var(--muted);white-space:pre-line;">빈농 가정의 주요 식량으로 등장하는 감자.
-전라도 방언 '북감재'로 표현 가능 | 관련 방언형: 북감재, 감저</div>
-    </div>
-  </div>
+  <div class="cat-more-bar" data-cat="life"><button type="button" class="cat-more-btn" onclick="goToTab('life')">사진 생활어 자료 더 보기 <i class="ti ti-plus" aria-hidden="true"></i></button></div>
 
   <!-- Pagination -->
   <div class="pagination">
@@ -1209,6 +1677,242 @@
   </div>
 </div>
 
+<!-- 지역 분포 지도 보기 모달 (레이어 팝업, vocab_dialect.html 이식) -->
+<div class="modal-overlay" id="mapModalOverlay" onclick="handleMapOverlayClick(event)">
+  <div class="modal map-modal" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <div>
+        <div class="modal-head-title">'<span id="mapModalWord">감자</span>'의 지역분포 지도</div>
+        <div class="modal-head-sub">지역어 조사 및 보완 조사 사업(2004–2018) · 국립국어원</div>
+      </div>
+      <button type="button" class="close-btn" onclick="closeMapModal()" aria-label="닫기"><i class="ti ti-x" aria-hidden="true"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="map-with-panel">
+        <!-- 지도 -->
+        <div id="vocabMapModal" class="vocab-map" role="region" aria-label="지역어 분포 지도"></div>
+
+        <!-- 범례 -->
+        <div class="map-legend">
+          <h4 class="map-legend-title">지도 범례</h4>
+          <p class="map-legend-text">지역별 분포를 지도에서 확인할 수 있습니다.</p>
+        </div>
+
+        <!-- 시도 상세 정보 패널 -->
+        <div id="regionDetailPanelModal" class="region-detail-panel">
+          <div class="panel-header">
+            <h3 id="regionPanelTitleModal" class="panel-title"></h3>
+            <button type="button" class="close-panel-btn" onclick="closeRegionPanel(modalMapCtx)" aria-label="패널 닫기">
+              <i class="ti ti-x"></i>
+            </button>
+          </div>
+          <div class="panel-content">
+            <div id="regionDialectsContainerModal"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 원문 보기 모달 (oral_dialect.html 이식) -->
+<div class="modal-overlay" id="sourceModalOverlay" onclick="handleSourceOverlayClick(event)">
+  <div class="modal src-modal" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <div>
+        <div class="modal-head-title">구술발화 조사 자료 원문</div>
+      </div>
+      <button type="button" class="close-btn" onclick="closeSourceModal()" aria-label="닫기"><i class="ti ti-x" aria-hidden="true"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="src-info">
+        <dl>
+          <dt>주제 :</dt><dd class="topic">생업 활동 &gt; 밭농사</dd>
+          <dt>지역 :</dt><dd>강원도 삼척시</dd>
+          <dt>조사연도 :</dt><dd>2004년</dd>
+          <dt>제보자 :</dt><dd>남성, 75세</dd>
+        </dl>
+      </div>
+      <div class="src-check">
+        <input type="checkbox" id="phonemeToggle" onchange="togglePhoneme(this)" />
+        <label for="phonemeToggle">음소전사 보기</label>
+        <button type="button" class="src-play-btn" id="srcPlayBtn" onclick="toggleSourcePlay()">
+          <i class="ti ti-player-play-filled" aria-hidden="true"></i> 전체 음성 듣기
+        </button>
+      </div>
+      <div class="src-progress"><div class="src-progress-bar" id="srcProgressBar"></div></div>
+      <div class="src-scroll" id="srcScroll">
+
+        <div class="src-item">
+          <div class="src-person investigator"><span class="src-ico"><i class="ti ti-pencil"></i></span>조사자</div>
+          <dl class="src-talk">
+            <div class="src-line"><dt>형태음소전사</dt><dd>그 아까 그 보리, 그 낟알을 이케 그 탈추</dd></div>
+            <div class="src-line src-phoneme"><dt>음소전사</dt><dd>그 아까 그 보리 그 나다를 이케 그 탈추</dd></div>
+            <div class="src-line"><dt>표준어 대역</dt><dd>그 아까 그 보리, 그 낟알을 이렇게 그 탈추</dd></div>
+          </dl>
+        </div>
+
+        <div class="src-item">
+          <div class="src-person investigator"><span class="src-ico"><i class="ti ti-pencil"></i></span>조사자</div>
+          <dl class="src-talk">
+            <div class="src-line"><dt>형태음소전사</dt><dd>하튼 이렇게 해 가주고 만들어서 인제 찧는다고 했잖아요.</dd></div>
+            <div class="src-line src-phoneme"><dt>음소전사</dt><dd>하튼 이러케 해가주고 만드러서 인제 찌는다고 해짜나요.</dd></div>
+            <div class="src-line"><dt>표준어 대역</dt><dd>하여튼 이렇게 해 가지고 만들어서 이제 찧는다고 했잖아요.</dd></div>
+          </dl>
+        </div>
+
+        <div class="src-item">
+          <div class="src-person investigator"><span class="src-ico"><i class="ti ti-pencil"></i></span>조사자</div>
+          <dl class="src-talk">
+            <div class="src-line"><dt>형태음소전사</dt><dd>디딜바에다가 여, 여기서는 항상 디딜방아다</dd></div>
+            <div class="src-line src-phoneme"><dt>음소전사</dt><dd>디딜빠에다가 여 여기서는 항상 디딜빠아다</dd></div>
+            <div class="src-line"><dt>표준어 대역</dt><dd>디딜방아에다가 여, 여기서는 항상 디딜방아에다</dd></div>
+          </dl>
+        </div>
+
+        <div class="src-item">
+          <div class="src-person informant"><span class="src-ico"><i class="ti ti-user"></i></span>제보자</div>
+          <dl class="src-talk">
+            <div class="src-line"><dt>형태음소전사</dt><dd>예, 디딜방, 예, 예.</dd></div>
+            <div class="src-line src-phoneme"><dt>음소전사</dt><dd>예 디딜빵 예 예</dd></div>
+            <div class="src-line"><dt>표준어 대역</dt><dd>예, 디딜방아, 예, 예.</dd></div>
+          </dl>
+        </div>
+
+        <div class="src-item">
+          <div class="src-person informant"><span class="src-ico"><i class="ti ti-user"></i></span>제보자</div>
+          <dl class="src-talk">
+            <div class="src-line"><dt>형태음소전사</dt><dd>근데 저 저, 저 머이나 경남인가 가니까 그건 그 족침이라고</dd></div>
+            <div class="src-line src-phoneme"><dt>음소전사</dt><dd>근데 저 저 저 머이나 경나민가 가니까 그건 그 족치미라고</dd></div>
+            <div class="src-line"><dt>표준어 대역</dt><dd>그런데 저 저, 뭐냐 경남인가 가니까 그건 그 족침이라고</dd></div>
+          </dl>
+        </div>
+
+        <div class="src-item">
+          <div class="src-person informant"><span class="src-ico"><i class="ti ti-user"></i></span>제보자</div>
+          <dl class="src-talk">
+            <div class="src-line"><dt>형태음소전사</dt><dd>예, 족침이라고 하는데 여긴 족침이란 말 안 씁니다. 안 쓰고 디딜방아.</dd></div>
+            <div class="src-line src-phoneme"><dt>음소전사</dt><dd>예 족치미라고 하는데 여긴 족치미란 말 안씀미다. 안쓰고 디딜빵아</dd></div>
+            <div class="src-line"><dt>표준어 대역</dt><dd>예, 족침이라고 하는데 여긴 족침이란 말을 안 씁니다. 안 쓰고 디딜방아.</dd></div>
+          </dl>
+        </div>
+
+        <div class="src-item">
+          <div class="src-person investigator"><span class="src-ico"><i class="ti ti-pencil"></i></span>조사자</div>
+          <dl class="src-talk">
+            <div class="src-line"><dt>형태음소전사</dt><dd>금 디딜방에 인제 찧이면은 고</dd></div>
+            <div class="src-line src-phoneme"><dt>음소전사</dt><dd>금 디딜빵에 인제 찌이며는 고</dd></div>
+            <div class="src-line"><dt>표준어 대역</dt><dd>그러면 디딜방아에 이제 찧으면 그</dd></div>
+          </dl>
+        </div>
+
+        <div class="src-item">
+          <div class="src-person investigator"><span class="src-ico"><i class="ti ti-pencil"></i></span>조사자</div>
+          <dl class="src-talk">
+            <div class="src-line"><dt>형태음소전사</dt><dd>찧구 나먼 알은 남고 나머지는</dd></div>
+            <div class="src-line src-phoneme"><dt>음소전사</dt><dd>찌쿠나먼 아른 남꼬 나머지는</dd></div>
+            <div class="src-line"><dt>표준어 대역</dt><dd>찧고 나면 알은 남고 나머지는</dd></div>
+          </dl>
+        </div>
+
+        <div class="src-item">
+          <div class="src-person informant"><span class="src-ico"><i class="ti ti-user"></i></span>제보자</div>
+          <dl class="src-talk">
+            <div class="src-line"><dt>형태음소전사</dt><dd>이 재는</dd></div>
+            <div class="src-line src-phoneme"><dt>음소전사</dt><dd>이 재는</dd></div>
+            <div class="src-line"><dt>표준어 대역</dt><dd>이 재는</dd></div>
+          </dl>
+        </div>
+
+        <div class="src-item">
+          <div class="src-person informant"><span class="src-ico"><i class="ti ti-user"></i></span>제보자</div>
+          <dl class="src-talk">
+            <div class="src-line"><dt>형태음소전사</dt><dd>겨.</dd></div>
+            <div class="src-line src-phoneme"><dt>음소전사</dt><dd>겨.</dd></div>
+            <div class="src-line"><dt>표준어 대역</dt><dd>겨.</dd></div>
+          </dl>
+        </div>
+
+        <div class="src-item">
+          <div class="src-person investigator"><span class="src-ico"><i class="ti ti-pencil"></i></span>조사자</div>
+          <dl class="src-talk">
+            <div class="src-line"><dt>형태음소전사</dt><dd>그걸 여기서 겨라고 합니까?</dd></div>
+            <div class="src-line src-phoneme"><dt>음소전사</dt><dd>그걸 여기서 겨라고 함니까?</dd></div>
+            <div class="src-line"><dt>표준어 대역</dt><dd>그것을 여기서 겨라고 합니까?</dd></div>
+          </dl>
+        </div>
+
+        <div class="src-item">
+          <div class="src-person informant"><span class="src-ico"><i class="ti ti-user"></i></span>제보자</div>
+          <dl class="src-talk">
+            <div class="src-line"><dt>형태음소전사</dt><dd>아니 재라 합니다. 재</dd></div>
+            <div class="src-line src-phoneme"><dt>음소전사</dt><dd>아니 재라함미다. 재</dd></div>
+            <div class="src-line"><dt>표준어 대역</dt><dd>아니 재라고 합니다. 재</dd></div>
+          </dl>
+        </div>
+
+        <div class="src-item">
+          <div class="src-person informant"><span class="src-ico"><i class="ti ti-user"></i></span>제보자</div>
+          <dl class="src-talk">
+            <div class="src-line"><dt>형태음소전사</dt><dd>보리쌀 퍼 조따 <span class="s-keyword">감자</span> 안치고 그 밥이 어느 정도 대문 그다 쭈욱 안차 났다가</dd></div>
+            <div class="src-line src-phoneme"><dt>음소전사</dt><dd>보리쌀 퍼조따 <span class="s-keyword">감자</span> 안치고 그 바비 어느정도 대문 그다쭈욱 안차나따나</dd></div>
+            <div class="src-line"><dt>표준어 대역</dt><dd>보리쌀 퍼서 저기에 <span class="s-keyword">감자</span>를 안치고 그 밥이 어느 정도 되면 거기에 쭉 안쳐 두었다가</dd></div>
+          </dl>
+        </div>
+
+        <div class="src-item">
+          <div class="src-person informant"><span class="src-ico"><i class="ti ti-user"></i></span>제보자</div>
+          <dl class="src-talk">
+            <div class="src-line"><dt>형태음소전사</dt><dd><span class="s-keyword">감자</span>는 머 지금은 그렇게 하지 않으니까</dd></div>
+            <div class="src-line src-phoneme"><dt>음소전사</dt><dd><span class="s-keyword">감자</span>는 머 지그문 그러케 하지 아느니까</dd></div>
+            <div class="src-line"><dt>표준어 대역</dt><dd><span class="s-keyword">감자</span>는 뭐 지금은 그렇게 하지 않으니까</dd></div>
+          </dl>
+        </div>
+
+        <div class="src-item">
+          <div class="src-person informant"><span class="src-ico"><i class="ti ti-user"></i></span>제보자</div>
+          <dl class="src-talk">
+            <div class="src-line"><dt>형태음소전사</dt><dd>그래도 이 머이 일반 <span class="s-keyword">감자</span>를 하긴 합니다. 하긴 하는데 지금은</dd></div>
+            <div class="src-line src-phoneme"><dt>음소전사</dt><dd>그래도 이 머이 일반 <span class="s-keyword">감자</span>를 하긴 함미다. 하긴 하는데 지그문</dd></div>
+            <div class="src-line"><dt>표준어 대역</dt><dd>그래도 이 뭐 일반 <span class="s-keyword">감자</span>를 하긴 합니다. 하긴 하는데 지금은</dd></div>
+          </dl>
+        </div>
+
+        <div class="src-item">
+          <div class="src-person investigator"><span class="src-ico"><i class="ti ti-pencil"></i></span>조사자</div>
+          <dl class="src-talk">
+            <div class="src-line"><dt>형태음소전사</dt><dd>여기서도 <span class="s-keyword">감자</span>라고 합니까?</dd></div>
+            <div class="src-line src-phoneme"><dt>음소전사</dt><dd>여기서도 <span class="s-keyword">감자</span>라고 함니까?</dd></div>
+            <div class="src-line"><dt>표준어 대역</dt><dd>여기서도 <span class="s-keyword">감자</span>라고 합니까?</dd></div>
+          </dl>
+        </div>
+
+        <div class="src-item">
+          <div class="src-person informant"><span class="src-ico"><i class="ti ti-user"></i></span>제보자</div>
+          <dl class="src-talk">
+            <div class="src-line"><dt>형태음소전사</dt><dd><span class="s-keyword">감자</span>가 아니구 감재.</dd></div>
+            <div class="src-line src-phoneme"><dt>음소전사</dt><dd><span class="s-keyword">감자</span>가 아니구 감재</dd></div>
+            <div class="src-line"><dt>표준어 대역</dt><dd><span class="s-keyword">감자</span>가 아니고 감재.</dd></div>
+          </dl>
+        </div>
+
+        <div class="src-item">
+          <div class="src-person informant"><span class="src-ico"><i class="ti ti-user"></i></span>제보자</div>
+          <dl class="src-talk">
+            <div class="src-line"><dt>형태음소전사</dt><dd><span class="s-keyword">감자</span> 자체가 몸이 굉장이 아주 머라 할까요, 상다이 아주 음</dd></div>
+            <div class="src-line src-phoneme"><dt>음소전사</dt><dd><span class="s-keyword">감자</span> 자체가 모미 굉장이 아주 머라할까요 상다이 아주 음</dd></div>
+            <div class="src-line"><dt>표준어 대역</dt><dd><span class="s-keyword">감자</span> 자체가 몸이 굉장히 아주 뭐라고 할까요, 상당히 아주 음</dd></div>
+          </dl>
+        </div>
+
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="modal-close-btn" onclick="closeSourceModal()">닫기</button>
+    </div>
+  </div>
+</div>
+
 <div id="footer-common"></div>
 
 <script>
@@ -1219,10 +1923,123 @@ function setMode(el, mode) {
   document.getElementById('simplePanel').style.display = mode === 'simple' ? 'block' : 'none';
   document.getElementById('detailPanel').style.display = mode === 'detail' ? 'block' : 'none';
 }
+// 전체 탭에서 노출할 어휘 목록 최대 건수
+const VOCAB_ALL_TAB_LIMIT = 3;
+const ORAL_ALL_TAB_LIMIT = 3;
+const LIT_ALL_TAB_LIMIT = 3;
+const LIFE_ALL_TAB_LIMIT = 3;
+
 function setTab(el) {
   document.querySelectorAll('.tab-bar .tab').forEach(t => t.classList.remove('on'));
   el.classList.add('on');
+  const cat = el.dataset.cat || 'all';
+  const visible = cc => (cat === 'all' || cat === cc);
+  // 탭별로 해당 카테고리의 타이틀·카드·목록만 노출 (전체 탭은 모두 노출)
+  document.querySelectorAll('.scard, .cat-title, .osent-list').forEach(elm => {
+    elm.style.display = visible(elm.dataset.cat) ? '' : 'none';
+  });
+  // 카테고리별 '더 보기' 바는 전체 탭에서만 노출 (개별 탭은 이미 전부 표시)
+  document.querySelectorAll('.cat-more-bar').forEach(bar => {
+    bar.style.display = (cat === 'all') ? 'flex' : 'none';
+  });
+  // 페이징은 개별 카테고리 탭에서만 노출 (전체 탭은 숨김)
+  document.querySelectorAll('.pagination').forEach(pg => {
+    pg.style.display = (cat === 'all') ? 'none' : 'flex';
+  });
+  // 어휘 목록: 전체 탭은 일부만, 어휘 조사 탭은 전부 노출
+  applyVocabLimit(cat === 'all' ? VOCAB_ALL_TAB_LIMIT : Infinity);
+  // 구술발화 목록: 전체 탭은 일부만, 구술발화 탭은 전부 노출
+  applyOralLimit(cat === 'all' ? ORAL_ALL_TAB_LIMIT : Infinity);
+  // 문학 속 지역어 목록: 전체 탭은 일부만, 문학 탭은 전부 노출
+  applyLitLimit(cat === 'all' ? LIT_ALL_TAB_LIMIT : Infinity);
+  // 사진 생활어 목록: 전체 탭은 일부만, 사진 생활어 탭은 전부 노출
+  applyLifeLimit(cat === 'all' ? LIFE_ALL_TAB_LIMIT : Infinity);
+  // 노출된 항목 기준으로 세부 문장 스크롤 높이 재계산
+  applySentenceScroll();
 }
+
+// 구술발화 조사 결과 목록에서 앞쪽 n건만 노출 (나머지 항목은 숨김)
+function applyOralLimit(n) {
+  const items = document.querySelectorAll('.osent-list[data-cat="oral"] > .osent-item');
+  items.forEach((item, i) => {
+    item.style.display = i >= n ? 'none' : '';
+  });
+}
+
+// 문학 속 지역어 결과 목록에서 앞쪽 n건만 노출 (나머지 항목은 숨김)
+function applyLitLimit(n) {
+  const items = document.querySelectorAll('#c4 .lit-list > .lit-entry');
+  items.forEach((item, i) => {
+    item.style.display = i >= n ? 'none' : '';
+  });
+}
+
+// 사진 생활어 결과 목록에서 앞쪽 n건만 노출 (나머지 항목은 숨김)
+function applyLifeLimit(n) {
+  const items = document.querySelectorAll('#c0 .life-subphotos > .life-sp');
+  items.forEach((item, i) => {
+    item.style.display = i >= n ? 'none' : '';
+  });
+}
+
+// 어휘 조사 결과 목록에서 앞쪽 n건만 노출 (나머지 행은 숨김)
+function applyVocabLimit(n) {
+  const mainRows = document.querySelectorAll('#c1 .vocab-table > tbody > tr:not(.details-row)');
+  mainRows.forEach((row, i) => {
+    const details = row.nextElementSibling;
+    const hide = i >= n;
+    row.style.display = hide ? 'none' : '';
+    if (details && details.classList.contains('details-row')) {
+      if (hide) {
+        details.classList.remove('show');
+        row.classList.remove('open');
+        details.style.display = 'none';
+      } else {
+        details.style.display = ''; // 기본값(none) 복귀 — .show 클래스가 있을 때만 표시
+      }
+    }
+  });
+}
+
+// 카테고리 '더 보기' → 해당 카테고리 탭으로 이동
+function goToTab(cat) {
+  const tab = document.querySelector('.tab-bar .tab[data-cat="' + cat + '"]');
+  if (tab) { setTab(tab); tab.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+}
+
+// 어휘 조사 결과 목록: 행 상세(지역별 음성) 아코디언 (vocab_dialect.html 동작 포팅)
+function toggleDetails(num) {
+  const row = document.getElementById('row-' + num);
+  const details = document.getElementById('details-' + num);
+  if (!row || !details) return;
+  const btn = row.querySelector('.row-more-btn');
+  const isOpen = details.classList.contains('show');
+  // 다른 상세는 모두 닫기
+  document.querySelectorAll('#c1 .details-row').forEach(r => r.classList.remove('show'));
+  document.querySelectorAll('#c1 .vocab-table tr').forEach(tr => tr.classList.remove('open'));
+  document.querySelectorAll('#c1 .row-more-btn').forEach(b => b.setAttribute('aria-expanded', 'false'));
+  if (!isOpen) {
+    details.classList.add('show');
+    row.classList.add('open');
+    if (btn) btn.setAttribute('aria-expanded', 'true');
+  }
+}
+
+// 지역어 표기 안내 툴팁 토글
+function toggleDialectTooltip(event) {
+  event.stopPropagation();
+  event.currentTarget.classList.toggle('active');
+}
+document.addEventListener('click', function (e) {
+  document.querySelectorAll('.dialect-tooltip-trigger.active').forEach(tr => {
+    if (!tr.contains(e.target)) tr.classList.remove('active');
+  });
+});
+// 초기 상태: 전체 탭 기준으로 어휘 목록 제한 적용
+document.addEventListener('DOMContentLoaded', function () {
+  const active = document.querySelector('.tab-bar .tab.on') || document.querySelector('.tab-bar .tab');
+  if (active) setTab(active);
+});
 function toggle(id) {
   const body = document.getElementById('body-' + id);
   const card = document.getElementById(id);
@@ -1238,6 +2055,60 @@ function closeOldKor() { document.getElementById('oldkorPanel').style.display = 
 function doSearch() { document.querySelector('.result-count em').textContent = '89건'; }
 function showModal() { document.getElementById('modalOverlay').classList.add('show'); }
 function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+
+// 구술발화 목록 항목 원문 다운로드 (형태음소전사 + 표준어 대역을 텍스트 파일로 저장) — oral_dialect.html 포팅
+function downloadSource(btn) {
+  const item = btn.closest('.osent-item');
+  if (!item) return;
+  const clean = (s) => (s || '').replace(/\s+/g, ' ').trim();
+  const topicEl = item.querySelector('.osent-topic .v');
+  const topic = topicEl ? clean(topicEl.textContent) : '구술발화';
+  const info = Array.from(item.querySelectorAll('.osent-info .cell')).map(c => clean(c.textContent));
+
+  const lines = ['주제: ' + topic];
+  if (info.length) lines.push(info.join(' | '));
+  lines.push('', '─'.repeat(40), '');
+  item.querySelectorAll('.osent-sentence').forEach((s, i) => {
+    const morph = s.querySelector('.osent-text:not(.std-text)');
+    const std = s.querySelector('.osent-text.std-text');
+    lines.push((i + 1) + '. [형태음소전사] ' + clean(morph && morph.textContent));
+    if (std) lines.push('   [표준어 대역] ' + clean(std.textContent));
+    lines.push('');
+  });
+
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const num = item.querySelector('.osent-num');
+  const safeTopic = topic.replace(/[〉]/g, '-').replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, '_');
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '구술발화_' + (num ? clean(num.textContent) + '_' : '') + safeTopic + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// 구술발화 항목의 세부 문장이 4개 이상이면 3개 높이로 제한하고 나머지는 스크롤 처리 — oral_dialect.html 포팅
+function applySentenceScroll() {
+  document.querySelectorAll('.osent-sentences').forEach(list => {
+    const items = list.querySelectorAll(':scope > .osent-sentence');
+    // 문장이 3개 이하면 스크롤 해제
+    if (items.length < 4) {
+      list.classList.remove('scrollable');
+      list.style.maxHeight = '';
+      return;
+    }
+    // 숨겨진 항목은 높이 계산이 불가하므로 노출된 뒤 재계산 (탭 전환 시 setTab에서 재호출)
+    if (!list.offsetParent) return;
+    list.classList.add('scrollable');
+    const gap = parseFloat(getComputedStyle(list).rowGap) || 12;
+    const height = items[2].offsetTop + items[2].offsetHeight - items[0].offsetTop + Math.round(gap / 2);
+    list.style.maxHeight = height + 'px';
+  });
+}
+document.addEventListener('DOMContentLoaded', applySentenceScroll);
+window.addEventListener('load', applySentenceScroll);
 function handleOverlayClick(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
 
 /* ── 검색 가능한 표준어 어휘 목록 ──
@@ -1473,6 +2344,787 @@ function playLifeAudio(el, word, region) {
   stopLifeAudio();
   startLifeAudio();
 }
+
+/* ==========================================================================
+   지도 보기 모달 (vocab_dialect.html 이식)
+   — 어휘 조사 결과 표(.vocab-table)를 집계해 시도별 분포를 지도에 표시
+   ========================================================================== */
+
+// 마지막 검색 결과 및 색상 정보 (지도 모달 초기화 시 재사용)
+let lastRegionData = null;
+let lastColorMap = null;
+let lastTopStandards = null;
+
+// 지도 모달 컨트롤러 — 독립된 OpenLayers 인스턴스를 보유
+const modalMapCtx = {
+  map: null, markerLayer: null, selectedRegion: null, handlersBound: false,
+  mapId: 'vocabMapModal',
+  panelId: 'regionDetailPanelModal', titleId: 'regionPanelTitleModal', containerId: 'regionDialectsContainerModal',
+  legendTextSel: '#mapModalOverlay .map-legend-text'
+};
+
+// 시도별 좌표 (경도, 위도)
+const provinceCoords = {
+  '강원도': [128.50, 37.50],
+  '경기도': [127.00, 37.30],
+  '경상남도': [128.50, 35.30],
+  '경상북도': [129.00, 36.50],
+  '광주광역시': [126.85, 35.15],
+  '대전광역시': [127.42, 36.35],
+  '대구광역시': [128.60, 35.87],
+  '부산광역시': [129.07, 35.18],
+  '서울특별시': [126.98, 37.57],
+  '울산광역시': [129.31, 35.54],
+  '인천광역시': [126.70, 37.45],
+  '전라남도': [126.50, 34.80],
+  '전라북도': [127.10, 35.75],
+  '제주특별자치도': [126.50, 33.50],
+  '충청남도': [127.10, 36.80],
+  '충청북도': [127.40, 36.80],
+  '세종특별자치시': [127.30, 36.48]
+};
+
+// 색상 팔레트
+const colorPalette = [
+  '#ef4444', // 빨강
+  '#3b82f6', // 파랑
+  '#22c55e', // 초록
+  '#f59e0b', // 주황
+  '#8b5cf6'  // 보라
+];
+
+// 검색 결과(어휘 표)를 집계해 지도 데이터 생성
+function updateMapWithSearchResults() {
+  const rows = document.querySelectorAll('#c1 .vocab-table tbody tr:not(.details-row)');
+
+  // 시도별 표준어 수집 { '강원도': { '가을': count, ... }, ... }
+  const regionData = {};
+
+  rows.forEach(row => {
+    const regionsCell = row.querySelector('.col-regions');
+    const standardCell = row.querySelector('.col-std');
+    if (!regionsCell || !standardCell) return;
+
+    const regions = regionsCell.textContent.split(',').map(r => r.trim()).filter(Boolean);
+    const standard = standardCell.textContent.split('(')[0].trim();
+
+    regions.forEach(region => {
+      if (!regionData[region]) regionData[region] = {};
+      regionData[region][standard] = (regionData[region][standard] || 0) + 1;
+    });
+  });
+
+  lastRegionData = regionData;
+
+  // 표준어별 색상 할당 (최대 5개)
+  const standardCounts = {};
+  Object.values(regionData).forEach(regionStandards => {
+    Object.keys(regionStandards).forEach(std => {
+      standardCounts[std] = (standardCounts[std] || 0) + 1;
+    });
+  });
+
+  const standards = Object.keys(standardCounts).sort((a, b) => standardCounts[b] - standardCounts[a]);
+  const topStandards = standards.slice(0, 4);
+  const colorMap = {};
+  topStandards.forEach((std, idx) => { colorMap[std] = colorPalette[idx]; });
+  if (standards.length > 4) colorMap['기타'] = colorPalette[4];
+
+  lastColorMap = colorMap;
+  lastTopStandards = topStandards;
+
+  if (modalMapCtx.map) {
+    updateMapLegend(modalMapCtx, regionData, colorMap, topStandards);
+    drawRegionMarkers(modalMapCtx, regionData, colorMap, topStandards);
+  }
+}
+
+function updateMapLegend(ctx, regionData, colorMap, topStandards) {
+  const legendContent = document.querySelector(ctx.legendTextSel);
+  if (!legendContent) return;
+
+  let html = '<div class="legend-items">';
+  topStandards.forEach(std => {
+    const count = Object.values(regionData).filter(r => std in r).length;
+    const color = colorMap[std];
+    html += `
+      <div class="legend-item">
+        <span class="legend-color" style="background-color: ${color}; width: 16px; height: 16px; border-radius: 50%; display: inline-block; margin-right: 8px;"></span>
+        <span class="legend-label">${std} (${count}개 시도)</span>
+      </div>`;
+  });
+
+  const otherCount = Object.values(regionData).filter(r => {
+    const hasTop = topStandards.some(std => std in r);
+    const hasOther = Object.keys(r).some(std => !topStandards.includes(std));
+    return hasOther && !hasTop;
+  }).length;
+
+  if (otherCount > 0) {
+    html += `
+      <div class="legend-item">
+        <span class="legend-color" style="background-color: ${colorMap['기타']}; width: 16px; height: 16px; border-radius: 50%; display: inline-block; margin-right: 8px;"></span>
+        <span class="legend-label">기타 (${otherCount}개 시도)</span>
+      </div>`;
+  }
+
+  html += '</div>';
+  legendContent.innerHTML = html;
+}
+
+function drawRegionMarkers(ctx, regionData, colorMap, topStandards) {
+  if (ctx.markerLayer && ctx.map) ctx.map.removeLayer(ctx.markerLayer);
+
+  const features = [];
+  Object.entries(regionData).forEach(([region, standards]) => {
+    const coord = provinceCoords[region];
+    if (!coord) return;
+
+    const regionTopStandards = topStandards.filter(std => std in standards);
+    const hasOther = Object.keys(standards).some(std => !topStandards.includes(std));
+
+    let color;
+    if (regionTopStandards.length === 1 && !hasOther) {
+      color = colorMap[regionTopStandards[0]];
+    } else if (regionTopStandards.length > 1 || (regionTopStandards.length === 1 && hasOther)) {
+      color = '#9ca3af'; // 혼재색
+    } else if (hasOther) {
+      color = colorMap['기타'] || '#d1d5db';
+    }
+
+    features.push(new ol.Feature({
+      geometry: new ol.geom.Circle(ol.proj.fromLonLat(coord), 45000),
+      region: region,
+      standards: standards,
+      color: color
+    }));
+  });
+
+  ctx.markerLayer = new ol.layer.Vector({
+    source: new ol.source.Vector({ features: features }),
+    style: function(feature) {
+      const isSelected = feature.get('region') === ctx.selectedRegion;
+      return new ol.style.Style({
+        fill: new ol.style.Fill({ color: feature.get('color') }),
+        stroke: new ol.style.Stroke({ color: isSelected ? '#1e40af' : '#ffffff', width: isSelected ? 4 : 2 })
+      });
+    }
+  });
+
+  if (!ctx.map) return;
+  ctx.map.addLayer(ctx.markerLayer);
+
+  if (!ctx.handlersBound) {
+    ctx.map.on('click', function(evt) {
+      const feature = ctx.map.forEachFeatureAtPixel(evt.pixel, f => f, { layerFilter: l => l === ctx.markerLayer });
+      if (feature) selectRegion(ctx, feature.get('region'), feature.get('standards'));
+      else closeRegionPanel(ctx);
+    });
+    ctx.map.on('pointermove', function(evt) {
+      const feature = ctx.map.forEachFeatureAtPixel(evt.pixel, f => f, { layerFilter: l => l === ctx.markerLayer });
+      if (feature) {
+        showRegionTooltip(evt, feature);
+        ctx.map.getTargetElement().style.cursor = 'pointer';
+      } else {
+        hideRegionTooltip();
+        ctx.map.getTargetElement().style.cursor = 'auto';
+      }
+    });
+    ctx.handlersBound = true;
+  }
+}
+
+function showRegionTooltip(evt, feature) {
+  const region = feature.get('region');
+  const standards = feature.get('standards');
+
+  let html = `<strong>${region}</strong><br/>`;
+  Object.keys(standards).forEach(std => { html += `${std}<br/>`; });
+
+  let tooltip = document.getElementById('regionTooltip');
+  if (!tooltip) {
+    tooltip = document.createElement('div');
+    tooltip.id = 'regionTooltip';
+    tooltip.style.cssText = `position: fixed; background: rgba(0, 0, 0, 0.9); color: white; padding: 8px 12px; border-radius: 6px; font-size: 12px; pointer-events: none; z-index: 1000; max-width: 200px; word-wrap: break-word;`;
+    document.body.appendChild(tooltip);
+  }
+  tooltip.innerHTML = html;
+  const oe = evt.originalEvent || {};
+  tooltip.style.left = ((oe.clientX || 0) + 12) + 'px';
+  tooltip.style.top = ((oe.clientY || 0) + 12) + 'px';
+  tooltip.style.display = 'block';
+}
+
+function hideRegionTooltip() {
+  const tooltip = document.getElementById('regionTooltip');
+  if (tooltip) tooltip.style.display = 'none';
+}
+
+// 시도 선택 및 상세 패널 표시
+function selectRegion(ctx, regionName, standards) {
+  ctx.selectedRegion = regionName;
+  if (ctx.markerLayer) ctx.markerLayer.changed();
+
+  const panel = document.getElementById(ctx.panelId);
+  const title = document.getElementById(ctx.titleId);
+  const container = document.getElementById(ctx.containerId);
+  if (!panel || !title || !container) return;
+
+  title.textContent = regionName;
+  container.innerHTML = '';
+
+  const rows = document.querySelectorAll('#c1 .vocab-table tbody tr:not(.details-row)');
+  const regionDialects = {};
+
+  rows.forEach(row => {
+    const regionsCell = row.querySelector('.col-regions');
+    const standardCell = row.querySelector('.col-std');
+    if (!regionsCell || !standardCell) return;
+
+    const regions = regionsCell.textContent.split(',').map(r => r.trim()).filter(Boolean);
+    const standard = standardCell.textContent.split('(')[0].trim();
+
+    if (regions.includes(regionName)) {
+      if (!regionDialects[standard]) regionDialects[standard] = [];
+
+      const detailsId = row.id.replace('row-', '');
+      const detailsRow = document.getElementById(`details-${detailsId}`);
+      if (detailsRow) {
+        const detailsTable = detailsRow.querySelector('.details-table tbody');
+        if (detailsTable) {
+          detailsTable.querySelectorAll('tr').forEach(audioRow => {
+            const location = audioRow.querySelector('td:nth-child(2)'); // 시·군
+            const speaker = audioRow.querySelector('td:nth-child(4)');  // 제보자
+            const audioBtn = audioRow.querySelector('.audio-play-inline');
+            if (location && audioBtn) {
+              regionDialects[standard].push({
+                location: location.textContent.trim(),
+                speaker: speaker ? speaker.textContent.trim() : '',
+                audioBtn: audioBtn.cloneNode(true)
+              });
+            }
+          });
+        }
+      }
+    }
+  });
+
+  if (Object.keys(regionDialects).length > 0) {
+    Object.entries(regionDialects).forEach(([standard, audios]) => {
+      const dialectItem = document.createElement('div');
+      dialectItem.className = 'region-dialect-item';
+
+      const label = document.createElement('div');
+      label.className = 'dialect-form-label';
+      label.textContent = standard;
+      dialectItem.appendChild(label);
+
+      const audioList = document.createElement('div');
+      audioList.className = 'dialect-audio-list';
+
+      audios.forEach(audio => {
+        const audioItem = document.createElement('div');
+        audioItem.className = 'dialect-audio-item';
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'dialect-audio-btn';
+        btn.innerHTML = '<i class="ti ti-volume"></i>';
+        btn.setAttribute('aria-label', `${standard} 음성 재생`);
+
+        const info = document.createElement('div');
+        info.className = 'dialect-audio-info';
+
+        const location = document.createElement('div');
+        location.className = 'dialect-location';
+        location.textContent = audio.location;
+
+        const speaker = document.createElement('div');
+        speaker.className = 'dialect-speaker';
+        speaker.textContent = audio.speaker;
+
+        info.appendChild(location);
+        info.appendChild(speaker);
+        audioItem.appendChild(btn);
+        audioItem.appendChild(info);
+        audioList.appendChild(audioItem);
+      });
+
+      dialectItem.appendChild(audioList);
+      container.appendChild(dialectItem);
+    });
+  } else {
+    container.innerHTML = '<p style="color: #64748b; font-size: 13px;">해당 지역의 데이터가 없습니다.</p>';
+  }
+
+  panel.classList.add('active');
+  if (ctx.map) setTimeout(() => { ctx.map.updateSize(); ctx.map.renderSync(); }, 60);
+}
+
+function closeRegionPanel(ctx) {
+  if (!ctx) return;
+  const panel = document.getElementById(ctx.panelId);
+  if (panel) panel.classList.remove('active');
+  ctx.selectedRegion = null;
+  if (ctx.markerLayer) ctx.markerLayer.changed();
+  if (ctx.map) setTimeout(() => { ctx.map.updateSize(); ctx.map.renderSync(); }, 60);
+}
+
+// 저장된 검색 결과를 해당 지도(ctx)에 그린다
+function renderCtxMapData(ctx) {
+  if (!ctx.map || !lastRegionData || !lastColorMap || !lastTopStandards) return;
+  drawRegionMarkers(ctx, lastRegionData, lastColorMap, lastTopStandards);
+  updateMapLegend(ctx, lastRegionData, lastColorMap, lastTopStandards);
+}
+
+// 지도 초기화 (OpenLayers)
+function initVocabMap(ctx) {
+  if (ctx.map) return;
+
+  if (!window.ol || !window.ol.Map) {
+    setTimeout(() => initVocabMap(ctx), 100);
+    return;
+  }
+
+  const mapElement = document.getElementById(ctx.mapId);
+  if (!mapElement) { console.error(ctx.mapId + ' element not found'); return; }
+
+  try {
+    ctx.map = new ol.Map({
+      target: ctx.mapId,
+      layers: [ new ol.layer.Tile({ source: new ol.source.OSM() }) ],
+      view: new ol.View({ center: ol.proj.fromLonLat([127.0, 37.5]), zoom: 7 })
+    });
+    setTimeout(() => {
+      if (ctx.map) { ctx.map.updateSize(); ctx.map.renderSync(); renderCtxMapData(ctx); }
+    }, 150);
+  } catch (err) {
+    console.error('Map initialization error:', err);
+    ctx.map = null;
+  }
+}
+
+// 지도 보기 모달 열기/닫기
+function openMapModal(word) {
+  const overlay = document.getElementById('mapModalOverlay');
+  if (!overlay) return;
+
+  const wordEl = document.getElementById('mapModalWord');
+  if (wordEl && word) wordEl.textContent = word;
+
+  overlay.classList.add('show');
+
+  if (!lastRegionData) updateMapWithSearchResults();
+  initVocabMap(modalMapCtx);
+
+  setTimeout(() => {
+    if (modalMapCtx.map) { modalMapCtx.map.updateSize(); modalMapCtx.map.renderSync(); renderCtxMapData(modalMapCtx); }
+  }, 250);
+}
+
+function closeMapModal() {
+  const overlay = document.getElementById('mapModalOverlay');
+  if (overlay) overlay.classList.remove('show');
+  closeRegionPanel(modalMapCtx);
+}
+
+function handleMapOverlayClick(e) {
+  if (e.target === document.getElementById('mapModalOverlay')) closeMapModal();
+}
+
+/* ==========================================================================
+   구술발화: 문장별 음성 재생 + 재생 위치 표시, 원문 보기 모달 (oral_dialect.html 이식)
+   실제 녹음 파일 연동 전이므로 브라우저 음성 합성(SpeechSynthesis)으로 재생하고,
+   낱말 경계(boundary) 이벤트로 현재 발화 위치를 강조합니다.
+   ========================================================================== */
+let currentPlayback = null;
+
+// 문장을 글자 단위 <span>으로 감싸(기존 강조 유지) 재생 흐름 표시에 사용
+function buildFlow(el) {
+  if (el.dataset.flow === '1') {
+    const chars = Array.from(el.querySelectorAll('.flch'));
+    chars.forEach(c => c.classList.remove('read', 'read-head', 'read-tail'));
+    return { chars, text: el.textContent, n: 0 };
+  }
+  const text = el.textContent;
+  const chars = [];
+  const wrap = (node, parent) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const frag = document.createDocumentFragment();
+      for (const ch of node.textContent) {
+        const s = document.createElement('span');
+        s.className = 'flch';
+        s.textContent = ch;
+        frag.appendChild(s);
+        chars.push(s);
+      }
+      parent.replaceChild(frag, node);
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      Array.from(node.childNodes).forEach(c => wrap(c, node));
+    }
+  };
+  Array.from(el.childNodes).forEach(n => wrap(n, el));
+  el.dataset.flow = '1';
+  return { chars, text, n: 0 };
+}
+
+// 현재 읽은 위치(비율 frac)까지 하이라이트가 흐르도록 read 상태 갱신
+function applyFlow(flow, frac) {
+  const n = Math.round(Math.min(1, Math.max(0, frac)) * flow.chars.length);
+  if (n === flow.n) return;
+  if (n > flow.n) {
+    for (let i = flow.n; i < n; i++) flow.chars[i].classList.add('read');
+  } else {
+    for (let i = n; i < flow.n; i++) flow.chars[i].classList.remove('read');
+  }
+  flow.chars.forEach((c, i) => {
+    c.classList.toggle('read-tail', i === 0 && n > 0);
+    c.classList.toggle('read-head', i === n - 1 && n > 0);
+  });
+  flow.n = n;
+}
+
+function setPlayIcon(btn, playing) {
+  btn.classList.toggle('is-playing', playing);
+  btn.innerHTML = playing
+    ? '<i class="ti ti-player-stop-filled" aria-hidden="true"></i>'
+    : '<i class="ti ti-player-play-filled" aria-hidden="true"></i>';
+  btn.setAttribute('aria-label', playing ? '재생 중지' : '문장 음성 듣기');
+}
+
+function setSentenceProgress(pb, frac) {
+  const bar = pb.sentence.querySelector('.osent-progress-bar');
+  if (bar) bar.style.width = Math.min(100, Math.max(0, frac) * 100) + '%';
+}
+
+function finishPlayback(pb) {
+  if (pb.timer) clearTimeout(pb.timer);
+  pb.pEl.classList.remove('speaking');
+  pb.sentence.classList.remove('playing');
+  setPlayIcon(pb.btn, false);
+  setSentenceProgress(pb, 0);
+  if (currentPlayback === pb) currentPlayback = null;
+}
+
+function stopPlayback() {
+  if (!currentPlayback) return;
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  finishPlayback(currentPlayback);
+}
+
+function startPlayback(btn, sentence) {
+  stopPlayback();
+  stopSourcePlay(); // 원문 모달 전체 재생 중이면 중지
+  const pEl = sentence.querySelector('.osent-text:not(.std-text)');
+  if (!pEl) return;
+  sentence.classList.add('playing');
+  pEl.classList.add('speaking');
+  setPlayIcon(btn, true);
+  const flow = buildFlow(pEl);
+  flow.n = 0;
+  const total = Math.max(1200, flow.text.length * 145);
+  const pb = { btn, sentence, pEl, flow, timer: null, started: Date.now(), total };
+  currentPlayback = pb;
+
+  const tick = () => {
+    if (currentPlayback !== pb) return;
+    const frac = (Date.now() - pb.started) / pb.total;
+    applyFlow(pb.flow, frac);
+    setSentenceProgress(pb, frac);
+    if (frac >= 1) { if (pb.simulated) finishPlayback(pb); return; }
+    pb.timer = setTimeout(tick, 60);
+  };
+
+  const synth = window.speechSynthesis;
+  if (synth && flow.text.trim()) {
+    const utter = new SpeechSynthesisUtterance(flow.text);
+    utter.lang = 'ko-KR';
+    utter.rate = 0.95;
+    const koVoice = synth.getVoices().find(v => v.lang && v.lang.toLowerCase().startsWith('ko'));
+    if (koVoice) utter.voice = koVoice;
+    utter.onboundary = (e) => {
+      if (e.name && e.name !== 'word') return;
+      if (!flow.text.length) return;
+      pb.started = Date.now() - (e.charIndex / flow.text.length) * pb.total;
+    };
+    utter.onend = () => { if (currentPlayback === pb) finishPlayback(pb); };
+    utter.onerror = () => { if (currentPlayback === pb) finishPlayback(pb); };
+    tick();
+    synth.speak(utter);
+  } else {
+    pb.simulated = true;
+    tick();
+  }
+}
+
+function initOralAudio() {
+  if (window.speechSynthesis) window.speechSynthesis.getVoices();
+  document.querySelectorAll('#osentList .osent-sentence').forEach(sentence => {
+    if (sentence.dataset.audioReady === '1') return;
+    const morphRow = sentence.querySelector('.osent-row');
+    const pEl = sentence.querySelector('.osent-text:not(.std-text)');
+    if (!morphRow || !pEl) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'osent-play';
+    setPlayIcon(btn, false);
+    btn.addEventListener('click', () => {
+      if (currentPlayback && currentPlayback.btn === btn) stopPlayback();
+      else startPlayback(btn, sentence);
+    });
+    morphRow.appendChild(btn);
+    const prog = document.createElement('div');
+    prog.className = 'osent-progress';
+    prog.innerHTML = '<div class="osent-progress-bar"></div>';
+    sentence.appendChild(prog);
+    sentence.dataset.audioReady = '1';
+  });
+}
+
+/* ── 원문 보기 모달 ── */
+let srcPlayback = null;
+
+function openSourceModal() {
+  document.getElementById('sourceModalOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeSourceModal() {
+  stopSourcePlay();
+  clearSeekPreview();
+  document.getElementById('sourceModalOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+function handleSourceOverlayClick(e) {
+  if (e.target === document.getElementById('sourceModalOverlay')) closeSourceModal();
+}
+function togglePhoneme(cb) {
+  document.getElementById('srcScroll').classList.toggle('show-phoneme', cb.checked);
+}
+
+function setSrcPlayIcon(playing) {
+  const btn = document.getElementById('srcPlayBtn');
+  if (!btn) return;
+  btn.classList.toggle('is-playing', playing);
+  btn.innerHTML = playing
+    ? '<i class="ti ti-player-pause-filled" aria-hidden="true"></i> 재생 중지'
+    : '<i class="ti ti-player-play-filled" aria-hidden="true"></i> 전체 음성 듣기';
+}
+
+function scrollItemIntoView(item) {
+  const scroller = document.getElementById('srcScroll');
+  if (!scroller || !item) return;
+  const s = scroller.getBoundingClientRect();
+  const i = item.getBoundingClientRect();
+  if (i.top < s.top + 8 || i.bottom > s.bottom - 8) {
+    scroller.scrollTop += (i.top - s.top) - 24;
+  }
+}
+
+function setSrcProgress(pb, i, frac) {
+  const bar = document.getElementById('srcProgressBar');
+  if (!bar) return;
+  const f = Math.min(1, Math.max(0, frac));
+  bar.style.width = Math.min(100, ((i + f) / pb.lines.length) * 100) + '%';
+}
+
+function resetSourcePlay(pb) {
+  if (pb.timer) clearTimeout(pb.timer);
+  pb.lines.forEach(ln => { ln.dd.classList.remove('spoken'); applyFlow(ln.flow, 0); });
+  pb.items.forEach(it => it.classList.remove('src-active'));
+  setSrcPlayIcon(false);
+  const bar = document.getElementById('srcProgressBar');
+  if (bar) bar.style.width = '0';
+}
+
+function stopSourcePlay() {
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  if (srcPlayback) { resetSourcePlay(srcPlayback); srcPlayback = null; }
+}
+
+function speakLine(pb, i) {
+  if (pb !== srcPlayback) return;
+  const gen = ++pb.gen;
+  if (pb.timer) { clearTimeout(pb.timer); pb.timer = null; }
+  if (pb.synth) pb.synth.cancel();
+  if (i >= pb.lines.length) { resetSourcePlay(pb); srcPlayback = null; return; }
+  pb.current = i;
+  const line = pb.lines[i];
+  pb.items.forEach((it, k) => it.classList.toggle('src-active', k === i));
+  pb.lines.forEach((ln, li) => {
+    ln.dd.classList.toggle('spoken', li < i);
+    applyFlow(ln.flow, li < i ? 1 : 0);
+  });
+  scrollItemIntoView(line.item);
+
+  line.started = Date.now();
+  const advance = () => {
+    if (pb !== srcPlayback || pb.gen !== gen) return;
+    const frac = (Date.now() - line.started) / line.total;
+    applyFlow(line.flow, frac);
+    setSrcProgress(pb, i, frac);
+    if (frac >= 1) {
+      if (pb.simulated) pb.timer = setTimeout(() => speakLine(pb, i + 1), 260);
+      return;
+    }
+    pb.timer = setTimeout(advance, 60);
+  };
+
+  if (pb.synth && line.text.trim()) {
+    const u = new SpeechSynthesisUtterance(line.text);
+    u.lang = 'ko-KR';
+    u.rate = 0.98;
+    if (pb.voice) u.voice = pb.voice;
+    u.onboundary = (e) => {
+      if (e.name && e.name !== 'word') return;
+      if (!line.text.length) return;
+      line.started = Date.now() - (e.charIndex / line.text.length) * line.total;
+    };
+    u.onend = () => { if (pb === srcPlayback && pb.gen === gen) speakLine(pb, i + 1); };
+    u.onerror = () => { if (pb === srcPlayback && pb.gen === gen) speakLine(pb, i + 1); };
+    advance();
+    pb.synth.speak(u);
+  } else {
+    pb.simulated = true;
+    advance();
+  }
+}
+
+function startSourcePlay(startIndex) {
+  stopPlayback();
+  clearSeekPreview();
+  const items = Array.from(document.querySelectorAll('#srcScroll .src-item'))
+    .filter(item => item.querySelector('.src-line dd'));
+  const lines = [];
+  items.forEach(item => {
+    const dd = item.querySelector('.src-line dd');
+    const flow = buildFlow(dd);
+    lines.push({ dd, item, flow, text: flow.text, total: Math.max(1000, flow.text.length * 135), started: 0 });
+  });
+  if (!lines.length) return;
+  const synth = window.speechSynthesis || null;
+  const pb = { lines, items, current: 0, timer: null, gen: 0, simulated: !synth, synth, voice: null };
+  if (synth) pb.voice = synth.getVoices().find(v => v.lang && v.lang.toLowerCase().startsWith('ko')) || null;
+  srcPlayback = pb;
+  setSrcPlayIcon(true);
+  const idx = Math.min(lines.length - 1, Math.max(0, startIndex || 0));
+  speakLine(pb, idx);
+}
+
+function playSourceFrom(idx) {
+  if (srcPlayback) speakLine(srcPlayback, idx);
+  else startSourcePlay(idx);
+}
+
+function clearSeekPreview() {
+  document.querySelectorAll('#srcScroll .src-item.src-seek').forEach(it => it.classList.remove('src-seek'));
+}
+
+function toggleSourcePlay() {
+  if (srcPlayback) stopSourcePlay();
+  else startSourcePlay();
+}
+
+function initSourceSeek() {
+  const prog = document.querySelector('.src-progress');
+  if (!prog) return;
+  let seeking = false, seekIdx = 0;
+
+  const seekItems = () => Array.from(document.querySelectorAll('#srcScroll .src-item'))
+    .filter(it => it.querySelector('.src-line dd'));
+
+  const preview = (clientX) => {
+    const list = seekItems();
+    const len = list.length;
+    if (!len) return;
+    const r = prog.getBoundingClientRect();
+    const frac = Math.min(1, Math.max(0, (clientX - r.left) / r.width));
+    seekIdx = Math.min(len - 1, Math.floor(frac * len));
+    list.forEach((it, k) => it.classList.toggle('src-seek', k === seekIdx));
+    scrollItemIntoView(list[seekIdx]);
+    const bar = document.getElementById('srcProgressBar');
+    if (bar) bar.style.width = ((seekIdx + 0.5) / len) * 100 + '%';
+  };
+
+  prog.addEventListener('pointerdown', (e) => {
+    if (!seekItems().length) return;
+    seeking = true;
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    if (srcPlayback) { resetSourcePlay(srcPlayback); srcPlayback = null; }
+    try { prog.setPointerCapture(e.pointerId); } catch (_) {}
+    preview(e.clientX);
+    e.preventDefault();
+  });
+  prog.addEventListener('pointermove', (e) => { if (seeking) preview(e.clientX); });
+  const finish = (e) => {
+    if (!seeking) return;
+    seeking = false;
+    try { prog.releasePointerCapture(e.pointerId); } catch (_) {}
+    clearSeekPreview();
+    playSourceFrom(seekIdx);
+  };
+  prog.addEventListener('pointerup', finish);
+  prog.addEventListener('pointercancel', () => { seeking = false; clearSeekPreview(); });
+}
+
+document.addEventListener('DOMContentLoaded', initOralAudio);
+document.addEventListener('DOMContentLoaded', initSourceSeek);
+
+/* ── 어휘 조사 자료: 지역어 ↔ 표준어 동일/다름 배지 (vocab_dialect.html 포팅) ── */
+function normalizeForm(text) {
+  if (!text) return '';
+  return text
+    .replace(/\(.*?\)/g, '')  // "감자(=감'자)" → "감자"
+    .replace(/[:'`ˈ]/g, '')   // 장음(:)·성조(') 기호 제거
+    .trim();
+}
+
+function updateSearchBadges() {
+  const rows = document.querySelectorAll('.vocab-table tbody tr:not(.details-row)');
+  rows.forEach((row) => {
+    const dialectCell = row.querySelector('.col-dialect');
+    const standardCell = row.querySelector('.col-std');
+    if (!dialectCell || !standardCell) return;
+
+    // 배지 컨테이너가 없으면 최초 1회 생성 (원본 지역어 표기는 유지)
+    let badgeContainer = row.querySelector('.badge-container');
+    if (!badgeContainer) {
+      const originalDialect = dialectCell.textContent.trim();
+
+      const wrapper = document.createElement('span');
+      wrapper.className = 'dialect-col-wrapper';
+
+      const dialectSpan = document.createElement('span');
+      dialectSpan.className = 'dialect-form-text';
+      dialectSpan.textContent = originalDialect;
+
+      badgeContainer = document.createElement('span');
+      badgeContainer.className = 'badge-container';
+
+      wrapper.appendChild(dialectSpan);
+      wrapper.appendChild(badgeContainer);
+
+      dialectCell.textContent = '';
+      dialectCell.appendChild(wrapper);
+    }
+
+    badgeContainer.innerHTML = '';
+
+    const dialectForm = normalizeForm(
+      dialectCell.querySelector('.dialect-form-text')?.textContent || dialectCell.textContent
+    );
+    const standardForm = normalizeForm(standardCell.textContent);
+    const isSame = dialectForm && standardForm && dialectForm === standardForm;
+
+    const badge = document.createElement('span');
+    badge.className = 'match-badge ' + (isSame ? 'same' : 'diff');
+    badge.textContent = isSame ? '표준어와 동일' : '표준어와 다름';
+    badge.setAttribute('title', isSame
+      ? '지역어 형태가 표준어와 같습니다.'
+      : `지역어 형태가 표준어(${standardForm})와 다릅니다.`);
+    badgeContainer.appendChild(badge);
+  });
+}
+document.addEventListener('DOMContentLoaded', updateSearchBadges);
 </script>
 <script src="./share.js" defer></script>
 </body>

@@ -80,6 +80,10 @@
   
   .pm-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--line); background: #ffffff; cursor: pointer; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; color: #475569; font-weight: 600; transition: all 0.2s ease; box-shadow: var(--shadow2); }
   .pm-btn:hover { background: #f8fafc; color: var(--blue); border-color: #cbd5e1; }
+  /* 추가된 조건(조사 지역·검색 대상) 행 개별 삭제 버튼 */
+  .row-del-btn { flex: 0 0 auto; width: 36px; height: 36px; border-radius: 8px; border: 1px solid #fecaca; background: #ffffff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; color: #ef4444; transition: all 0.2s ease; box-shadow: var(--shadow2); }
+  .row-del-btn:hover { background: #fef2f2; border-color: #ef4444; }
+  .row-del-btn i { font-size: 16px; }
   
   select, input[type=text] { font-size: 14.5px; font-weight: 600; padding: 10px 16px; border-radius: 10px; border: 1px solid #cbd5e1; background: #ffffff; color: var(--text); font-family: inherit; transition: all 0.2s ease; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02); }
   select:focus, input[type=text]:focus { border-color: var(--blue); outline: none; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
@@ -372,7 +376,8 @@
   /* Inner Details Accordion Row */
   .details-row { display: none; background: #ffffff; }
   .details-row.show { display: table-row; }
-  .details-row td { padding: 0 !important; border-bottom: 1px solid var(--line); }
+  /* 상세 행의 래퍼 셀만 여백 제거 (자식 결합자로 한정해 내부 상세표 셀 padding을 침범하지 않도록 함) */
+  .details-row > td { padding: 0 !important; border-bottom: 1px solid var(--line); }
   .details-container { padding: 24px 30px; background: #fafbfc; border-top: 1px dashed var(--line); }
 
   .details-header {
@@ -400,7 +405,7 @@
   .details-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; table-layout: fixed; }
   .details-table th { background: #f8fafc; color: #475569; font-weight: 700; padding: 14px 20px; border-bottom: 1px solid var(--line); font-size: 13px; text-align: center; }
   .details-table td { padding: 18px 20px; border-bottom: 1px solid #f1f5f9; color: #334155; font-weight: 500; transition: background 0.15s; text-align: center; }
-  .details-table td.audio-cell { padding: 12px 20px; }
+  .details-table td.audio-cell { padding: 14px 20px; }
   .details-table tr:last-child td { border-bottom: none; }
   .details-table tr:hover td { background: #f8fafc; }
   
@@ -3312,23 +3317,36 @@ function playLifeAudio(el, word, region) {
   startLifeAudio();
 }
 
+// 추가된 조건 행을 개별 삭제할 수 있는 버튼 생성
+function makeRowDeleteBtn(row) {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'row-del-btn';
+  btn.title = '이 조건 삭제';
+  btn.setAttribute('aria-label', '이 조건 삭제');
+  btn.innerHTML = '<i class="ti ti-x" aria-hidden="true"></i>';
+  btn.addEventListener('click', () => row.remove());
+  return btn;
+}
+
 function addRegionRow() {
   const container = document.getElementById('additionalRegions');
   const firstRow = document.querySelector('.region-row');
   if (!container || !firstRow) return;
-  
+
   const newRow = document.createElement('div');
   newRow.className = 'region-row additional';
   newRow.style.cssText = 'display: flex; gap: 8px; align-items: center; width: 100%; padding-left: 80px;';
-  
+
   const select1 = firstRow.querySelector('.region-select-1').cloneNode(true);
   select1.value = "";
-  
+
   const select2 = firstRow.querySelector('.region-select-2').cloneNode(true);
   select2.value = "";
-  
+
   newRow.appendChild(select1);
   newRow.appendChild(select2);
+  newRow.appendChild(makeRowDeleteBtn(newRow));
   container.appendChild(newRow);
 }
 
@@ -3365,6 +3383,7 @@ function addSearchTargetRow() {
     <input type="text" placeholder="검색어를 입력하세요." style="flex:1;min-width:100px;" />
     <button type="button" class="btn-outline" onclick="toggleOldKor()">옛 한글</button>
   `;
+  newRow.appendChild(makeRowDeleteBtn(newRow));
   container.appendChild(newRow);
 }
 

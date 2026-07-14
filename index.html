@@ -51,7 +51,7 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
   padding: 0 0 60px 0; /* 바닥의 영역 패딩을 영리하게 포함하여 통합 */
   position: relative;
   overflow: visible;
-  background: #0f172a;
+  background: #F3C043; /* 이미지 아래 영역을 하단 today-section(노랑)과 이어지게 → 빈 공간 제거 */
 }
 .hero-slider-container {
   width: 100%;
@@ -59,8 +59,8 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
   margin: 0;
   position: relative;
   overflow: hidden;
-  height: 644px; /* 기존 560px에서 15% 늘린 644px로 확장 */
-  background: #0f172a;
+  height: 720px; /* 하단 검정 영역이 안 보이도록 이미지 영역을 아래로 확장 */
+  background: #F3C043;
 }
 .hero-slider {
   width: 100%;
@@ -274,13 +274,13 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
   border-radius: 16px;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
   max-width: 960px;
-  margin: -10px auto -110px; /* 기존 -30px에서 20px 추가 하향 조정 */
+  margin: -60px auto -110px; /* 경계선 중간에 걸치도록 위로 상향 */
   position: relative;
   z-index: 10;
 }
 @media (max-width: 1000px) {
   .search-panel {
-    margin: -10px 20px -110px;
+    margin: -60px 20px -110px;
   }
 }
 .search-panel__top {
@@ -1195,7 +1195,7 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
   <div class="hero-slider-container">
     <div class="hero-slider" id="heroSlider">
       <!-- 슬라이드 1 -->
-      <div class="hero-slide active" style="background-image: linear-gradient(to right, rgba(15, 23, 42, 0.9) 30%, rgba(15, 23, 42, 0.4) 65%, transparent 100%), url('./korea-6757629_1280.jpg');">
+      <div class="hero-slide active" style="background-image: linear-gradient(to right, rgba(15, 23, 42, 0.9) 30%, rgba(15, 23, 42, 0.4) 65%, transparent 100%), url('./emitlight-starfield-coex-mall-6996311_1920.jpg');">
         <div class="hero-slide-content">
           <span class="hero-slide-badge">우리의 말과 삶</span>
           <h1 class="hero-slide-title">사라지는 말에는<br>한 시대의 삶이 담겨 있습니다</h1>
@@ -1229,7 +1229,7 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
       </div>
       
       <!-- 슬라이드 3 -->
-      <div class="hero-slide" style="background-image: linear-gradient(to right, rgba(15, 23, 42, 0.9) 30%, rgba(15, 23, 42, 0.4) 65%, transparent 100%), url('./korean_dialect_map_bg.png');">
+      <div class="hero-slide" style="background-image: linear-gradient(to right, rgba(15, 23, 42, 0.88) 18%, rgba(15, 23, 42, 0.3) 50%, transparent 74%), url('./472ce321ba1502f6c76697e7af8f5624.jpg'); background-size: cover, 140% auto; background-position: center, 22% center;">
         <div class="hero-slide-content">
           <span class="hero-slide-badge">기록과 보존</span>
           <h1 class="hero-slide-title">지도로 그려내는<br>다채로운 한반도 언어 지도</h1>
@@ -1647,6 +1647,20 @@ const quizData = [
 const VISIBLE = 4;
 const CARD_GAP = 20;
 
+// 'dialect_' 로 시작하는 지역어 이미지 풀 (퀴즈 배너 제외)
+const DIALECT_IMAGES = [
+  './image/dialect_gyeonggi.png',
+  './image/dialect_gyeongsang.png',
+  './image/dialect_gyeongsang (1).png',
+  './image/dialect_jeju.png',
+  './image/dialect_jeolla.png',
+  './image/dialect_jeolla (1).png',
+];
+function randomDialectImg() {
+  const path = DIALECT_IMAGES[Math.floor(Math.random() * DIALECT_IMAGES.length)];
+  return encodeURI(path); // 파일명의 공백/괄호 안전 처리
+}
+
 function makeWordCardHTML(d, i) {
   const rel = d.related.map(r => '<span class="related-chip">' + r.w + '<span>' + r.r + '</span></span>').join('');
   return '<div class="today-card">' +
@@ -1658,7 +1672,7 @@ function makeWordCardHTML(d, i) {
       '<button class="action-btn" onclick="alert(\'발음 음성을 로드 중입니다.\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="5,3 19,12 5,21"/></svg>발음 듣기</button>' +
       '<button class="action-btn" onclick="location.href=\'./dialect_map.html\'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>지도 보기</button>' +
     '</div>' +
-    '<div class="card-img-box"><img src="./ref.png" alt="생활어 이미지"></div>' +
+    '<div class="card-img-box"><img src="' + randomDialectImg() + '" alt="' + d.region + ' 지역어 이미지"></div>' +
   '</div>';
 }
 
@@ -1673,6 +1687,7 @@ function makeQuizCardHTML(d, i) {
     '<div class="quiz-word-region">' + d.region + '</div>' +
     '<div class="quiz-options" id="qopts-' + i + '">' + opts + '</div>' +
     '<button class="quiz-submit" onclick="revealOpt(' + i + ',' + d.ans + ')">정답 확인하기</button>' +
+    '<div class="card-img-box"><img src="./image/dialect_quiz.png" alt="방언 퀴즈 이미지"></div>' +
   '</div>';
 }
 
@@ -1722,14 +1737,319 @@ document.getElementById('tPrev').addEventListener('click', function(){ goTo(offs
 document.getElementById('tNext').addEventListener('click', function(){ goTo(offset + 1); });
 
 /* Map chips */
-document.querySelectorAll('.map-tab-link').forEach(function(chip) {
-  chip.addEventListener('click', function() {
-    document.querySelectorAll('.map-tab-link').forEach(function(c){ c.classList.remove('active'); });
-    chip.classList.add('active');
-  });
-});
-
+// (지도 탭 핸들러는 아래 지도 스크립트 IIFE에서 처리)
 window.addEventListener('resize', function(){ goTo(offset); });
 </script>
+
+<!-- ── 같은 뜻 다른 말 지도 (dialect_main.html 이식) ── -->
+<!-- OpenLayers 라이브러리를 로드하여 'ol is not defined' 오류 방지 -->
+<script src="https://cdn.jsdelivr.net/npm/ol@v10.9.0/dist/ol.js"></script>
+<!-- Mapbox Streets v6 스타일 빌드 도우미 스크립트 로드 -->
+<script src="https://openlayers.org/en/v10.9.0/examples/resources/mapbox-streets-v6-style.js"></script>
+<script>
+/* OpenLayers Map Initialization (Mapbox Vector Tiles with CartoDB Positron Fallback) */
+(function() {
+  // 사용자가 요청한 OpenLayers Mapbox Vector Tiles Advanced 예제 스타일 적용을 위한 설정
+  // Mapbox Vector Tiles 토큰 (도메인 제한이 걸려 있는 예제 토큰을 우선 기본값으로 세팅)
+  // 실제 로컬 호스트나 외부 서비스 배포 시, 이 토큰이 차단되면 자동으로 Fallback 레이어(CartoDB)가 작동합니다.
+  // 배포 시에는 본인의 Mapbox Access Token을 발급받아 아래 key 변수에 대입해 주세요.
+  const key = '';
+  
+  // 예제와 동일하게 홀수 줌 레벨 스케일링을 적용하는 커스텀 해상도 배열 계산 (대역폭 절약용)
+  const resolutions = [];
+  for (let i = 0; i <= 8; ++i) {
+    resolutions.push(156543.03392804097 / Math.pow(2, i * 2));
+  }
+
+  // 타일 URL 매핑 함수
+  function tileUrlFunction(tileCoord) {
+    return (
+      'https://{a-d}.tiles.mapbox.com/v4/mapbox.mapbox-streets-v6/' +
+      '{z}/{x}/{y}.vector.pbf?access_token=' +
+      key
+    )
+      .replace('{z}', String(tileCoord[0] * 2 - 1))
+      .replace('{x}', String(tileCoord[1]))
+      .replace('{y}', String(tileCoord[2]))
+      .replace(
+        '{a-d}',
+        'abcd'.substr(((tileCoord[1] << tileCoord[0]) + tileCoord[2]) % 4, 1)
+      );
+  }
+
+  // 1. Mapbox Vector Tile Source & Layer 정의
+  const mapboxSource = new ol.source.VectorTile({
+    attributions:
+      '© <a href="https://www.mapbox.com/map-feedback/">Mapbox</a> ' +
+      '© <a href="https://www.openstreetmap.org/copyright">' +
+      'OpenStreetMap contributors</a>',
+    format: new ol.format.MVT(),
+    tileGrid: new ol.tilegrid.TileGrid({
+      extent: ol.proj.get('EPSG:3857').getExtent(),
+      resolutions: resolutions,
+      tileSize: 512,
+    }),
+    tileUrlFunction: tileUrlFunction,
+  });
+
+  const mapboxLayer = new ol.layer.VectorTile({
+    source: mapboxSource,
+    style: createMapboxStreetsV6Style(ol.style.Style, ol.style.Fill, ol.style.Stroke, ol.style.Icon, ol.style.Text),
+  });
+
+  // 2. Fallback용 CartoDB Positron 래스터 레이어 정의 (토큰 미인증/도메인 제한 대비)
+  const fallbackLayer = new ol.layer.Tile({
+    source: new ol.source.XYZ({
+      url: 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+      attributions: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>'
+    })
+  });
+
+  // 지도 인스턴스 초기화 (기본적으로 Mapbox Vector Tiles 레이어를 우선 적재)
+  const map = new ol.Map({
+    layers: [mapboxLayer],
+    target: 'map',
+    view: new ol.View({
+      center: ol.proj.fromLonLat([127.8, 35.8]), // 대한민국 중심 위치
+      zoom: 3.6, // Mapbox Vector Tile Custom Resolution 스케일에 맞게 조정한 최적의 한반도 줌 레벨
+      minZoom: 1,
+    }),
+  });
+
+  // 타일 로드 실패 시 Fallback 활성화 처리
+  let fallbackActivated = false;
+  mapboxSource.on('tileloaderror', function() {
+    if (!fallbackActivated) {
+      fallbackActivated = true;
+      console.warn("Mapbox Vector Tiles 로드 실패(토큰 도메인 제한 등). Fallback 레이어(CartoDB Positron)로 자동 전환합니다.");
+      map.removeLayer(mapboxLayer);
+      map.addLayer(fallbackLayer);
+      // Fallback 시에는 줌 레벨도 일반 래스터 지도용 해상도에 맞게 보정
+      map.getView().setZoom(6.8);
+    }
+  });
+
+  // 5가지 대표 어휘에 대한 방언 데이터셋 (설명, 범례, 지도 마커 정보)
+  const mapTabData = {
+    '옥수수': {
+      desc: "우리나라 중부 지방에서는 주로 '옥수수'라 부르고, 강원도와 경상도 등 산간 지방을 중심으로는 '강냉이', 전라도에서는 '옥시기', 제주도에서는 '강낭이'로 다양하게 전해집니다.",
+      legend: [
+        { word: '옥수수', region: '경기·충청', color: 'rgba(30,64,175,0.85)' },
+        { word: '강냉이', region: '강원·경상', color: 'rgba(13,148,136,0.85)' },
+        { word: '옥시기', region: '전라', color: 'rgba(37,99,235,0.85)' },
+        { word: '강낭이', region: '제주', color: 'rgba(56,189,248,0.85)' }
+      ],
+      markers: [
+        { lon: 127.2, lat: 37.2, label: '옥수수', region: '경기도', color: 'rgba(30,64,175,0.85)', size: 9 },
+        { lon: 127.9, lat: 36.7, label: '옥수수', region: '충청북도', color: 'rgba(30,64,175,0.85)', size: 7 },
+        { lon: 127.0, lat: 36.5, label: '옥수수', region: '충청남도', color: 'rgba(30,64,175,0.85)', size: 8 },
+        { lon: 128.6, lat: 37.6, label: '강냉이', region: '강원도', color: 'rgba(13,148,136,0.85)', size: 9 },
+        { lon: 128.8, lat: 36.3, label: '강냉이', region: '경상북도', color: 'rgba(13,148,136,0.85)', size: 8 },
+        { lon: 129.0, lat: 35.6, label: '강냉이', region: '부산광역시', color: 'rgba(13,148,136,0.85)', size: 9 },
+        { lon: 128.2, lat: 35.3, label: '강냉이', region: '경상남도', color: 'rgba(13,148,136,0.85)', size: 7 },
+        { lon: 127.0, lat: 35.6, label: '옥시기', region: '전라북도', color: 'rgba(37,99,235,0.85)', size: 9 },
+        { lon: 127.2, lat: 34.8, label: '옥시기', region: '전라남도', color: 'rgba(37,99,235,0.85)', size: 8 },
+        { lon: 126.6, lat: 34.9, label: '옥시기', region: '광주광역시', color: 'rgba(37,99,235,0.85)', size: 7 },
+        { lon: 126.5, lat: 33.3, label: '강낭이', region: '제주도', color: 'rgba(56,189,248,0.85)', size: 8 }
+      ]
+    },
+    '부추': {
+      desc: "부추는 경기·충청 등 표준어권에서 '부추'로 불리며, 경상도에서는 '정구지', 전라도에서는 '솔', 충청 일부에서는 '졸' 등으로 불리며 각 지역의 식생활과 밀접하게 닿아 있습니다.",
+      legend: [
+        { word: '부추', region: '경기·충청', color: 'rgba(30,64,175,0.85)' },
+        { word: '정구지', region: '경상도', color: 'rgba(220,38,38,0.85)' },
+        { word: '솔', region: '전라도', color: 'rgba(217,119,6,0.85)' },
+        { word: '졸', region: '충청 일부', color: 'rgba(124,58,237,0.85)' }
+      ],
+      markers: [
+        { lon: 127.1, lat: 37.5, label: '부추', region: '서울특별시', color: 'rgba(30,64,175,0.85)', size: 9 },
+        { lon: 127.3, lat: 36.3, label: '부추', region: '대전광역시', color: 'rgba(30,64,175,0.85)', size: 8 },
+        { lon: 128.6, lat: 35.8, label: '정구지', region: '대구광역시', color: 'rgba(220,38,38,0.85)', size: 9 },
+        { lon: 129.0, lat: 35.1, label: '정구지', region: '부산광역시', color: 'rgba(220,38,38,0.85)', size: 9 },
+        { lon: 128.5, lat: 36.5, label: '정구지', region: '경상북도', color: 'rgba(220,38,38,0.85)', size: 8 },
+        { lon: 126.9, lat: 35.1, label: '솔', region: '광주광역시', color: 'rgba(217,119,6,0.85)', size: 9 },
+        { lon: 126.5, lat: 34.5, label: '솔', region: '전라남도', color: 'rgba(217,119,6,0.85)', size: 8 },
+        { lon: 126.7, lat: 36.6, label: '졸', region: '충청남도 홍성', color: 'rgba(124,58,237,0.85)', size: 8 }
+      ]
+    },
+    '달래': {
+      desc: "봄나물의 대표 격인 달래는 전국적으로 '달래'가 고루 분포하지만, 제주도에서는 들마늘이라는 뜻의 '드릇마농'으로 불리며, 강원이나 충청 일부에서는 '들마늘' 혹은 '달내'라고도 부릅니다.",
+      legend: [
+        { word: '달래', region: '전국 표준', color: 'rgba(30,64,175,0.85)' },
+        { word: '드릇마농', region: '제주도', color: 'rgba(13,148,136,0.85)' },
+        { word: '들마늘', region: '강원도', color: 'rgba(217,119,6,0.85)' },
+        { word: '달내', region: '충청도', color: 'rgba(124,58,237,0.85)' }
+      ],
+      markers: [
+        { lon: 127.1, lat: 37.5, label: '달래', region: '서울특별시', color: 'rgba(30,64,175,0.85)', size: 9 },
+        { lon: 128.6, lat: 35.8, label: '달래', region: '대구광역시', color: 'rgba(30,64,175,0.85)', size: 8 },
+        { lon: 126.8, lat: 33.4, label: '드릇마농', region: '제주특별자치도', color: 'rgba(13,148,136,0.85)', size: 9 },
+        { lon: 127.7, lat: 37.9, label: '들마늘', region: '강원도 춘천', color: 'rgba(217,119,6,0.85)', size: 8 },
+        { lon: 126.6, lat: 36.7, label: '달내', region: '충청남도 서산', color: 'rgba(124,58,237,0.85)', size: 8 }
+      ]
+    },
+    '아궁이': {
+      desc: "방을 따뜻하게 지피기 위한 아궁이는 전라도에서 '부삭', 경상도에서는 '부뚜막'이나 '정지'로 폭넓게 불리며, 제주도에서는 특유의 돌가옥 구조에 맞추어 '부넹기' 혹은 '굴묵'이라 부릅니다.",
+      legend: [
+        { word: '아궁이', region: '경기·충청', color: 'rgba(30,64,175,0.85)' },
+        { word: '부삭', region: '전라도', color: 'rgba(220,38,38,0.85)' },
+        { word: '부뚜막', region: '경상도', color: 'rgba(217,119,6,0.85)' },
+        { word: '부넹기', region: '제주도', color: 'rgba(124,58,237,0.85)' }
+      ],
+      markers: [
+        { lon: 127.0, lat: 37.3, label: '아궁이', region: '경기도 수원', color: 'rgba(30,64,175,0.85)', size: 9 },
+        { lon: 127.1, lat: 36.8, label: '아궁이', region: '충청남도 천안', color: 'rgba(30,64,175,0.85)', size: 8 },
+        { lon: 127.4, lat: 34.9, label: '부삭', region: '전라남도 순천', color: 'rgba(220,38,38,0.85)', size: 9 },
+        { lon: 126.8, lat: 35.8, label: '부삭', region: '전라북도 김제', color: 'rgba(220,38,38,0.85)', size: 8 },
+        { lon: 128.6, lat: 35.2, label: '부뚜막', region: '경상남도 창원', color: 'rgba(217,119,6,0.85)', size: 9 },
+        { lon: 128.7, lat: 36.5, label: '부뚜막', region: '경상북도 안동', color: 'rgba(217,119,6,0.85)', size: 8 },
+        { lon: 126.4, lat: 33.4, label: '부넹기', region: '제주특별자치도', color: 'rgba(124,58,237,0.85)', size: 9 }
+      ]
+    },
+    '가위': {
+      desc: "물건을 재단하거나 자르는 도구인 가위는 표준어 '가위' 외에도 충청·경상도의 '가새', 전라도의 '가시개' 등으로 불리며 각 지역의 구어 속에 친숙하게 녹아들어 있습니다.",
+      legend: [
+        { word: '가위', region: '경기·강원', color: 'rgba(30,64,175,0.85)' },
+        { word: '가새', region: '경상·충청', color: 'rgba(220,38,38,0.85)' },
+        { word: '가시개', region: '전라도', color: 'rgba(217,119,6,0.85)' },
+        { word: '가위', region: '제주도', color: 'rgba(124,58,237,0.85)' }
+      ],
+      markers: [
+        { lon: 127.0, lat: 37.5, label: '가위', region: '서울특별시', color: 'rgba(30,64,175,0.85)', size: 9 },
+        { lon: 127.8, lat: 37.3, label: '가위', region: '강원도 원주', color: 'rgba(30,64,175,0.85)', size: 8 },
+        { lon: 128.6, lat: 35.9, label: '가새', region: '대구광역시', color: 'rgba(220,38,38,0.85)', size: 9 },
+        { lon: 127.3, lat: 36.6, label: '가새', region: '충청북도 청주', color: 'rgba(220,38,38,0.85)', size: 8 },
+        { lon: 126.9, lat: 35.2, label: '가시개', region: '광주광역시', color: 'rgba(217,119,6,0.85)', size: 9 },
+        { lon: 126.8, lat: 34.8, label: '가시개', region: '전라남도 나주', color: 'rgba(217,119,6,0.85)', size: 8 },
+        { lon: 126.5, lat: 33.5, label: '가위', region: '제주특별자치도', color: 'rgba(124,58,237,0.85)', size: 8 }
+      ]
+    }
+  };
+
+  const vectorSource = new ol.source.Vector({
+    features: []
+  });
+
+  const vectorLayer = new ol.layer.Vector({
+    source: vectorSource,
+    zIndex: 10 // 배경 지도 레이어에 덮이지 않도록 레이어 우선순위를 최상단으로 설정
+  });
+
+  map.addLayer(vectorLayer);
+
+  // 상호작용 툴팁 이벤트 바인딩
+  const tooltipEl = document.getElementById('map-tooltip');
+  const tooltipTitle = document.getElementById('tooltip-title');
+  const tooltipDesc = document.getElementById('tooltip-desc');
+
+  map.on('pointermove', function(evt) {
+    if (evt.dragging) {
+      tooltipEl.style.display = 'none';
+      return;
+    }
+    
+    const pixel = map.getEventPixel(evt.originalEvent);
+    const feature = map.forEachFeatureAtPixel(pixel, function(feature) {
+      return feature;
+    }, {
+      layerFilter: function(layer) {
+        return layer === vectorLayer;
+      }
+    });
+    
+    if (feature) {
+      const label = feature.get('label');
+      const region = feature.get('region');
+      
+      tooltipTitle.textContent = label;
+      tooltipDesc.textContent = region + ' · 클릭하여 보기';
+      
+      tooltipEl.style.left = (pixel[0] + 15) + 'px';
+      tooltipEl.style.top = (pixel[1] + 15) + 'px';
+      tooltipEl.style.display = 'block';
+      
+      map.getTargetElement().style.cursor = 'pointer';
+    } else {
+      tooltipEl.style.display = 'none';
+      map.getTargetElement().style.cursor = '';
+    }
+  });
+
+  // 탭 클릭 제어 및 마커 업데이트 함수
+  function updateMapTab(wordKey) {
+    const data = mapTabData[wordKey];
+    if (!data) return;
+
+    // 1. 설명글 업데이트
+    const descTextEl = document.getElementById('mapDescText');
+    if (descTextEl) {
+      descTextEl.textContent = data.desc;
+    }
+
+    // 2. 범례 업데이트
+    const legendListEl = document.getElementById('mapLegendList');
+    if (legendListEl) {
+      legendListEl.innerHTML = '';
+      data.legend.forEach(function(item) {
+        const li = document.createElement('li');
+        li.className = 'map-legend-item';
+        li.innerHTML = '<span class="map-legend-dot" style="background: ' + item.color + '"></span>' + item.word + ' (' + item.region + ')';
+        legendListEl.appendChild(li);
+      });
+    }
+
+    // 3. 지도 마커 업데이트
+    vectorSource.clear();
+    const newFeatures = data.markers.map(function(item) {
+      const f = new ol.Feature({
+        geometry: new ol.geom.Point(ol.proj.fromLonLat([item.lon, item.lat])),
+        label: item.label,
+        region: item.region,
+        color: item.color,
+        size: item.size
+      });
+      
+      f.setStyle(new ol.style.Style({
+        image: new ol.style.Circle({
+          radius: item.size + 1,
+          fill: new ol.style.Fill({
+            color: item.color
+          }),
+          stroke: new ol.style.Stroke({
+            color: '#ffffff',
+            width: 1.5
+          })
+        })
+      }));
+      return f;
+    });
+    vectorSource.addFeatures(newFeatures);
+
+    // 4. 지도 중심 초기화 (애니메이션 이동)
+    map.getView().animate({
+      center: ol.proj.fromLonLat([127.8, 35.8]),
+      zoom: fallbackActivated ? 6.8 : 3.6,
+      duration: 500
+    });
+  }
+
+  // 초기 탭 '옥수수' 로드
+  updateMapTab('옥수수');
+
+  // 수직 탭 클릭 이벤트 바인딩
+  document.querySelectorAll('.map-tab-link').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.querySelectorAll('.map-tab-link').forEach(function(l) {
+        l.classList.remove('active');
+      });
+      link.classList.add('active');
+      const word = link.getAttribute('data-word');
+      updateMapTab(word);
+    });
+  });
+})();
+</script>
+
 </body>
 </html>
