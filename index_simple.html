@@ -72,9 +72,12 @@ body {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* safe center: 콘텐츠가 뷰포트보다 커지면 위쪽부터 정렬해 제목이 잘리지 않게 함 */
+  justify-content: safe center;
   align-items: center;
   padding: 40px 20px;
+  /* 아이패드 등 세로 공간이 부족할 때 섹션 내부에서 스크롤되도록 허용 */
+  overflow-y: auto;
   backface-visibility: hidden; /* 뒷면은 보이지 않게 처리해 렌더링 깔끔하게 */
 }
 
