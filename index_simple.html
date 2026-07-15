@@ -1657,6 +1657,51 @@ function frameScatter() {
 }
 requestAnimationFrame(frameScatter);
 
+/* ── 4페이지: 터치(아이패드 등) 지원 ──────────────
+   휠이 없는 터치 기기에서도 카드를 펼칠 수 있도록
+   ① 세로 드래그로 전개도(scatterTarget) 스크럽
+   ② 짧은 탭이면 쌓인 상태를 펼치고, 이미 펼쳐졌으면 클릭 핸들러가 검색 이동 처리 */
+const thingsScatter = document.getElementById('thingsScatter');
+const isTouchDevice = window.matchMedia('(pointer: coarse)').matches || ('ontouchstart' in window);
+let scStartY = 0, scStartTarget = 0, scMoved = false, scTouching = false;
+let suppressScatterClick = false;
+
+if (thingsScatter) {
+  thingsScatter.addEventListener('touchstart', (e) => {
+    if (currentPage !== 3) return;
+    scTouching = true;
+    scMoved = false;
+    scStartY = e.touches[0].clientY;
+    scStartTarget = scatterTarget;
+  }, { passive: true });
+
+  thingsScatter.addEventListener('touchmove', (e) => {
+    if (currentPage !== 3 || !scTouching) return;
+    const dy = scStartY - e.touches[0].clientY;   // 위로 끌면 펼침
+    if (Math.abs(dy) > 6) scMoved = true;
+    scatterTarget = Math.max(0, Math.min(1, scStartTarget + dy * 0.004));
+    if (scMoved) e.preventDefault();               // 페이지 스크롤/네이티브 제스처 차단
+  }, { passive: false });
+
+  thingsScatter.addEventListener('touchend', () => {
+    if (currentPage !== 3) return;
+    scTouching = false;
+    if (scMoved) {
+      // 실제 드래그였다면 뒤이어 발생하는 합성 click(검색 이동)을 잠시 차단
+      suppressScatterClick = true;
+      setTimeout(() => { suppressScatterClick = false; }, 300);
+    } else if (scatterP < 0.35) {
+      // 단순 탭 & 아직 쌓여 있으면 → 펼치기
+      scatterTarget = 1;
+    }
+  });
+
+  // 터치 기기에서는 안내 문구를 탭 기준으로 교체
+  if (isTouchDevice && scatterHint) {
+    scatterHint.innerHTML = '<i class="ti ti-hand-finger"></i> 탭하여 펼쳐보세요';
+  }
+}
+
 /* ── 음성 재생 (브라우저 내장 한국어 TTS) ──────── */
 let currentBtn = null;
 
@@ -1763,6 +1808,10 @@ viewport.addEventListener('click', (e) => {
 
   // 4페이지: 스캐터 카드 좌표 판정 → 해당 물건 검색으로 이동
   if (currentPage === 3) {
+    // 드래그로 펼친 직후 발생한 합성 클릭은 무시
+    if (suppressScatterClick) { suppressScatterClick = false; return; }
+    // 아직 쌓여 있으면(펼치기 전) 탭/클릭은 검색 이동이 아니라 "펼치기"
+    if (scatterP < 0.35) { scatterTarget = 1; return; }
     let hit = null, hitZ = -Infinity;
     scatterCards.forEach((card) => {
       if (rectHas(card.getBoundingClientRect(), e.clientX, e.clientY)) {
