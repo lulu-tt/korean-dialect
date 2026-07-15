@@ -301,6 +301,8 @@ document.addEventListener('click', (e) => {
 
   // 그 외 모든 페이지 이동 차단
   e.preventDefault();
+  e.stopPropagation();
   alert('시안 준비 중인 페이지입니다.');
-});
+}, true);
+
 
