@@ -278,3 +278,29 @@ document.addEventListener('click', function(event) {
     }
   }
 });
+
+// 데모 브랜치 전용: index.html, index_simple.html을 제외한 다른 페이지 링크 클릭 시 경고 메시지 표시 및 이동 제한
+document.addEventListener('click', (e) => {
+  const link = e.target.closest('a');
+  if (!link) return;
+
+  const href = link.getAttribute('href');
+  if (!href) return;
+
+  // 단순 앵커나 외부 스크립트 트리거 패스
+  if (href.startsWith('#') || href.startsWith('javascript:')) return;
+
+  // 파일명 추출
+  const urlParts = href.split('/');
+  const filename = urlParts[urlParts.length - 1];
+
+  // index.html 또는 index_simple.html만 허용
+  if (filename === 'index.html' || filename === 'index_simple.html' || filename.startsWith('./index.html') || filename.startsWith('./index_simple.html')) {
+    return;
+  }
+
+  // 그 외 모든 페이지 이동 차단
+  e.preventDefault();
+  alert('시안 준비 중인 페이지입니다.');
+});
+
