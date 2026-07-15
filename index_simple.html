@@ -1392,8 +1392,12 @@ function afterRotate() {
   stopSpeaking();
   // 다른 페이지에서 첫 페이지(통계)로 돌아오면 카운팅을 다시 재생
   if (currentPage === 0 && prevPage !== 0) animateCounts();
-  // 4페이지 진입 시 스캐터를 다시 '쌓임' 상태로 리셋해 펼침 연출을 재생
-  if (currentPage === 3 && prevPage !== 3) scatterTarget = 0;
+  // 4페이지 진입 시 스캐터를 다시 '쌓임' 상태로 즉시 리셋(겹쳐진 상태로 시작) → 펼침 연출을 재생
+  if (currentPage === 3 && prevPage !== 3) {
+    scatterTarget = 0;
+    scatterP = 0;
+    applyScatter();
+  }
 }
 
 // 방향 이동(연속 회전): dir = +1 다음(오른쪽), -1 이전(왼쪽) — 끝에서 무한 순환
@@ -1810,6 +1814,8 @@ viewport.addEventListener('click', (e) => {
   if (currentPage === 3) {
     // 드래그로 펼친 직후 발생한 합성 클릭은 무시
     if (suppressScatterClick) { suppressScatterClick = false; return; }
+    // 스캐터 영역 밖(내비 화살표·도트·여백) 클릭은 무시 → 진입용 클릭이 펼침을 유발하지 않게
+    if (!thingsScatter || !rectHas(thingsScatter.getBoundingClientRect(), e.clientX, e.clientY)) return;
     // 아직 쌓여 있으면(펼치기 전) 탭/클릭은 검색 이동이 아니라 "펼치기"
     if (scatterP < 0.35) { scatterTarget = 1; return; }
     let hit = null, hitZ = -Infinity;
